@@ -321,6 +321,11 @@ body[data-era="1930"] .np-name { font-family: "PT Serif", Georgia, serif; font-w
 .np-site .np-kicker { color: #c1272d; }
 body[data-era="2000"] .np h2, body[data-era="2000"] .np h3 { text-transform: none; letter-spacing: 0; font-weight: 700; }
 .np-site .np-ad { border-color: #9fb3c4; background: #fff8d8; }
+/* проекты советников */
+.proj-box { margin-bottom: 12px; }
+.proj-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted rgba(240, 229, 205, 0.12); }
+.proj-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.proj-main .bar { max-width: 320px; }
 /* движения */
 .fac-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 .card.fac.pillar { border-color: var(--brass); box-shadow: inset 0 0 0 1px var(--brass-dim); }

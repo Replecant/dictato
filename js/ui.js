@@ -183,6 +183,10 @@ const UI = {
       const ev = Game.drawEvent();
       if (ev) { Game.markUsed(ev); await VN.play(UI.eventScene(ev)); }
     }
+    if (Game.advisorScene && S.turn > 1 && !S.over && Math.random() < 0.4) {
+      const sc = Game.advisorScene();
+      if (sc) await VN.play(sc);
+    }
     S.phase = 'hub'; Game.save();
     UI.render();
   },
@@ -646,11 +650,11 @@ const VN = {
         choicesEl.innerHTML = scene.choices.map((c, k) => {
           const ok = !c.req || c.req(S);
           const p = Game.chanceOf(c);
-          const fxPrev = c.chance ? [] : Game.previewFx(c.fx);
+          const fxPrev = c.chance || c.hidePreview ? [] : Game.previewFx(c.fx);
           const advs = (c.adv || []).filter(r => S.adv[r]).map(r => `<span class="adv-tag" title="Советует: ${esc(S.adv[r].name)}">${Portrait.svg(S.adv[r].look)}</span>`).join('');
           return `<button class="choice" data-k="${k}" ${ok ? '' : 'disabled'}>
             <span class="choice-text">${esc(Game.fmt(c.text))}</span>
-            <span class="choice-meta">${advs}${p !== null ? `<span class="hint">🎲 шанс ≈ ${Math.round(p * 100)}%</span>` : ''}${fxPrev.slice(0, 7).map(f => `<span class="hint ${f.inv ? 'neutral' : f.d > 0 ? 'up' : f.d < 0 ? 'down' : 'neutral'}" title="${esc(f.label)}">${f.flag ? flagSvg(f.flag) : f.icon}${esc(f.text || sign(f.d))}</span>`).join('')}${!ok ? `<span class="hint down">${esc(c.reqText || 'недоступно')}</span>` : ''}</span>
+            <span class="choice-meta">${advs}${p !== null ? `<span class="hint">🎲 шанс ≈ ${Math.round(p * 100)}%</span>` : ''}${c.hidePreview ? '<span class="hint">❓ исход зависит от того, правда ли это</span>' : ''}${fxPrev.slice(0, 7).map(f => `<span class="hint ${f.inv ? 'neutral' : f.d > 0 ? 'up' : f.d < 0 ? 'down' : 'neutral'}" title="${esc(f.label)}">${f.flag ? flagSvg(f.flag) : f.icon}${esc(f.text || sign(f.d))}</span>`).join('')}${!ok ? `<span class="hint down">${esc(c.reqText || 'недоступно')}</span>` : ''}</span>
           </button>`;
         }).join('');
         for (const b of choicesEl.querySelectorAll('.choice')) b.onclick = () => pickChoice(scene.choices[+b.dataset.k]);
