@@ -12,7 +12,7 @@ const NAME_POOLS = {
   asia: { m: ['Сомпонг', 'Прича', 'Вират', 'Ананд', 'Тхонг', 'Суван', 'Чалерм', 'Бунчу', 'Прасит', 'Кхиеу'], f: ['Малай', 'Суда', 'Ратана'], last: ['Сукхом', 'Чайпорн', 'Вонгсават', 'Ракпхон', 'Сриват', 'Кхамфан', 'Пхумсак', 'Сингтхонг', 'Чантхара', 'Тхеппхитак'] },
   africa: { m: ['Жан-Пьер', 'Мамаду', 'Кофи', 'Ибрагим', 'Альфонс', 'Патрис', 'Эммануэль', 'Жозеф', 'Феликс', 'Агостинью'], f: ['Амината', 'Грас', 'Жозефина'], last: ['Мбала', 'Кабонго', 'Диалло', 'Нзузи', 'Окафор', 'Мусонда', 'Ндиайе', 'Лукенгу', 'Банда', 'Квеку'] },
   europe: { m: ['Ян', 'Станислав', 'Михал', 'Богдан', 'Вацлав', 'Ежи', 'Тадеуш', 'Милош', 'Радек', 'Казимир'], f: ['Ванда', 'Ядвига', 'Божена'], last: ['Ковальчик', 'Новак', 'Горский', 'Земан', 'Вуйцик', 'Петрович', 'Свобода', 'Дворжак', 'Яворский', 'Крал'] },
-  mideast: { m: ['Ахмед', 'Халид', 'Юсуф', 'Самир', 'Омар', 'Тарик', 'Махмуд', 'Наджиб', 'Фуад', 'Рашид'], f: ['Лейла', 'Найла', 'Рания'], last: ['аль-Масри', 'Хаддад', 'Насралла', 'аль-Хашими', 'Саллам', 'Азиз', 'Бакри', 'Каббани', 'Таха', 'Мансур'] },
+  mideast: { m: ['Ахмед', 'Халид', 'Юсуф', 'Самир', 'Омар', 'Тарик', 'Махмуд', 'Наджиб', 'Фуад', 'Рашид'], f: ['Лейла', 'Найла', 'Рания'], last: ['аль-Масри', 'Джабер', 'Насралла', 'аль-Хашими', 'Саллам', 'Азиз', 'Бакри', 'Каббани', 'Таха', 'Мансур'] },
   steppe: { m: ['Ерлан', 'Бахтияр', 'Нурлан', 'Азамат', 'Тимур', 'Рустам', 'Данияр', 'Ильхом', 'Фарход', 'Шавкат'], f: ['Гульнара', 'Динара', 'Айгерим'], last: ['Оспанов', 'Каримов', 'Юсупов', 'Абдуллаев', 'Сейткали', 'Рахимов', 'Есенов', 'Турсунов', 'Назаров', 'Мамедов'] },
 };
 const FAITH_TITLE = { catholic: 'Архиепископ', orthodox: 'Митрополит', buddhist: 'Настоятель', chief: 'Вождь', islam: 'Шейх', evangelical: 'Пастор' };
@@ -90,7 +90,8 @@ Object.assign(Game, {
     const last = female ? (/(ов|ев|ин)$/.test(base0) ? base0 + 'а' : /ский$/.test(base0) ? base0.replace(/ский$/, 'ская') : base0) : base0;
     const traits = Object.keys(LEADER_TRAITS);
     const trait = bias === 'radical' ? pick(['fanatic', 'firebrand', 'fanatic']) : bias === 'moderate' ? pick(['pragmatic', 'merchant', 'coward']) : pick(traits);
-    const title = { left: st === 'latam' ? 'Команданте' : 'Товарищ', liberals: pick(['Профессор', 'Доктор', 'Адвокат']), faith: FAITH_TITLE[R.faithStyle] || 'Отец', oligarchs: RICH_TITLE[st] || 'Господин', hawks: 'Полковник', new: S.era === '2000' ? 'Блогер' : S.era === '1930' ? 'Вождь' : 'Товарищ' }[f];
+    const LEFT00 = { africa00: 'Генерал', mideast00: 'Устаз', centralasia00: 'Экс-министр' };
+    const title = { left: S.era === '2000' ? (LEFT00[S.region] || 'Лидер оппозиции') : st === 'latam' ? 'Команданте' : 'Товарищ', liberals: S.era === '2000' ? pick(['Блогер', 'Журналист', 'Адвокат']) : pick(['Профессор', 'Доктор', 'Адвокат']), faith: FAITH_TITLE[R.faithStyle] || 'Отец', oligarchs: RICH_TITLE[st] || 'Господин', hawks: 'Полковник', new: S.era === '2000' ? 'Блогер' : S.era === '1930' ? 'Вождь' : 'Товарищ' }[f];
     const skin = f === 'oligarchs' && (st === 'africa') && Math.random() < 0.4 ? SKIN.light : SKIN[R.leaderSkin];
     const H = ['#1a1410', '#2b1b10', '#3a2a1a', '#555', '#999'];
     const base = { skin, face: pick(['oval', 'round', 'square', 'long']), hairColor: pick(H), brows: trait === 'fanatic' || trait === 'firebrand' ? 'angry' : trait === 'coward' ? 'worried' : 'normal', mouth: trait === 'vain' ? 'grin' : trait === 'merchant' ? 'smirk' : trait === 'coward' ? 'o' : 'flat', sweat: trait === 'coward' };
@@ -106,7 +107,11 @@ Object.assign(Game, {
     if (S.era === '2000' && f !== 'faith') {
       const m = { hawks: { glasses: 'sport', bluetooth: Math.random() < 0.4 }, liberals: { outfit: pick(['suit2000', 'hoodie', 'polo']), shirt: '#dfe9f3', tie: 'none', glasses: pick(['rimless', 'square']), hair: pick(['gelled', 'short', 'buzz']) },
         oligarchs: { outfit: 'suit2000', shirt: pick(['#f4f1ea', '#1d1d22']), tie: pick(['none', '#d6a63a']), hat: 'none', glasses: pick(['rimless', 'sport', 'none']), bluetooth: true, hair: pick(['slick', 'bald', 'gelled']) },
-        left: { outfit: pick(['hoodie', 'tracksuit']), outfitColor: pick(['#3a3a4a', '#556b2f', '#7a1f1f']), hat: pick(['none', 'baseball']), hatColor: '#1a1a1a', cigar: false },
+        left: ({
+          africa00: { outfit: 'military', outfitColor: '#4a5a3a', hat: 'beret', hatColor: '#2a2a2a', glasses: 'sport', beard: 'none', mustache: 'thick', cigar: false, medals: 2 },
+          mideast00: { outfit: 'suit2000', outfitColor: '#3a3a3a', shirt: '#f4f1ea', tie: 'none', hat: 'none', beard: 'full', mustache: 'thick', glasses: pick(['none', 'rimless']), cigar: false },
+          centralasia00: { outfit: 'suit2000', outfitColor: '#2a2d36', shirt: '#dfe9f3', tie: '#5a1a1a', hat: 'none', beard: 'none', mustache: 'none', glasses: 'rimless', hair: pick(['combover', 'bald', 'short']), cigar: false, bluetooth: true },
+        })[S.region] || { outfit: 'suit2000', hat: 'none', cigar: false },
         new: { outfit: 'hoodie', glasses: pick(['square', 'rimless']), hair: pick(['gelled', 'long', 'buzz']), bluetooth: Math.random() < 0.5 } }[f] || {};
       look = { ...look, ...m };
     }
@@ -358,6 +363,7 @@ Game.load = () => {
   Game.attachNewFaction();
   if (!S.pillars) S.pillars = [...(DEFAULT_PILLARS[S.regime] || ['hawks', 'oligarchs'])];
   for (const f of Object.keys(S.fac)) Game.leader(f);
+  if (S.era === '2000') for (const f of ['left', 'liberals']) { const L = Game.facState(f).leader; if (L && /^(Товарищ|Команданте|Профессор) /.test(L.name)) Game.facState(f).leader = Game.makeLeader(f); }
   return s;
 };
 
