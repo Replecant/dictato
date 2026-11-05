@@ -30,16 +30,24 @@ const NEW_FACTIONS = {
 // Требования движений. kind: budget (ползунок), act (указ или действие), flag (состояние), pay (выполнить сразу, 1 приказ)
 const FAC_DEMANDS = {
   left: [
-    { id: 'l_sub', kind: 'budget', k: 'subsidy', op: '>=', v: 65, text: 'Поднять субсидии на хлеб до 65% и выше' },
-    { id: 'l_tax', kind: 'budget', k: 'popTax', op: '<=', v: 40, text: 'Снизить налоги с населения до 40% и ниже' },
-    { id: 'l_land', kind: 'flag', test: S => S.flags.landReform, text: 'Провести земельную реформу (указ «Земельная реформа»)' },
-    { id: 'l_nat', kind: 'flag', test: S => S.flags.nationalized, text: 'Национализировать иностранную компанию', cond: S => !S.flags.nationalized },
-    { id: 'l_house', kind: 'act', acts: ['dec:housing'], text: 'Издать указ «Квартира каждой семье»' },
+    { id: 'l_sub', kind: 'budget', k: 'subsidy', op: '>=', v: 65, text: 'Поднять субсидии на хлеб до 65% и выше', except: ['centralasia00'] },
+    { id: 'l_land', kind: 'flag', test: S => S.flags.landReform, text: 'Провести земельную реформу (указ «Земельная реформа»)', except: ['centralasia00', 'mideast00'] },
+    { id: 'l_nat', kind: 'flag', test: S => S.flags.nationalized, text: 'Национализировать иностранную компанию', cond: S => !S.flags.nationalized, except: ['centralasia00'] },
+    { id: 'l_house', kind: 'act', acts: ['dec:housing'], text: 'Издать указ «Квартира каждой семье»', except: ['centralasia00'] },
+    { id: 'l_tax', kind: 'budget', k: 'popTax', op: '<=', v: 40, text: 'Снизить налоги с населения до 40% и ниже', except: ['centralasia00'] },
+    { id: 'e_pol', kind: 'budget', k: 'police', op: '<=', v: 40, text: 'Урезать спецслужбы до 40% и ниже', only: ['centralasia00'] },
+    { id: 'e_media', kind: 'budget', k: 'media', op: '<=', v: 35, text: 'Прекратить травлю в госСМИ (пропаганда до 35% и ниже)', only: ['centralasia00'] },
+    { id: 'e_ret', kind: 'pay', text: 'Гарантировать эмигрантам безопасное возвращение', fx: { fear: -4, fac: { hawks: { a: -5 } } }, only: ['centralasia00'] },
+    { id: 'm_corr', kind: 'act', acts: ['dec:anticorr'], text: 'Начать кампанию против коррупции', only: ['mideast00', 'africa00'] },
+    { id: 'r_vet', kind: 'pay', text: 'Выплатить пенсии ветеранам гражданской войны', fx: { treasury: -12 }, only: ['africa00'] },
     { id: 'l_amn', kind: 'act', acts: ['dec:amnesty'], text: 'Объявить амнистию политзаключённых' },
   ],
   liberals: [
-    { id: 'b_pol', kind: 'budget', k: 'police', op: '<=', v: 40, text: 'Урезать тайную полицию до 40% и ниже' },
-    { id: 'b_media', kind: 'budget', k: 'media', op: '<=', v: 35, text: 'Урезать пропаганду до 35% и ниже' },
+    { id: 'b_pol', kind: 'budget', k: 'police', op: '<=', v: 40, text: 'Урезать тайную полицию до 40% и ниже', except: ['europe30'] },
+    { id: 'b_media', kind: 'budget', k: 'media', op: '<=', v: 35, text: 'Урезать пропаганду до 35% и ниже', except: ['europe30'] },
+    { id: 'p_tax', kind: 'budget', k: 'popTax', op: '<=', v: 40, text: 'Снизить налоги с крестьян (налоги с населения до 40% и ниже)', only: ['europe30'] },
+    { id: 'p_roads', kind: 'budget', k: 'infra', op: '>=', v: 60, text: 'Провести дороги к деревням (дороги и порты от 60%)', only: ['europe30'] },
+    { id: 'p_land', kind: 'flag', test: S => S.flags.landReform, text: 'Раздать крестьянам помещичью землю (указ «Земельная реформа»)', only: ['europe30'] },
     { id: 'b_edu', kind: 'budget', k: 'edu', op: '>=', v: 65, text: 'Поднять образование до 65% и выше' },
     { id: 'b_amn', kind: 'act', acts: ['dec:amnesty'], text: 'Объявить амнистию политзаключённых' },
     { id: 'b_lit', kind: 'act', acts: ['dec:literacy'], text: 'Начать кампанию всеобщей грамотности', cond: S => !S.used.includes('dec:literacy') },
@@ -49,7 +57,7 @@ const FAC_DEMANDS = {
     { id: 'f_health', kind: 'budget', k: 'health', op: '>=', v: 60, text: 'Поднять здравоохранение до 60% и выше' },
     { id: 'f_pens', kind: 'act', acts: ['dec:pensions'], text: 'Повысить пенсии' },
     { id: 'f_hosp', kind: 'act', acts: ['dec:hospital'], text: 'Построить больницу' },
-    { id: 'f_gift', kind: 'pay', text: 'Пожертвовать на ремонт храмов', fx: { treasury: -12 } },
+    { id: 'f_gift', kind: 'pay', text: () => ({ buddhist: 'Пожертвовать на ремонт монастырей', chief: 'Выделить деньги на подарки старейшинам', islam: 'Пожертвовать на ремонт мечетей', evangelical: 'Построить стадион для воскресных проповедей' })[REGIONS[S.region].faithStyle] || 'Пожертвовать на ремонт храмов', fx: { treasury: -12 } },
     { id: 'f_absurd', kind: 'pay', text: 'Публично покаяться за абсурдные указы', fx: { support: -2, loy: { propaganda: -4 } }, cond: S => S.used.some(u => u.startsWith('dec:') && DECREES.absurd.some(d => 'dec:' + d.id === u)) },
   ],
   oligarchs: [
@@ -120,7 +128,7 @@ Object.assign(Game, {
   leader(f) { const st = Game.facState(f); if (!st.leader) st.leader = Game.makeLeader(f); return st.leader; },
   trait(f) { return LEADER_TRAITS[Game.leader(f).trait]; },
   pickFacDemand(f) {
-    const list = (FAC_DEMANDS[f] || []).filter(d => (!d.eras || d.eras.includes(S.era)) && (!d.cond || d.cond(S)) && !Game.demandMet(d, 0));
+    const list = (FAC_DEMANDS[f] || []).filter(d => (!d.eras || d.eras.includes(S.era)) && (!d.only || d.only.includes(S.region)) && (!d.except || !d.except.includes(S.region)) && (!d.cond || d.cond(S)) && !Game.demandMet(d, 0));
     const d = list.length ? pick(list) : null;
     return d ? { id: d.id, since: S.turn, until: S.turn + 5 + Math.floor(Math.random() * 4) } : null;
   },
@@ -128,7 +136,7 @@ Object.assign(Game, {
     const st = Game.facState(f);
     if (!st.demand || st.demand.wait !== undefined) return null;
     const d = (FAC_DEMANDS[f] || []).find(x => x.id === st.demand.id);
-    return d ? { ...d, ...st.demand } : null;
+    return d ? { ...d, ...st.demand, text: typeof d.text === 'function' ? d.text() : d.text } : null;
   },
   demandMet(d, since) {
     if (d.kind === 'budget') return d.op === '>=' ? (S.budget[d.k] || 0) >= d.v : (S.budget[d.k] || 0) <= d.v;
@@ -304,11 +312,12 @@ Game.newGameHooks.push(() => {
   S.fl = {}; S.facActs = {};
   S.pillars = [...(DEFAULT_PILLARS[S.regime] || ['hawks', 'oligarchs'])];
   Game.attachNewFaction();
-  for (const f of Object.keys(S.fac)) { Game.leader(f); Game.facState(f).demand = { wait: 1 + Math.floor(Math.random() * 3) }; }
+  Object.keys(S.fac).sort(() => Math.random() - 0.5).forEach((f, i) => { Game.leader(f); Game.facState(f).demand = { wait: 1 + i * 2 }; });
 });
 Game.quarterHooks.push(rep => {
   Game.attachNewFaction();
-  for (const f of Object.keys(S.fac)) {
+  let newThisQ = 0;
+  for (const f of Object.keys(S.fac).sort(() => Math.random() - 0.5)) {
     const F = S.fac[f], st = Game.facState(f), T = Game.trait(f);
     // опора режима
     if (Game.isPillar(f)) F.a = clamp(F.a + 0.6); else F.a = clamp(F.a - 0.2, 0, F.st === 'banned' ? 35 : 100);
@@ -319,7 +328,10 @@ Game.quarterHooks.push(rep => {
       if (d.kind !== 'pay' && Game.demandMet(d, d.since)) Game.resolveDemand(f, true, rep);
       else if (S.turn + 1 > d.until) Game.resolveDemand(f, false, rep);
     } else if (!st.demand || (st.demand.wait !== undefined && S.turn + 1 >= st.demand.wait)) {
-      const nd = Game.pickFacDemand(f); if (nd) { st.demand = nd; rep.lines.push(`Новое требование движения «${Game.facDef(f).name}»: «${(FAC_DEMANDS[f].find(x => x.id === nd.id) || {}).text}».`); }
+      // не больше двух требований одновременно и не больше одного нового за квартал
+      const active = Object.keys(S.fac).filter(x => Game.facDemand(x)).length;
+      if (active >= 2 || newThisQ >= 1) { st.demand = { wait: S.turn + 2 + Math.floor(Math.random() * 2) }; continue; }
+      const nd = Game.pickFacDemand(f); if (nd) { st.demand = nd; newThisQ++; rep.lines.push(`Новое требование движения «${Game.facDef(f).name}»: «${Game.facDemand(f).text}».`); }
     }
   }
   // новое движение
@@ -374,6 +386,10 @@ Object.assign(UI, {
     const pil = S.pillars || [];
     return `<p class="lede">Сила — сколько у движения людей и влияния, одобрение — что они думают о вас. У каждого движения есть лидер со своим характером и текущее требование. <b>Опора режима</b> (не больше двух движений): к ним вы прислушиваетесь, их одобрение растёт само, переговоры работают сильнее, а остальные ревнуют. Если опора от вас отвернётся, риск переворота или революции резко вырастет.</p>
       <p class="lede">Сейчас опора: <b>${pil.length ? pil.map(f => Game.facDef(f).name).join(' и ') : 'никто'}</b>.</p>
+      <section class="card dem-summary"><div class="eyebrow">Требования движений</div>
+        <p class="muted small">Одновременно действует не больше двух требований, новое появляется не чаще раза в квартал. На выполнение даётся 5–8 кварталов. Требования по бюджету засчитываются в конце квартала, если ползунок стоит где нужно, требования по указам — после подписания указа, остальные выполняются кнопкой за один приказ. Выполнили — одобрение +18. Сорвали — одобрение падает на 12 (у фанатиков и горлопанов сильнее), а движение крепнет. После этого движение пару кварталов ничего не просит.</p>
+        ${(() => { const list = Object.keys(S.fac).map(f => [f, Game.facDemand(f)]).filter(([, d]) => d); return list.length ? `<ul class="dem-list">${list.map(([f, d]) => `<li><span class="fac-ic small-ic">${Game.facDef(f).icon}</span><b>${esc(Game.facDef(f).name)}:</b> ${esc(d.text)} <span class="chip ${d.until - S.turn <= 1 ? 'danger' : 'neutral'}">ещё ${Math.max(0, d.until - S.turn)} кв.</span>${d.kind !== 'pay' && Game.demandMet(d, d.since) ? ' <span class="chip coopted">выполнено</span>' : ''}</li>`).join('')}</ul>` : '<p class="small">Сейчас никто ничего не требует. Наслаждайтесь тишиной.</p>'; })()}
+      </section>
       <div class="grid fac-grid">${Object.keys(S.fac).map(f => {
         const F = S.fac[f], D = Game.facDef(f), L = Game.leader(f), T = LEADER_TRAITS[L.trait];
         const threat = F.s * (100 - F.a) / 100;

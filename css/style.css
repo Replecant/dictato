@@ -328,6 +328,11 @@ body[data-era="2000"] .np h2, body[data-era="2000"] .np h3 { text-transform: non
 .fac-leader .mini-portrait { background: var(--paper-2); }
 .fac-leader b { display: block; font-size: 14.5px; }
 .fac-leader p { margin: 2px 0 0; }
+.dem-summary { margin-bottom: 12px; }
+.dem-summary p { margin: 6px 0 8px; max-width: 90ch; }
+.dem-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.dem-list li { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.small-ic { width: 26px; height: 26px; font-size: 15px; }
 .chip.trait { background: rgba(180, 138, 224, 0.2); color: #d2b8f2; margin-top: 3px; }
 /* дипломатия */
 .rel-line { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 4px 0 6px; }
