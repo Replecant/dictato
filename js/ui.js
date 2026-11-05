@@ -381,7 +381,7 @@ const UI = {
             ${UI.meter('Лояльность', A.loy, A.loy < 25 ? 'bad' : A.loy < 45 ? 'warn' : 'good')}
             <p class="small muted">Компетентность: ${'★'.repeat(Math.round(A.comp * 3))}${'☆'.repeat(3 - Math.round(A.comp * 3))}${A.relative ? ' · родственник' : ''}</p>
             <div class="acts">
-              ${UI.actBtn(`adv:${r}:act`, { name: Ro.action, cost: Ro.actionDesc, ok: true })}
+              ${UI.actBtn(`adv:${r}:act`, { name: Ro.action, cost: Ro.actionDesc + (Game.dealInfo('adv:' + r).n ? ` Эффект сейчас ${Math.round([1, 1, 0.6, 0.35, 0.2][Math.min(Game.dealInfo('adv:' + r).n + 1, 4)] * 100)}%.` : ''), ok: true })}
               ${UI.actBtn(`adv:${r}:gift`, { name: 'Подарить виллу', cost: '−10 млн', ok: S.treasury >= 10 })}
               <button class="btn ghost small" data-fire="${r}" ${S.phase !== 'hub' ? 'disabled' : ''}>Уволить</button>
             </div>

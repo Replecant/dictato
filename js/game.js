@@ -283,14 +283,19 @@ const Game = {
       (!e.cond || e.cond(S)) &&
       !(S.lastEvents || []).includes(e.id));
     if (!pool.length) return null;
-    const total = pool.reduce((a, e) => a + (e.weight || 1), 0);
+    // уже виденные события выпадают реже, свои для эпохи — чаще
+    const seen = S.seen || {};
+    const w = e => (e.weight || 1) * (e.eras ? 1.4 : 1) / (1 + 1.5 * (seen[e.id] || 0));
+    const total = pool.reduce((a, e) => a + w(e), 0);
     let x = Math.random() * total;
-    for (const e of pool) { x -= (e.weight || 1); if (x <= 0) return e; }
+    for (const e of pool) { x -= w(e); if (x <= 0) return e; }
     return pool[pool.length - 1];
   },
   markUsed(e) {
     S.used.push(e.id);
-    S.lastEvents = [e.id, ...(S.lastEvents || [])].slice(0, 4);
+    S.lastEvents = [e.id, ...(S.lastEvents || [])].slice(0, 6);
+    S.seen = S.seen || {};
+    S.seen[e.id] = (S.seen[e.id] || 0) + 1;
   },
   // Применяет выбор: возвращает { res, changes, won }
   choose(choice) {
@@ -322,13 +327,23 @@ const Game = {
     let fx = {}, text = '';
     const rivals = {};
     switch (act) {
-      case 'talk':
-        fx = { treasury: -8, fac: { [f]: { a: 12 } } };
+      case 'talk': {
+        const d = Game.dealInfo(f);
+        fx = { treasury: -d.talkCost, fac: { [f]: { a: Math.round(12 * d.mult) } } };
         for (const r of RIVALS[f]) rivals[r] = { a: -4 };
-        text = `Переговоры с движением «${nm}» прошли в тёплой обстановке. С коньяком.`; break;
-      case 'bribe':
-        fx = { treasury: -20, fac: { [f]: { a: 18 } } };
-        text = `Лидеры движения «${nm}» получили конверты. Толстые. Их речи заметно смягчились.`; break;
+        text = d.n === 0 ? `Переговоры с движением «${nm}» прошли в тёплой обстановке. С коньяком.`
+          : d.n === 1 ? `Снова переговоры с движением «${nm}». Лидеры вежливо кивают, но уже без прежнего восторга.`
+            : `Опять переговоры? Лидеры движения «${nm}» пьют ваш коньяк и смотрят на часы. Обещаниям они больше не верят.`;
+        Game.noteDeal(f); break;
+      }
+      case 'bribe': {
+        const d = Game.dealInfo(f);
+        fx = { treasury: -d.bribeCost, fac: { [f]: { a: Math.round(18 * d.mult) } } };
+        if (d.n >= 2) fx.fac[f].s = 2;
+        text = d.n === 0 ? `Лидеры движения «${nm}» получили конверты. Толстые. Их речи заметно смягчились.`
+          : `Лидеры движения «${nm}» снова получили конверты и попросили потолще. Аппетит растёт, благодарность — нет.`;
+        Game.noteDeal(f); break;
+      }
       case 'coopt':
         fx = { fac: { [f]: { a: 20, s: 5 } } };
         for (const r of RIVALS[f]) rivals[r] = { a: -10 };
@@ -366,11 +381,23 @@ const Game = {
     Game.log(text);
     return { text, changes };
   },
+  // Повторные сделки с одним движением за последние 8 кварталов слабеют и дорожают
+  dealInfo(f) {
+    const list = ((S.deals || {})[f] || []).filter(t => S.turn - t < 8);
+    const n = list.length;
+    return { n, mult: [1, 0.55, 0.3, 0.15, 0.05][Math.min(n, 4)], talkCost: 8 + 5 * n, bribeCost: 20 + 8 * n };
+  },
+  noteDeal(f) {
+    S.deals = S.deals || {};
+    S.deals[f] = [...(S.deals[f] || []).filter(t => S.turn - t < 8), S.turn];
+  },
   factionActions(f) {
     const F = S.fac[f];
     const acts = [];
-    acts.push({ id: 'talk', name: 'Переговоры', cost: '−8 млн', ok: S.treasury >= 8 });
-    acts.push({ id: 'bribe', name: 'Подкупить лидеров', cost: '−20 млн', ok: S.treasury >= 20 });
+    const d = Game.dealInfo(f);
+    const eff = d.n ? ` · эффект ${Math.round(d.mult * 100)}%` : '';
+    acts.push({ id: 'talk', name: 'Переговоры', cost: `−${d.talkCost} млн${eff}`, ok: S.treasury >= d.talkCost });
+    acts.push({ id: 'bribe', name: 'Подкупить лидеров', cost: `−${d.bribeCost} млн${eff}`, ok: S.treasury >= d.bribeCost });
     if (F.st === 'legal') acts.push({ id: 'coopt', name: 'Дать места в правительстве', cost: 'одобрение ≥ 40', ok: F.a >= 40 });
     if (F.st !== 'banned') acts.push({ id: 'ban', name: 'Запретить', cost: 'страх ↑', ok: true, danger: true });
     else acts.push({ id: 'legalize', name: 'Легализовать', cost: '', ok: true });
@@ -380,17 +407,21 @@ const Game = {
 
   countryActions(c) {
     const isBig = ['usa', 'ussr', 'uk', 'france', 'china', 'germany', 'italy', 'japan'].includes(c);
+    const dc = Game.dealInfo('c:' + c), dt = Game.dealInfo('trade');
+    const pct = d => (d.n ? ` · эффект ${Math.round(d.mult * 100)}%` : '');
     const acts = [
-      { id: 'visit', name: 'Государственный визит', cost: '−5 млн', ok: S.treasury >= 5 },
-      { id: 'trade', name: 'Торговое соглашение', cost: '', ok: S.rel[c] >= 30 },
-      { id: 'aid', name: 'Просить помощи', cost: `шанс ${Math.round(clamp(S.rel[c] / 100, 0.05, 0.9) * 100)}%`, ok: true },
+      { id: 'visit', name: 'Государственный визит', cost: `−5 млн${pct(dc)}`, ok: S.treasury >= 5 },
+      { id: 'trade', name: 'Торговое соглашение', cost: dt.n ? `рынок насыщен${pct(dt)}` : '', ok: S.rel[c] >= 30 },
+      { id: 'aid', name: 'Просить помощи', cost: `шанс ${Math.round(Game.aidChance(c) * 100)}%`, ok: true },
     ];
     if (isBig) acts.push({ id: 'arms', name: 'Купить оружие', cost: '−20 млн', ok: S.treasury >= 20 && S.rel[c] >= 35 });
     acts.push({ id: 'denounce', name: 'Осудить и выслать посла', cost: '', ok: true, danger: true });
     return acts;
   },
+  aidChance(c) { return clamp(S.rel[c] / 100 * Game.dealInfo('aid:' + c).mult, 0.05, 0.9); },
   countryAction(c, act) {
     if (!Game.spend()) return null;
+    const dc = Game.dealInfo('c:' + c);
     const C = COUNTRIES[c], R = REGIONS[S.region];
     const bl = Game.blocOf(c);
     const opp = S.era === '1930'
@@ -400,15 +431,20 @@ const Game = {
     const isSuper = ['usa', 'ussr'].includes(c);
     switch (act) {
       case 'visit':
-        fx = { treasury: -5, support: 1, rel: { [c]: 8 } };
+        fx = { treasury: -5, support: dc.n ? 0 : 1, rel: { [c]: Math.round(8 * dc.mult) } };
+        Game.noteDeal('c:' + c);
         text = `Государственный визит: ${C.name}. ${Game.leaderAt(c)[0].toUpperCase() + Game.leaderAt(c).slice(1)} принял вас тепло. Обменялись подарками: вы подарили чучело крокодила.`; break;
       case 'trade':
-        fx = { economy: 2, rel: { [c]: 6 } }; if (opp) fx.rel[opp] = -3;
+        { const dt = Game.dealInfo('trade');
+          fx = { economy: Math.round(2 * dt.mult * 10) / 10, rel: { [c]: Math.round(6 * dc.mult) } }; if (opp) fx.rel[opp] = -3;
+          Game.noteDeal('trade'); Game.noteDeal('c:' + c); }
         text = `Подписано торговое соглашение с ${C.name === 'США' ? 'США' : 'страной ' + C.name}: ${R.exports} в обмен на тракторы и обещания.`; break;
       case 'aid': {
-        const p = clamp(S.rel[c] / 100, 0.05, 0.9);
+        const p = Game.aidChance(c);
+        const da = Game.dealInfo('aid:' + c);
+        Game.noteDeal('aid:' + c);
         if (Math.random() < p) {
-          const amt = isSuper ? 30 : c === 'china' || c === 'uk' || c === 'france' ? 20 : 12;
+          const amt = Math.round((isSuper || c === 'russia' ? 30 : ['china', 'uk', 'france', 'germany', 'eu'].includes(c) ? 20 : 12) * (da.n ? 0.6 : 1));
           fx = { treasury: amt, rel: { [c]: -4 } };
           text = `${C.name} выделили помощь: ${amt} млн. С намёком, что это не в последний раз. И не бесплатно.`;
         } else { fx = { rel: { [c]: -6 } }; text = `${C.name} вежливо отказали. Министр иностранных дел написал об этом печальный сонет.`; }
@@ -492,13 +528,17 @@ const Game = {
     if (act === 'gift') {
       fx = { treasury: -10, loy: { [role]: 15 } };
       text = `${A.name} получил в подарок виллу у моря. Его преданность заметно окрепла.`;
-    } else switch (role) {
-      case 'defense': fx = { treasury: -12, army: Math.round(8 * k), support: 2, fac: { hawks: { a: 6 } } }; text = 'Военный парад! Танки, оркестр, вы на трибуне. Один танк заехал в фонтан, но это даже понравилось публике.'; break;
-      case 'economy': fx = { treasury: -15, economy: Math.round(4 * k) }; text = `${A.name} представил экономическую программу из 412 пунктов. Пункт 1: «Рынок».`; break;
-      case 'police': fx = { fear: 8, support: -4, fac: { left: { s: -5 * k }, liberals: { s: -5 * k } }, flag: { purged: S.turn } }; text = 'Ночная чистка. Утром в столице стало подозрительно тихо и вежливо.'; break;
-      case 'propaganda': fx = { treasury: -8, support: Math.round((5 + S.fear / 20) * k * (S.era === '2000' && !S.flags.trolls ? 1 - (S.net || 0) / 150 : 1)) }; text = 'Кампания «Отец Нации» запущена. Ваш портрет теперь есть даже на спичечных коробках.'; break;
+    } else {
+      Game.noteDeal('adv:' + role);
+    }
+    const kk = act === 'gift' ? k : k * [1, 1, 0.6, 0.35, 0.2][Math.min(Game.dealInfo('adv:' + role).n, 4)];
+    if (act !== 'gift') switch (role) {
+      case 'defense': fx = { treasury: -12, army: Math.round(8 * kk), support: 2, fac: { hawks: { a: 6 } } }; text = 'Военный парад! Танки, оркестр, вы на трибуне. Один танк заехал в фонтан, но это даже понравилось публике.'; break;
+      case 'economy': fx = { treasury: -15, economy: Math.round(4 * kk) }; text = `${A.name} представил экономическую программу из 412 пунктов. Пункт 1: «Рынок».`; break;
+      case 'police': fx = { fear: 8, support: -4, fac: { left: { s: -5 * kk }, liberals: { s: -5 * kk } }, flag: { purged: S.turn } }; text = 'Ночная чистка. Утром в столице стало подозрительно тихо и вежливо.'; break;
+      case 'propaganda': fx = { treasury: -8, support: Math.round((5 + S.fear / 20) * kk * (S.era === '2000' && !S.flags.trolls ? 1 - (S.net || 0) / 150 : 1)) }; text = 'Кампания «Отец Нации» запущена. Ваш портрет теперь есть даже на спичечных коробках.'; break;
       case 'foreign': {
-        const rel = {}; for (const c of REGIONS[S.region].countries) rel[c] = Math.round(3 * k);
+        const rel = {}; for (const c of REGIONS[S.region].countries) rel[c] = Math.round(3 * kk);
         fx = { treasury: -10, rel }; text = `${A.name} объехал полмира. Его фотография с каждым мировым лидером висит в вашем кабинете.`; break;
       }
     }
@@ -585,6 +625,13 @@ const Game = {
     for (const r of Object.keys(S.adv)) {
       const A = S.adv[r];
       A.loy = clamp(A.loy - 0.6 + [-1, 0, 1][b.palace] + (r === 'defense' ? lvl(b.army) * 2 : 0) + (r === 'police' ? lvl(b.police) : 0));
+    }
+    // большая казна притягивает чиновников
+    if (S.treasury > 120) {
+      const leak = (S.treasury - 120) * 0.12;
+      S.treasury -= leak;
+      for (const r of Object.keys(S.adv)) S.adv[r].loy = clamp(S.adv[r].loy + 0.5);
+      rep.warn.push(`Министры «оптимизировали» излишки казны: пропало ${Math.round(leak)} млн. Зато они стали чуть преданнее.`);
     }
     // кредиты
     S.loans.forEach(l => l.left--);
