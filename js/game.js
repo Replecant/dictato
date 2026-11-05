@@ -372,19 +372,30 @@ const Game = {
       (e.minTurn === undefined || S.turn >= e.minTurn) &&
       (e.maxTurn === undefined || S.turn <= e.maxTurn) &&
       (!e.cond || e.cond(S)) &&
-      !(S.lastEvents || []).includes(e.id));
+      !(S.lastEvents || []).includes(e.id) &&
+      ((S.seen || {})[e.id] || 0) < 2 &&
+      (e.eras || e.regions || Game.genDeck().includes(e.id)));
     if (!pool.length) return null;
-    // уже виденные события выпадают реже, свои для эпохи — чаще
+    // уже виденные события выпадают гораздо реже, свои для эпохи и региона — чаще общих
     const seen = S.seen || {};
-    const w = e => (e.weight || 1) * (e.eras ? 1.4 : 1) / (1 + 1.5 * (seen[e.id] || 0));
+    const w = e => (e.eras || e.regions ? (e.weight || 1) * 1.6 : Math.min(e.weight || 1, 1.5)) / (1 + 5 * (seen[e.id] || 0));
     const total = pool.reduce((a, e) => a + w(e), 0);
     let x = Math.random() * total;
     for (const e of pool) { x -= w(e); if (x <= 0) return e; }
     return pool[pool.length - 1];
   },
+  // В каждой партии участвует только часть общих событий: так партии не похожи друг на друга
+  genDeck() {
+    if (!S.genDeck) {
+      const gen = EVENTS.filter(e => !e.eras && !e.regions).map(e => e.id);
+      for (let i = gen.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [gen[i], gen[j]] = [gen[j], gen[i]]; }
+      S.genDeck = gen.slice(0, Math.ceil(gen.length * 0.55));
+    }
+    return S.genDeck;
+  },
   markUsed(e) {
     S.used.push(e.id);
-    S.lastEvents = [e.id, ...(S.lastEvents || [])].slice(0, 6);
+    S.lastEvents = [e.id, ...(S.lastEvents || [])].slice(0, 12);
     S.seen = S.seen || {};
     S.seen[e.id] = (S.seen[e.id] || 0) + 1;
   },
