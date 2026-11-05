@@ -41,8 +41,16 @@ const RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: ['lef
 
 let S = null;
 
+const DIFFICULTY = {
+  easy: { name: 'Курорт', icon: '🏖️', desc: 'Три приказа в квартал, больше денег, генералы сонные. Для тех, кто хочет посмеяться.', ap: 3, treasury: 40, risk: 0.6, income: 1.1, loy: -0.3, score: 0.7 },
+  normal: { name: 'Норма', icon: '⚖️', desc: 'Классическая диктатура: два приказа, обычные заговоры.', ap: 2, treasury: 0, risk: 1, income: 1, loy: -0.6, score: 1 },
+  hard: { name: 'Железный трон', icon: '🗡️', desc: 'Пустая казна, нервные полковники, ненадёжные министры. Очки ×1.4.', ap: 2, treasury: -25, risk: 1.35, income: 0.92, loy: -0.9, score: 1.4 },
+};
 const Game = {
   get S() { return S; },
+  applyHooks: [], previewHooks: [], incomeHooks: [], coupHooks: [], revHooks: [], quarterHooks: [], endingHooks: [], newGameHooks: [],
+  diff() { return DIFFICULTY[(S && S.diff) || 'normal']; },
+  apTurn() { return Game.diff().ap; },
 
   newGame(cfg) {
     const R = REGIONS[cfg.region];
@@ -52,7 +60,7 @@ const Game = {
       v: 1, era, region: cfg.region, regime: cfg.regime,
       leader: { name: cfg.name, title: cfg.title, look: cfg.look },
       country: cfg.country || R.country,
-      turn: 0, year: ERAS[era].start, q: 1, ap: AP_PER_TURN,
+      turn: 0, year: ERAS[era].start, q: 1, ap: DIFFICULTY[cfg.diff || 'normal'].ap, diff: cfg.diff || 'normal',
       treasury: era === '1930' ? 110 : era === '2000' ? 90 : 80, swiss: 0, economy: 45, net: R.netStart || 0, support: 50, army: 60, fear: 25,
       price: 1, priceHist: [1],
       budget: { ...BUDGET_DEFAULT },
@@ -75,6 +83,8 @@ const Game = {
       S.adv[role] = { name: a.name, bio: a.bio, look: a.look, loy: Math.round(rnd(52, 72)), comp: 1, relative: false };
     }
     Game.apply(T.fx); Game.apply({ fac: T.fac, rel: T.rel });
+    S.treasury += DIFFICULTY[S.diff].treasury;
+    for (const h of Game.newGameHooks) h();
     S.statHist.push(Game.snapshotStats());
     Game.log(`${S.leader.title} ${S.leader.name} пришёл к власти. Режим: ${T.name}.`);
     Game.save();
@@ -185,6 +195,7 @@ const Game = {
       if (Math.round(A.loy - b)) ch.push({ k: 'loy', d: Math.round(A.loy - b), label: `${A.name.split(' ').slice(0, 2).join(' ')}: лояльность` });
     }
     if (fx.flag) for (const [k, v] of Object.entries(fx.flag)) S.flags[k] = v === '$turn' ? S.turn : v;
+    for (const h of Game.applyHooks) h(fx, ch);
     if (fx.schedule) for (const sc of fx.schedule) S.schedule.push({ at: S.turn + sc.in, fx: sc.fx, text: sc.text });
     if (fx.loan) { S.loans.push({ per: fx.loan.per, left: fx.loan.turns }); ch.push({ k: 'loan', d: -fx.loan.per, label: `Выплаты по кредиту ×${fx.loan.turns} кв.`, money: true }); }
     if (!opts.silent) Game.save();
@@ -206,6 +217,7 @@ const Game = {
     if (fx.price) out.push({ icon: '📦', d: fx.price * 100, label: 'Мировая цена на экспорт', text: `цена ${sign(fx.price * 100)}%` });
     if (fx.schedule) for (const sc of fx.schedule) for (const it of Game.previewFx(sc.fx)) out.push({ ...it, later: sc.in });
     if (fx.loan) out.push({ icon: '🧾', d: -fx.loan.per, label: `Кредит: ${fx.loan.turns} выплат`, text: `потом ${fx.loan.turns} выплат по ${fx.loan.per} млн` });
+    for (const h of Game.previewHooks) h(fx, out);
     return out;
   },
 
@@ -255,15 +267,17 @@ const Game = {
     const aid = Game.aidList();
     const aidSum = aid.reduce((a, x) => a + x.v, 0);
     const extra = (S.flags.baseIncome || 0) + (S.flags.oilIncome || 0) + (S.flags.casinoIncome || 0);
+    const hookInc = Game.incomeHooks.map(h => h()).filter(Boolean);
     const costs = {};
     for (const d of SLIDERS.spend) if (d.k !== 'palace') costs[d.k] = d.base * b[d.k] / 50;
     const palace = 5 * b.palace / 50;
     if (S.era === '2000') costs.netctl = NETCTL.costs[b.netctl || 0];
     const loans = S.loans.reduce((a, l) => a + l.per, 0);
-    const income = taxes + exports + aidSum + extra;
+    const dk = Game.diff().income;
+    const income = (taxes + exports) * dk + aidSum + extra + hookInc.reduce((a, x) => a + x.v, 0);
     const spend = Object.values(costs).reduce((a, v) => a + v, 0);
     const expense = spend + palace + loans;
-    return { taxes, taxPop, taxCorp, exports, aid, aidSum, extra, costs, spend, palace, loans, income, expense, net: income - expense };
+    return { taxes: taxes * dk, taxPop: taxPop * dk, taxCorp: taxCorp * dk, exports: exports * dk, aid, aidSum, extra, hookInc, costs, spend, palace, loans, income, expense, net: income - expense };
   },
   aidList() {
     const R = REGIONS[S.region];
@@ -287,8 +301,9 @@ const Game = {
       - (S.flags.frenchGuard ? 0.1 : 0)
       - (S.flags.spySchool ? 0.04 : 0)
       - (S.flags.purged !== undefined && S.turn - S.flags.purged <= 1 ? 0.1 : 0);
+    for (const h of Game.coupHooks) r += h();
     if (S.army >= 75 && H.a >= 50) r = Math.min(r, 0.01);
-    return clamp(r, 0, 0.5);
+    return clamp(r * Game.diff().risk, 0, 0.5);
   },
   revRisk() {
     if (S.turn < 3) return 0;
@@ -299,7 +314,8 @@ const Game = {
       - S.fear / 600;
     if (S.support < 20 && S.fear > 70) r += 0.05;
     if (S.era === '2000') r += Li.s / 100 * (S.net || 0) / 100 * [0.3, 0.18, 0.06][S.budget.netctl || 0] * Math.max(0, 55 - Li.a) / 55;
-    return clamp(r, 0, 0.5);
+    for (const h of Game.revHooks) r += h();
+    return clamp(r * Game.diff().risk, 0, 0.5);
   },
   riskWord(r) {
     if (r < 0.03) return { w: 'спокойно', c: 'ok' };
@@ -718,7 +734,7 @@ const Game = {
     // советники
     for (const r of Object.keys(S.adv)) {
       const A = S.adv[r];
-      A.loy = clamp(A.loy - 0.6 + bx('palace') + (r === 'defense' ? bx('army') * 2 : 0) + (r === 'police' ? bx('police') : 0));
+      A.loy = clamp(A.loy + Game.diff().loy + bx('palace') + (r === 'defense' ? bx('army') * 2 : 0) + (r === 'police' ? bx('police') : 0));
     }
     // большая казна притягивает чиновников
     if (S.treasury > 120) {
@@ -744,6 +760,7 @@ const Game = {
     S.schedule = S.schedule.filter(x => x.at > S.turn + 1);
     for (const d of due) { Game.apply(d.fx, { silent: true }); const t = Game.fmt(d.text); rep.lines.push(t); Game.log(t); }
     S.flags.coupBonus = Math.max(0, (S.flags.coupBonus || 0) - 0.04);
+    for (const h of Game.quarterHooks) h(rep);
     // кризисы
     rep.crisis = null;
     const betray = Object.keys(S.adv).filter(r => S.adv[r].loy < 25 && Math.random() < 0.15);
@@ -755,7 +772,7 @@ const Game = {
     // дата
     S.turn++;
     S.q++; if (S.q > 4) { S.q = 1; S.year++; }
-    S.ap = AP_PER_TURN;
+    S.ap = Game.apTurn();
     S.statHist.push(Game.snapshotStats());
     if (S.statHist.length > 41) S.statHist.shift();
     S.lastReport = rep;
@@ -861,6 +878,7 @@ const Game = {
       helicopter: { title: 'Вертолёт с крыши', text: rich
         ? `Вертолёт доставил вас на борт яхты. Через неделю вы уже в ${ex}, где пьёте коктейли с другими бывшими диктаторами. Вас тут целый клуб.`
         : `Вертолёт долетел до границы, и топливо кончилось. Вы пересекли её пешком, в пижаме и с медалями. Соседи дали вам убежище и маленькую квартиру.` },
+      occupied: { title: 'Страна оккупирована', text: `Армия держалась, сколько могла. Теперь вы возглавляете правительство в изгнании в Лондоне: три министра, пишущая машинка и радиопередача на родину раз в неделю. Историки ещё решат, были ли вы диктатором или символом сопротивления.` },
       retired: { title: 'Ушёл на покой', text: `Вы добровольно передали власть «временному совету» и уехали в ${ex}. Историки до сих пор спорят, был ли это жест мудрости или хорошо рассчитанный побег.` },
       survived: S.era === '2000' ? { title: 'Пережил нулевые', text: `31 декабря 2009 года. Позади 11 сентября, цветные революции, нефтяной бум и мировой кризис, а вы всё ещё ${T}. Интернет теперь у ${Math.round(S.net)}% граждан, а видео с вашими речами набирают миллионы просмотров, причём не всегда из уважения. Впереди 2010-е. Говорят, в регионе ожидается какая-то «весна».` } : S.era === '1930' ? { title: 'Пережил тридцатые', text: `31 декабря 1939 года. Европа в огне, Китай в огне, мир снова воюет, а вы всё ещё ${T}. Вы пережили Депрессию, «рубашки», путчи и Лигу Наций. ${Game.epilogue30()} Впереди сороковые, и они будут куда страшнее.` } : { title: 'Пережил шестидесятые', text: `31 декабря 1969 года. Вы стоите на балконе дворца, а внизу салют. Десятилетие переворотов, ракетных кризисов и революций позади — а вы всё ещё ${T}. Впереди семидесятые. Говорят, там нефть подорожает.` },
     }[type];
@@ -873,7 +891,8 @@ const Game = {
     if (S.support < 25) verdicts.push('Самый непопулярный человек в стране');
     if (S.flags.nam) verdicts.push('Голос неприсоединения');
     if (!verdicts.length) verdicts.push('Типичный правитель своей эпохи');
-    const score = Math.round(S.turn * 10 + S.swiss * 1.5 + S.support * 2 + S.economy * 2 + (type === 'survived' ? 300 : type === 'retired' ? 120 : 0));
+    for (const h of Game.endingHooks) h(type, E, verdicts);
+    const score = Math.round((S.turn * 10 + S.swiss * 1.5 + S.support * 2 + S.economy * 2 + (type === 'survived' ? 300 : type === 'retired' ? 120 : 0) + (S.flags.scoreBonus || 0)) * Game.diff().score);
     if (S.flags.icc && type !== 'survived' && type !== 'revolution') E.text += ' Правда, в Европу вам путь закрыт: в Гааге вас ждёт ордер на арест.';
     if (S.era === '2000' && S.net >= 50) verdicts.push('Звезда мемов');
     S.final = { type, ...E, years, verdicts, score };

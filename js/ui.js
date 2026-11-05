@@ -48,6 +48,11 @@ const UI = {
       <button class="pick ${st.regime === k ? 'on' : ''}" data-regime="${k}" aria-pressed="${st.regime === k}">
         <span class="pick-icon" aria-hidden="true">${t.icon}</span><span class="pick-name">${t.name}</span><span class="pick-desc">${t.desc}</span>
       </button>`).join('');
+    st.diff = st.diff || 'normal';
+    $('#setup-diff').innerHTML = Object.entries(DIFFICULTY).map(([k, d]) => `
+      <button class="pick ${st.diff === k ? 'on' : ''}" data-diff="${k}" aria-pressed="${st.diff === k}">
+        <span class="pick-icon" aria-hidden="true">${d.icon}</span><span class="pick-name">${d.name}</span><span class="pick-desc">${d.desc}</span>
+      </button>`).join('');
     $('#setup-title').innerHTML = (REGION_TITLES[st.region] || E.titles).map(t => `<option ${t === st.title ? 'selected' : ''}>${t}</option>`).join('');
     $('#setup-name').value = st.name;
     $('#setup-country').value = st.country;
@@ -63,6 +68,7 @@ const UI = {
     $('#setup-look').innerHTML = Object.entries(opts).map(([k, list]) => `
       <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${st.look[k] === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
     UI.renderSetupPortrait();
+    for (const b of document.querySelectorAll('[data-diff]')) b.onclick = () => { st.diff = b.dataset.diff; UI.renderSetup(); };
     for (const b of document.querySelectorAll('[data-era]')) b.onclick = () => {
       if (st.era === b.dataset.era) return;
       st.era = b.dataset.era;
@@ -155,6 +161,13 @@ const UI = {
       await UI.newspaper(h);
       if (S.over) return UI.showEnding();
     }
+    const forced = Game.forcedScene && Game.forcedScene();
+    if (forced) {
+      Game.save();
+      const res = await VN.play(forced);
+      const end = forced.after(res.out, res.choice);
+      if (end) { Game.ending(end); return UI.showEnding(); }
+    }
     S.phase = 'event'; Game.save();
     if (S.turn > 0 && Math.random() < 0.9) {
       const ev = Game.drawEvent();
@@ -218,7 +231,7 @@ const UI = {
           <tbody>
             ${row('Налоги', B.taxes)}${row('Экспорт: ' + REGIONS[S.region].exports, B.exports)}
             ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}
-            ${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
+            ${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}${(B.hookInc || []).map(h => row(h.label, h.v)).join('')}
             ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -(B.costs.health + B.costs.edu + B.costs.subsidy))}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}
             ${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}
             ${row('Итого за квартал', B.net, 'total')}
@@ -238,7 +251,7 @@ const UI = {
     $('#hdr-country').textContent = S.country;
     $('#hdr-date').textContent = Game.dateLabel();
     $('#hdr-leader').innerHTML = Portrait.svg(S.leader.look);
-    $('#hdr-ap').innerHTML = `<span class="ap-label">Приказы</span>` + Array.from({ length: AP_PER_TURN }, (_, i) => `<span class="pip ${i < S.ap ? 'on' : ''}" aria-hidden="true"></span>`).join('') + `<span class="sr">${S.ap} из ${AP_PER_TURN}</span>`;
+    $('#hdr-ap').innerHTML = `<span class="ap-label">Приказы</span>` + Array.from({ length: Game.apTurn() }, (_, i) => `<span class="pip ${i < S.ap ? 'on' : ''}" aria-hidden="true"></span>`).join('') + `<span class="sr">${S.ap} из ${Game.apTurn()}</span>`;
     const stats = ['treasury', 'economy', 'support', 'army', 'fear', ...(S.era === '2000' ? ['net'] : []), 'swiss'];
     $('#stats').classList.toggle('seven', stats.length === 7);
     $('#stats').innerHTML = stats.map(k => {
@@ -248,7 +261,9 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    for (const b of document.querySelectorAll('.tabs button')) { b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
+    const eraTabs = { coldwar: '1960', war: '1930' };
+    if (eraTabs[UI.tab] && eraTabs[UI.tab] !== S.era) UI.tab = 'cabinet';
+    for (const b of document.querySelectorAll('.tabs button')) { b.hidden = !!eraTabs[b.dataset.tab] && eraTabs[b.dataset.tab] !== S.era; b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
     $('#btn-end').disabled = S.phase !== 'hub';
     $('#btn-end').textContent = S.turn >= LAST_TURN ? `Встретить ${ERAS[S.era].start + 10} год` : 'Завершить квартал';
     const body = $('#tab-body');
@@ -298,7 +313,7 @@ const UI = {
         <section class="card help-card">
           <div class="eyebrow">Как править</div>
           <ul>
-            <li>Каждый квартал у вас <b>${AP_PER_TURN} приказа</b>: переговоры с движениями, проекты, визиты, поручения советникам.</li>
+            <li>Каждый квартал у вас <b>${Game.apTurn()} приказа</b>: переговоры с движениями, проекты, визиты, поручения советникам.</li>
             <li>Бюджет на вкладке «Бюджет» меняется ползунками и без приказов. Проекты и указы — на вкладке «Указы».</li>
             <li>Армия ниже 45 и злые «ястребы» — к перевороту. Народ ниже 30 и сильные левые — к революции.</li>
             <li>Деньги «нужд дворца» уходят на ваш счёт в Швейцарии. Он пригодится, если придётся бежать.</li>
@@ -344,7 +359,7 @@ const UI = {
     return `<div class="eyebrow">Прогноз на квартал</div>
       <table class="ledger"><tbody>
         ${row('Налоги с населения', B.taxPop)}${row('Налоги с компаний', B.taxCorp)}${row('Экспорт (' + R.exports + ')', B.exports)}
-        ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
+        ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}${B.hookInc.map(h => row(h.label, h.v)).join('')}
         ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -social)}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}
         ${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
         <tr class="total"><td>Итого</td><td class="num">${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(1)}</td></tr>
@@ -485,6 +500,7 @@ const UI = {
     if (id === 'retire') { $('#retire-confirm').hidden = false; return; }
     if (id === 'retire-no') { $('#retire-confirm').hidden = true; return; }
     if (id === 'retire-yes') { Game.ending('retired'); return UI.showEnding(); }
+    for (const h of UI.actionHandlers || []) if (h(id)) return;
     const [kind, a, b] = id.split(':');
     let out = null;
     if (kind === 'fac') out = Game.factionAction(a, b);
@@ -505,6 +521,16 @@ const UI = {
     UI._tt = setTimeout(() => { t.hidden = true; }, 6500);
   },
 
+  clubTable(score) {
+    const me = { score, name: `${S.leader.title} ${S.leader.name}`, land: S.country, note: `Это вы. Сложность: ${Game.diff().name}.`, me: true };
+    const list = [...DICTATOR_CLUB, me].sort((a, b) => b.score - a.score);
+    const rank = list.indexOf(me) + 1;
+    const level = PLAYER_LEVELS.find(([t]) => score < t)[1];
+    return `<section class="club"><div class="eyebrow">Международный клуб диктаторов</div>
+      <p class="club-verdict">Ваше звание: <b>${level}</b>. Место в клубе: <b>${rank} из ${list.length}</b>.</p>
+      <ol class="club-list">${list.map((d, i) => `<li class="${d.me ? 'me' : ''}"><span class="club-n">${i + 1}</span><span class="club-who"><b>${esc(d.name)}</b><span class="muted small">${esc(d.land)} · ${esc(d.note)}</span></span><span class="club-score">${d.score}</span></li>`).join('')}</ol>
+      <p class="muted small">Очки: кварталы у власти, швейцарский счёт, любовь народа и экономика, плюс бонус за то, что дожили до конца десятилетия. Множитель сложности: ×${Game.diff().score}.</p></section>`;
+  },
   showEnding() {
     const F = S.final || Game.ending(S.over || 'survived');
     Game.save();
@@ -524,6 +550,7 @@ const UI = {
           <div class="rep-stat"><span>👁️ Страх</span><b>${Math.round(S.fear)}</b></div>
           <div class="rep-stat"><span>★ Оценка историков</span><b>${F.score}</b></div>
         </div>
+        ${UI.clubTable(F.score)}
         <button class="btn big" id="btn-again">Новый режим</button>
       </div>`;
     $('#btn-again').onclick = () => { Game.clearSave(); UI.startSetup(); };
