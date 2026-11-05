@@ -9,15 +9,34 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 const STAT_NAMES = { treasury: 'Казна', swiss: 'Счёт в Швейцарии', economy: 'Экономика', support: 'Народ', army: 'Армия', fear: 'Страх', net: 'Интернет' };
 const STAT_ICONS = { treasury: '💰', swiss: '🏦', economy: '🏭', support: '👥', army: '🪖', fear: '👁️', net: '📶' };
-const BUDGET = {
-  army: { name: 'Армия', costs: [5, 10, 18], labels: ['Урезать', 'Норма', 'Щедро'] },
-  police: { name: 'Тайная полиция', costs: [3, 6, 11], labels: ['Урезать', 'Норма', 'Щедро'] },
-  social: { name: 'Хлеб и школы', costs: [3, 8, 14], labels: ['Урезать', 'Норма', 'Щедро'] },
-  infra: { name: 'Дороги и порты', costs: [3, 8, 14], labels: ['Урезать', 'Норма', 'Щедро'] },
-  tax: { name: 'Налоги', costs: [0, 0, 0], labels: ['Низкие', 'Средние', 'Высокие'] },
-  palace: { name: 'Нужды дворца', costs: [0, 5, 12], labels: ['Скромно', 'Умеренно', 'По-королевски'] },
-  netctl: { name: 'Контроль интернета', costs: [0, 3, 8], labels: ['Свобода', 'Фильтры', 'Файрвол'], era: '2000' },
+// Бюджет: ползунки 0–100, где 50 — норма. Расходы растут линейно, отдача выше нормы — с убыванием.
+const SLIDERS = {
+  spend: [
+    { k: 'army', name: 'Армия', base: 10, hint: 'Лояльность армии и генералов' },
+    { k: 'police', name: 'Тайная полиция', base: 6, hint: 'Страх; урезание радует либералов' },
+    { k: 'health', name: 'Здравоохранение', base: 3, hint: 'Народ, вера и немного экономика' },
+    { k: 'edu', name: 'Образование', base: 3, hint: 'Экономика и народ, но образованных либералов больше' },
+    { k: 'subsidy', name: { '1930': 'Хлеб и пособия', '1960': 'Субсидии на хлеб', '2000': 'Субсидии на хлеб и бензин' }, base: 2, hint: 'Народ и левые; выше нормы портят экономику' },
+    { k: 'infra', name: 'Дороги и порты', base: 8, hint: 'Рост экономики' },
+    { k: 'media', name: { '1930': 'Радио и газеты', '1960': 'Радио и телевидение', '2000': 'Госканалы и пропаганда' }, base: 2, hint: 'Народ и страх; либералы злятся' },
+    { k: 'palace', name: 'Нужды дворца', base: 5, hint: 'Уходит на ваш счёт в Швейцарии; народ ворчит' },
+  ],
+  tax: [
+    { k: 'popTax', name: 'Налоги с населения', base: 9, hint: 'Доход; народ недоволен' },
+    { k: 'corpTax', name: 'Налоги с компаний', base: 4, hint: 'Доход; богачи и экономика страдают' },
+    { k: 'duty', name: 'Экспортная пошлина', base: 0, hint: 'Доля государства в выручке экспорта; тормозит экономику' },
+  ],
 };
+const NETCTL = { name: 'Контроль интернета', costs: [0, 3, 8], labels: ['Свобода', 'Фильтры', 'Файрвол'] };
+const BUDGET_DEFAULT = { army: 50, police: 50, health: 50, edu: 50, subsidy: 50, infra: 50, media: 50, palace: 50, popTax: 50, corpTax: 50, duty: 50, netctl: 0 };
+const BUDGET_PRESETS = {
+  norm: { name: 'Норма', v: { army: 50, police: 50, health: 50, edu: 50, subsidy: 50, infra: 50, media: 50, palace: 50, popTax: 50, corpTax: 50, duty: 50 } },
+  austerity: { name: 'Жёсткая экономия', v: { army: 40, police: 40, health: 30, edu: 30, subsidy: 15, infra: 35, media: 30, palace: 15, popTax: 60, corpTax: 60, duty: 60 } },
+  populism: { name: 'Популизм', v: { army: 50, police: 40, health: 80, edu: 70, subsidy: 90, infra: 50, media: 70, palace: 30, popTax: 30, corpTax: 70, duty: 55 } },
+  barracks: { name: 'Казарма', v: { army: 85, police: 80, health: 30, edu: 30, subsidy: 40, infra: 40, media: 65, palace: 50, popTax: 60, corpTax: 50, duty: 50 } },
+  market: { name: 'Рынок', v: { army: 45, police: 40, health: 45, edu: 60, subsidy: 20, infra: 75, media: 40, palace: 40, popTax: 45, corpTax: 30, duty: 30 } },
+};
+function sliderName(d) { return typeof d.name === 'string' ? d.name : d.name[S.era] || Object.values(d.name)[0]; }
 const RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: ['left'], oligarchs: ['left'], hawks: ['liberals', 'left'] };
 
 let S = null;
@@ -36,7 +55,7 @@ const Game = {
       turn: 0, year: ERAS[era].start, q: 1, ap: AP_PER_TURN,
       treasury: era === '1930' ? 110 : era === '2000' ? 90 : 80, swiss: 0, economy: 45, net: R.netStart || 0, support: 50, army: 60, fear: 25,
       price: 1, priceHist: [1],
-      budget: { army: 1, police: 1, social: 1, infra: 1, tax: 1, palace: 1, netctl: 0 },
+      budget: { ...BUDGET_DEFAULT },
       fac: {
         left: { s: 25, a: 35, st: 'legal' }, liberals: { s: 20, a: 45, st: 'legal' }, faith: { s: 40, a: 55, st: 'legal' },
         oligarchs: { s: 45, a: 55, st: 'legal' }, hawks: { s: 35, a: 55, st: 'legal' },
@@ -66,7 +85,7 @@ const Game = {
 
   save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* хранилище недоступно */ } },
   load() {
-    try { const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; S = JSON.parse(raw); S.era = S.era || '1960'; return S; } catch (e) { return null; }
+    try { const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; S = JSON.parse(raw); S.era = S.era || '1960'; Game.migrateBudget(); return S; } catch (e) { return null; }
   },
   hasSave() { try { const raw = localStorage.getItem(SAVE_KEY); return !!raw && !JSON.parse(raw).over; } catch (e) { return false; } },
   clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* */ } },
@@ -78,7 +97,7 @@ const Game = {
   vars() {
     const R = REGIONS[S.region];
     const v = {
-      leader: S.leader.name, title: S.leader.title, country: S.country, capital: R.capital, cur: R.currency,
+      leader: S.leader.name, title: S.leader.title, country: S.country, capital: S.flags.capitalName || R.capital, cur: R.currency,
       exports: R.exports, exportGen: R.exportGen, company: R.company, patron: COUNTRIES[R.patron].name,
       sport: R.sport, rival: R.rival, rivalShort: R.rivalShort, disputed: R.disputed, faithLeader: R.faithLeader,
       square: R.capitalSquare, jungle: R.jungle, nephew: R.nephew, year: S.year,
@@ -190,22 +209,60 @@ const Game = {
   },
 
   // ---------- бюджет ----------
+  migrateBudget() {
+    const b = S.budget || {};
+    if (b.tax !== undefined || b.social !== undefined) {
+      const m = l => [20, 50, 85][l === undefined ? 1 : l];
+      S.budget = { ...BUDGET_DEFAULT, army: m(b.army), police: m(b.police), health: m(b.social), edu: m(b.social), subsidy: m(b.social), infra: m(b.infra), popTax: [25, 50, 80][b.tax], corpTax: [25, 50, 80][b.tax], palace: [0, 50, 100][b.palace], netctl: b.netctl || 0 };
+    }
+    S.budget = { ...BUDGET_DEFAULT, ...S.budget };
+  },
+  // Эффекты бюджета за квартал: итог и разбивка по статьям
+  budgetEffects() {
+    const b = S.budget;
+    const X = k => clamp(b[k], 0, 100) / 50 - 1;
+    const P = x => (x > 0 ? Math.pow(x, 0.8) : x);
+    const tot = { army: 0, fear: 0, support: 0, economy: 0 }, fac = { hawks: { a: 0, s: 0 }, liberals: { a: 0, s: 0 }, left: { a: 0 }, oligarchs: { a: 0 }, faith: { a: 0 } };
+    const items = {};
+    const add = (item, target, d, label) => {
+      if (!d) return;
+      if (target.startsWith('f:')) { const [, f, key] = target.split(':'); fac[f][key] = (fac[f][key] || 0) + d; }
+      else tot[target] += d;
+      (items[item] = items[item] || []).push({ label, d });
+    };
+    const FN = f => REGIONS[S.region].factions[f].short;
+    let x = X('army'); add('army', 'army', x < 0 ? 4 * x : 3 * P(x), 'Армия'); add('army', 'f:hawks:a', x < 0 ? 3 * x : 2 * P(x), FN('hawks')); add('army', 'f:hawks:s', x, `${FN('hawks')}: сила`);
+    x = X('police'); add('police', 'fear', 3 * x, 'Страх'); add('police', 'f:liberals:a', x < 0 ? -x : -2 * P(x), FN('liberals'));
+    x = X('health'); add('health', 'support', 1.5 * x, 'Народ'); add('health', 'economy', 0.3 * x, 'Экономика'); add('health', 'f:faith:a', 0.8 * x, FN('faith'));
+    x = X('edu'); add('edu', 'support', 0.8 * x, 'Народ'); add('edu', 'economy', x < 0 ? 0.6 * x : 0.5 * P(x), 'Экономика'); add('edu', 'f:liberals:s', 1.2 * x, `${FN('liberals')}: сила`);
+    x = X('subsidy'); add('subsidy', 'support', 2 * x, 'Народ'); add('subsidy', 'f:left:a', 1.5 * x, FN('left')); if (x > 0) add('subsidy', 'economy', -0.5 * P(x), 'Экономика');
+    x = X('infra'); add('infra', 'economy', 0.3 + (x < 0 ? 1.5 * x : 1.2 * P(x)), 'Экономика');
+    x = X('media'); const mk = S.era === '2000' && !S.flags.trolls ? 1 - (S.net || 0) / 150 : 1;
+    add('media', 'support', 1.2 * x * mk, 'Народ'); add('media', 'fear', 0.5 * x, 'Страх'); add('media', 'f:liberals:a', -x, FN('liberals'));
+    x = X('palace'); add('palace', 'support', -(b.palace / 50) * 0.5 - Math.max(0, x) * 0.5, 'Народ');
+    x = X('popTax'); add('popTax', 'support', x < 0 ? -2 * x : -3 * P(x), 'Народ'); add('popTax', 'economy', -0.3 * x, 'Экономика');
+    x = X('corpTax'); add('corpTax', 'f:oligarchs:a', x < 0 ? -2 * x : -3 * P(x), FN('oligarchs')); add('corpTax', 'economy', -0.4 * x, 'Экономика');
+    x = X('duty'); add('duty', 'economy', -0.6 * x, 'Экономика'); add('duty', 'f:oligarchs:a', -x, FN('oligarchs'));
+    return { tot, fac, items };
+  },
   budgetCalc() {
     const b = S.budget;
     const ecoK = S.economy / 50;
-    const taxes = [7, 13, 19][b.tax] * ecoK;
-    const exports = 16 * S.price * (0.6 + S.economy / 125) * (S.flags.nationalized ? 1.15 : 1);
+    const taxPop = 9 * (b.popTax / 50) * ecoK, taxCorp = 4 * (b.corpTax / 50) * ecoK;
+    const taxes = taxPop + taxCorp;
+    const exports = 16 * S.price * (0.6 + S.economy / 125) * (S.flags.nationalized ? 1.15 : 1) * (0.5 + b.duty / 100);
     const aid = Game.aidList();
     const aidSum = aid.reduce((a, x) => a + x.v, 0);
     const extra = (S.flags.baseIncome || 0) + (S.flags.oilIncome || 0) + (S.flags.casinoIncome || 0);
     const costs = {};
-    for (const k of ['army', 'police', 'social', 'infra']) costs[k] = BUDGET[k].costs[b[k]];
-    const palace = BUDGET.palace.costs[b.palace];
-    if (S.era === '2000') costs.netctl = BUDGET.netctl.costs[b.netctl || 0];
+    for (const d of SLIDERS.spend) if (d.k !== 'palace') costs[d.k] = d.base * b[d.k] / 50;
+    const palace = 5 * b.palace / 50;
+    if (S.era === '2000') costs.netctl = NETCTL.costs[b.netctl || 0];
     const loans = S.loans.reduce((a, l) => a + l.per, 0);
     const income = taxes + exports + aidSum + extra;
-    const expense = costs.army + costs.police + costs.social + costs.infra + (costs.netctl || 0) + palace + loans;
-    return { taxes, exports, aid, aidSum, extra, costs, palace, loans, income, expense, net: income - expense };
+    const spend = Object.values(costs).reduce((a, v) => a + v, 0);
+    const expense = spend + palace + loans;
+    return { taxes, taxPop, taxCorp, exports, aid, aidSum, extra, costs, spend, palace, loans, income, expense, net: income - expense };
   },
   aidList() {
     const R = REGIONS[S.region];
@@ -227,6 +284,7 @@ const Game = {
       + ((S.rel[REGIONS[S.region].patron] || 50) < 20 ? 0.05 : 0)
       - S.fear / 800
       - (S.flags.frenchGuard ? 0.1 : 0)
+      - (S.flags.spySchool ? 0.04 : 0)
       - (S.flags.purged !== undefined && S.turn - S.flags.purged <= 1 ? 0.1 : 0);
     if (S.army >= 75 && H.a >= 50) r = Math.min(r, 0.01);
     return clamp(r, 0, 0.5);
@@ -462,6 +520,28 @@ const Game = {
     return { text, changes };
   },
 
+  // ---------- указы ----------
+  decreeList(cat) {
+    return DECREES[cat].filter(d => (!d.eras || d.eras.includes(S.era)) && (!d.regions || d.regions.includes(S.region))).map(d => {
+      const used = d.once && S.used.includes('dec:' + d.id);
+      const di = Game.dealInfo('dec:' + d.id);
+      const eff = d.repeat && di.n ? `эффект ${Math.round(di.mult * 100)}%` : '';
+      return { ...d, used, cost: used ? 'уже издан' : [d.cost, eff].filter(Boolean).join(' · '), ok: !used && d.ok(S) };
+    });
+  },
+  decree(cat, id) {
+    const d = DECREES[cat].find(x => x.id === id);
+    if (!d || (d.once && S.used.includes('dec:' + id)) || !d.ok(S)) return null;
+    if (!Game.spend()) return null;
+    const m = d.repeat ? Game.dealInfo('dec:' + id).mult : 1;
+    if (d.repeat) Game.noteDeal('dec:' + id);
+    if (d.once) S.used.push('dec:' + id);
+    const out = d.run(S, m);
+    const changes = Game.apply(out.fx);
+    const text = `Указ «${d.name}». ${out.text}`;
+    Game.log(text);
+    return { text, changes };
+  },
   economyActions() {
     const R = REGIONS[S.region];
     const acts = [
@@ -571,19 +651,10 @@ const Game = {
     S.swiss += B.palace;
     rep.money = B;
     // бюджетные эффекты
-    const lvl = v => v - 1;
-    S.army = clamp(S.army + [-4, 0, 3][b.army]);
-    S.fac.hawks.a = clamp(S.fac.hawks.a + [-3, 0, 2][b.army]);
-    S.fac.hawks.s = clamp(S.fac.hawks.s + [-1, 0, 1][b.army]);
-    S.fear = clamp(S.fear + [-3, 0, 3][b.police]);
-    S.fac.liberals.a = clamp(S.fac.liberals.a + [1, 0, -2][b.police]);
-    S.support = clamp(S.support + [-3, 0, 3][b.social]);
-    S.fac.left.a = clamp(S.fac.left.a + [-2, 0, 2][b.social]);
-    S.economy = clamp(S.economy + [-1.2, 0.3, 1.5][b.infra]);
-    S.support = clamp(S.support + [2, 0, -3][b.tax]);
-    S.economy = clamp(S.economy + [0.5, 0, -0.5][b.tax]);
-    S.fac.oligarchs.a = clamp(S.fac.oligarchs.a + [2, 0, -3][b.tax]);
-    S.support = clamp(S.support + [0, -0.5, -1.5][b.palace]);
+    const BE = Game.budgetEffects();
+    for (const [k, d] of Object.entries(BE.tot)) S[k] = clamp(S[k] + d);
+    for (const [f, e] of Object.entries(BE.fac)) for (const [key, d] of Object.entries(e)) S.fac[f][key] = clamp(S.fac[f][key] + d);
+    const bx = k => b[k] / 50 - 1;
     // дрейф
     const F = S.fac;
     S.economy = clamp(S.economy + (S.price - 1) * 5 + (F.oligarchs.a - 50) / 40 + rnd(-1, 1) + (S.support < 25 ? -1 : 0) + (50 - S.economy) * 0.03);
@@ -611,8 +682,8 @@ const Game = {
       F.liberals.s = clamp(F.liberals.s + n * [3, 1.5, 0.5][c] * (S.flags.dpi ? 0.7 : 1));
       F.liberals.a = clamp(F.liberals.a + [0.5, -1, -2.5][c]);
       // в интернете видно, как живёт дворец
-      F.liberals.a = clamp(F.liberals.a - n * b.palace * [2, 1.2, 0.5][c]);
-      S.support = clamp(S.support - n * b.palace * [1.2, 0.7, 0.3][c]);
+      F.liberals.a = clamp(F.liberals.a - n * (b.palace / 50) * [2, 1.2, 0.5][c]);
+      S.support = clamp(S.support - n * (b.palace / 50) * [1.2, 0.7, 0.3][c]);
       if (c === 2) for (const w of ['usa', 'eu']) if (S.rel[w] !== undefined) S.rel[w] = clamp(S.rel[w] - 1);
       if (S.fear > 50) S.fear = clamp(S.fear - n * 1.5);
       if (n > 0.3 && c === 0 && F.liberals.a < 40) rep.lines.push('Интернет гудит: в блогах ругают правительство, ролики с вашими оговорками набирают миллионы просмотров.');
@@ -624,7 +695,7 @@ const Game = {
     // советники
     for (const r of Object.keys(S.adv)) {
       const A = S.adv[r];
-      A.loy = clamp(A.loy - 0.6 + [-1, 0, 1][b.palace] + (r === 'defense' ? lvl(b.army) * 2 : 0) + (r === 'police' ? lvl(b.police) : 0));
+      A.loy = clamp(A.loy - 0.6 + bx('palace') + (r === 'defense' ? bx('army') * 2 : 0) + (r === 'police' ? bx('police') : 0));
     }
     // большая казна притягивает чиновников
     if (S.treasury > 120) {

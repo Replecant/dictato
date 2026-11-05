@@ -231,6 +231,27 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .proj-item p { margin: 2px 0 0; }
 .proj-item .btn { flex: none; }
 
+/* бюджет */
+.budget { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.budget-side { position: sticky; top: 12px; }
+.budget-head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+.presets { display: flex; flex-wrap: wrap; gap: 4px; }
+.sub-h { font: 13px var(--f-mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 16px 0 4px; padding-bottom: 4px; border-bottom: 1px solid var(--brass-dim); }
+.br { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 4px 14px; align-items: center; padding: 8px 0; border-bottom: 1px dotted rgba(240, 229, 205, 0.1); }
+.br-name { display: flex; flex-direction: column; font-size: 15px; line-height: 1.25; }
+.br input[type="range"] { width: 100%; accent-color: var(--brass); height: 22px; }
+.br-meta { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font: 12px var(--f-mono); }
+.br-val { color: var(--fg); min-width: 11em; }
+.br-money { color: var(--brass); min-width: 7em; font-variant-numeric: tabular-nums; }
+.br-fx { display: flex; flex-wrap: wrap; gap: 4px; }
+.br-fx .fx { padding: 3px 6px; font-size: 11px; }
+.mt { margin-top: 14px; }
+/* указы */
+.dtabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.dtabs button { background: var(--panel); border: 1px solid var(--brass-dim); border-radius: 999px; padding: 7px 14px; font: 13px var(--f-mono); color: var(--muted); cursor: pointer; }
+.dtabs button.on { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+.proj-item.used { opacity: 0.5; }
+.proj-item.absurd { border-left: 3px solid #b48ae0; }
 /* летопись */
 .log { list-style: none; padding: 0; margin: 8px 0 0; max-height: 70vh; overflow: auto; }
 .log li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px dotted rgba(240, 229, 205, 0.12); }
@@ -329,7 +350,8 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 /* ---------- адаптив ---------- */
 @media (max-width: 900px) {
   .stats, .stats.seven { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .cab, .eco { grid-template-columns: minmax(0, 1fr); }
+  .cab, .eco, .budget { grid-template-columns: minmax(0, 1fr); }
+  .budget-side { position: static; }
   .chart-card { grid-column: auto; }
   .picks { grid-template-columns: minmax(0, 1fr); }
   .setup-leader { grid-template-columns: minmax(0, 1fr); }
@@ -346,7 +368,8 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
   .risk-row { grid-template-columns: minmax(0, 1fr); }
   .grid, .adv-grid, .proj { grid-template-columns: minmax(0, 1fr); }
   .adv { grid-template-columns: 80px minmax(0, 1fr); }
-  .budget-row, .look-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .budget-row, .look-row, .br { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .br-meta { grid-column: 1; }
   .rep-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .log li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .end-wrap { grid-template-columns: minmax(0, 1fr); }

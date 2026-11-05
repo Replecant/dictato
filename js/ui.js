@@ -219,7 +219,7 @@ const UI = {
             ${row('Налоги', B.taxes)}${row('Экспорт: ' + REGIONS[S.region].exports, B.exports)}
             ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}
             ${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
-            ${row('Армия', -B.costs.army)}${row('Тайная полиция', -B.costs.police)}${row('Хлеб и школы', -B.costs.social)}${row('Дороги и порты', -B.costs.infra)}${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}
+            ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -(B.costs.health + B.costs.edu + B.costs.subsidy))}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}
             ${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}
             ${row('Итого за квартал', B.net, 'total')}
           </tbody>
@@ -299,7 +299,7 @@ const UI = {
           <div class="eyebrow">Как править</div>
           <ul>
             <li>Каждый квартал у вас <b>${AP_PER_TURN} приказа</b>: переговоры с движениями, проекты, визиты, поручения советникам.</li>
-            <li>Бюджет на вкладке «Экономика» меняется без приказов.</li>
+            <li>Бюджет на вкладке «Бюджет» меняется ползунками и без приказов. Проекты и указы — на вкладке «Указы».</li>
             <li>Армия ниже 45 и злые «ястребы» — к перевороту. Народ ниже 30 и сильные левые — к революции.</li>
             <li>Деньги «нужд дворца» уходят на ваш счёт в Швейцарии. Он пригодится, если придётся бежать.</li>
             ${S.era === '2000' ? '<li><b>Интернет</b> растёт сам и с каждым годом быстрее. Он ускоряет экономику, но усиливает блогеров и протесты. Фильтры и файрвол тормозят и то и другое, стоят денег и злят Запад.</li>' : ''}
@@ -326,32 +326,63 @@ const UI = {
       }).join('')}</div>`;
   },
 
-  tab_economy() {
-    const B = Game.budgetCalc(), R = REGIONS[S.region];
-    const row = (n, v) => `<tr><td>${n}</td><td class="num">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</td></tr>`;
-    return `<div class="eco">
+  // ---------- бюджет ----------
+  sliderWord(v) { return v <= 15 ? 'почти ноль' : v < 40 ? 'урезано' : v <= 60 ? 'норма' : v < 85 ? 'щедро' : 'с размахом'; },
+  budgetRowMeta(d, kind) {
+    const v = S.budget[d.k], B = Game.budgetCalc(), E = Game.budgetEffects();
+    const money = kind === 'spend' ? (d.k === 'palace' ? -B.palace : -B.costs[d.k]) : d.k === 'popTax' ? B.taxPop : d.k === 'corpTax' ? B.taxCorp : null;
+    const chips = (E.items[d.k] || []).filter(e => Math.abs(e.d) >= 0.05).map(e => `<span class="fx ${e.d > 0 ? 'up' : 'down'}"><span>${esc(e.label)}</span><b>${e.d > 0 ? '+' : '−'}${Math.abs(e.d).toFixed(1)}</b></span>`).join('');
+    const moneyTxt = money === null ? `экспорт ${B.exports.toFixed(1)} млн` : `${money >= 0 ? '+' : '−'}${Math.abs(money).toFixed(1)} млн`;
+    return `<span class="br-val">${v}% · ${UI.sliderWord(v)}</span><span class="br-money">${moneyTxt}</span><span class="br-fx">${chips || '<span class="muted small">без эффекта</span>'}</span>`;
+  },
+  budgetForecast() {
+    const B = Game.budgetCalc(), E = Game.budgetEffects(), R = REGIONS[S.region];
+    const row = (n, v, cls = '') => `<tr class="${cls}"><td>${n}</td><td class="num">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</td></tr>`;
+    const tot = Object.entries(E.tot).filter(([, d]) => Math.abs(d) >= 0.05).map(([k, d]) => `<span class="fx ${k === 'fear' ? 'neutral' : d > 0 ? 'up' : 'down'}">${STAT_ICONS[k]}<span>${STAT_NAMES[k]}</span><b>${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}</b></span>`).join('');
+    const fac = Object.entries(E.fac).flatMap(([f, e]) => Object.entries(e).filter(([, d]) => Math.abs(d) >= 0.05).map(([key, d]) => `<span class="fx ${key === 's' ? 'neutral' : d > 0 ? 'up' : 'down'}">${R.factions[f].icon}<span>${R.factions[f].short}${key === 's' ? ': сила' : ''}</span><b>${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}</b></span>`)).join('');
+    const social = (B.costs.health || 0) + (B.costs.edu || 0) + (B.costs.subsidy || 0);
+    return `<div class="eyebrow">Прогноз на квартал</div>
+      <table class="ledger"><tbody>
+        ${row('Налоги с населения', B.taxPop)}${row('Налоги с компаний', B.taxCorp)}${row('Экспорт (' + R.exports + ')', B.exports)}
+        ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
+        ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -social)}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}
+        ${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
+        <tr class="total"><td>Итого</td><td class="num">${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(1)}</td></tr>
+      </tbody></table>
+      <div class="eyebrow mt">Что сделает бюджет за квартал</div>
+      <div class="fx-list">${tot}${fac || ''}</div>
+      <p class="muted small">Плюс обычный дрейф: экономика, цены, настроения движений.</p>
+      <div class="price"><span>Мировая цена: ${R.exports}</span><b>${Math.round(S.price * 100)}%</b>${Charts.spark(S.priceHist)}</div>`;
+  },
+  tab_budget() {
+    const dis = S.phase !== 'hub' ? 'disabled' : '';
+    const rows = (list, kind) => list.map(d => `<div class="br" id="br-${d.k}">
+        <label for="sl-${d.k}" class="br-name">${esc(sliderName(d))}<span class="muted small">${esc(d.hint)}</span></label>
+        <input type="range" id="sl-${d.k}" min="0" max="100" step="5" value="${S.budget[d.k]}" data-slider="${d.k}" data-kind="${kind}" ${dis}>
+        <div class="br-meta">${UI.budgetRowMeta(d, kind)}</div>
+      </div>`).join('');
+    return `<div class="budget">
       <section class="card">
-        <div class="eyebrow">Бюджет на квартал · без приказов</div>
-        ${Object.entries(BUDGET).filter(([, d]) => !d.era || d.era === S.era).map(([k, d]) => `<div class="budget-row"><span class="budget-name">${d.name}</span><div class="seg">${d.labels.map((l, i) => `<button class="${S.budget[k] === i ? 'on' : ''}" data-budget="${k}" data-val="${i}" ${S.phase !== 'hub' ? 'disabled' : ''}>${l}${d.costs[i] ? ` <small>${d.costs[i]}</small>` : ''}</button>`).join('')}</div></div>`).join('')}
-        ${S.era === '2000' ? `<p class="muted small">Интернетом пользуются ${Math.round(S.net)}% граждан. Свобода: быстрый рост, экономика растёт, блогеры сильнеют. Файрвол: всё наоборот, плюс −1 к отношениям с Западом каждый квартал.</p>` : ''}
-        <p class="muted small">Щедрая армия — лояльные генералы. Тайная полиция — страх. Хлеб и школы — любовь народа. Дороги — рост экономики. Высокие налоги злят и народ, и богачей. Нужды дворца идут на ваш счёт в Цюрихе.</p>
+        <div class="budget-head"><div class="eyebrow">Бюджет · меняется без приказов</div>
+          <div class="presets">${Object.entries(BUDGET_PRESETS).map(([k, p]) => `<button class="btn ghost small" data-preset="${k}" ${dis}>${p.name}</button>`).join('')}</div></div>
+        <h3 class="sub-h">Расходы</h3>${rows(SLIDERS.spend, 'spend')}
+        <h3 class="sub-h">Доходы</h3>${rows(SLIDERS.tax, 'tax')}
+        ${S.era === '2000' ? `<h3 class="sub-h">Интернет</h3><div class="budget-row"><span class="budget-name">${NETCTL.name}</span><div class="seg">${NETCTL.labels.map((l, i) => `<button class="${S.budget.netctl === i ? 'on' : ''}" data-netctl="${i}" ${dis}>${l}${NETCTL.costs[i] ? ` <small>${NETCTL.costs[i]}</small>` : ''}</button>`).join('')}</div></div>
+          <p class="muted small">Интернетом пользуются ${Math.round(S.net)}% граждан. Свобода: быстрый рост, экономика растёт, блогеры сильнеют. Файрвол: всё наоборот, плюс −1 к отношениям с Западом каждый квартал.</p>` : ''}
       </section>
-      <section class="card">
-        <div class="eyebrow">Прогноз казны</div>
-        <table class="ledger"><tbody>
-          ${row('Налоги', B.taxes)}${row('Экспорт (' + R.exports + ')', B.exports)}
-          ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
-          ${row('Расходы на ведомства', -(B.costs.army + B.costs.police + B.costs.social + B.costs.infra + (B.costs.netctl || 0)))}
-          ${B.palace ? row('Нужды дворца', -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
-          <tr class="total"><td>Итого</td><td class="num">${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(1)}</td></tr>
-        </tbody></table>
-        <div class="price"><span>Мировая цена: ${R.exports}</span><b>${Math.round(S.price * 100)}%</b>${Charts.spark(S.priceHist)}</div>
-      </section>
-      <section class="card wide">
-        <div class="eyebrow">Проекты · 1 приказ</div>
-        <div class="proj">${Game.economyActions().map(a => `<div class="proj-item"><div><b>${a.name}</b><p class="muted small">${a.desc}</p></div>${UI.actBtn('eco:' + a.id, { ...a, name: 'Приказать' })}</div>`).join('')}</div>
-      </section>
+      <section class="card budget-side" id="bf">${UI.budgetForecast()}</section>
     </div>`;
+  },
+
+  // ---------- указы ----------
+  dtab: 'foreign',
+  tab_decrees() {
+    const cat = UI.dtab;
+    let items = Game.decreeList(cat).map(d => ({ act: `dec:${cat}:${d.id}`, ...d }));
+    if (cat === 'economy') items = [...Game.economyActions().map(a => ({ act: 'eco:' + a.id, ...a })), ...items];
+    return `<div class="dtabs" role="tablist">${Object.entries(DECREE_TABS).map(([k, n]) => `<button class="${k === cat ? 'on' : ''}" data-dtab="${k}" role="tab" aria-selected="${k === cat}">${n}</button>`).join('')}</div>
+      <p class="lede">Каждый указ стоит один приказ. Осталось приказов: <b>${S.ap}</b>. Повторяемые указы слабеют, если издавать их слишком часто.</p>
+      <div class="proj">${items.map(a => `<div class="proj-item ${a.used ? 'used' : ''} ${cat === 'absurd' ? 'absurd' : ''}"><div><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p></div>${UI.actBtn(a.act, { ok: a.ok, danger: a.danger, name: a.used ? 'Издан' : 'Подписать', cost: a.cost })}</div>`).join('')}</div>`;
   },
 
   tab_world() {
@@ -411,7 +442,19 @@ const UI = {
   },
 
   bindTab() {
-    for (const b of document.querySelectorAll('[data-budget]')) b.onclick = () => { S.budget[b.dataset.budget] = +b.dataset.val; Game.save(); UI.render(); };
+    for (const b of document.querySelectorAll('[data-netctl]')) b.onclick = () => { S.budget.netctl = +b.dataset.netctl; Game.save(); UI.render(); };
+    for (const b of document.querySelectorAll('[data-preset]')) b.onclick = () => { Object.assign(S.budget, BUDGET_PRESETS[b.dataset.preset].v); Game.save(); UI.render(); };
+    for (const b of document.querySelectorAll('[data-dtab]')) b.onclick = () => { UI.dtab = b.dataset.dtab; UI.render(); };
+    for (const el of document.querySelectorAll('[data-slider]')) {
+      el.oninput = () => {
+        S.budget[el.dataset.slider] = +el.value;
+        for (const d of [...SLIDERS.spend.map(x => [x, 'spend']), ...SLIDERS.tax.map(x => [x, 'tax'])]) {
+          const m = document.querySelector(`#br-${d[0].k} .br-meta`); if (m) m.innerHTML = UI.budgetRowMeta(d[0], d[1]);
+        }
+        $('#bf').innerHTML = UI.budgetForecast();
+      };
+      el.onchange = () => Game.save();
+    }
     for (const b of document.querySelectorAll('[data-fire]')) b.onclick = () => { $('#fire-' + b.dataset.fire).hidden = false; };
     for (const b of document.querySelectorAll('[data-cancel]')) b.onclick = () => { $('#' + b.dataset.cancel).hidden = true; };
     for (const b of document.querySelectorAll('[data-act]')) b.onclick = () => UI.doAct(b.dataset.act);
@@ -425,6 +468,7 @@ const UI = {
     if (kind === 'fac') out = Game.factionAction(a, b);
     if (kind === 'world') out = Game.countryAction(a, b);
     if (kind === 'eco') out = Game.economyAction(a);
+    if (kind === 'dec') out = Game.decree(a, b);
     if (kind === 'adv') out = Game.advisorAction(a, b);
     if (!out) return;
     UI.render();
