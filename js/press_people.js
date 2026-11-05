@@ -31,7 +31,7 @@ const PressGen = (() => {
       Object.assign(L, { hair: kind === 'old' ? 'bun' : pk(r, ['long', 'bun', 'long']), earring: kind === 'star' || r() < 0.5, outfit: era === '2000' && kind !== 'old' ? pk(r, ['polo', 'suit2000', 'robe']) : 'robe', trim: pk(r, colors) });
       if (kind === 'old') L.glasses = 'round';
       if (kind === 'star') { L.mouth = 'grin'; L.blush = true; L.glasses = era === '2000' ? pk(r, ['aviator', 'none']) : 'none'; }
-      if (st === 'mideast' && kind !== 'star') { L.hat = 'keffiyeh'; L.hatColor = pk(r, ['#2a2a2a', '#5a4a6a', '#3a4a6a']); }
+      if (st === 'mideast' && kind !== 'star') { L.hat = 'hijab'; L.hatColor = pk(r, ['#2a2a2a', '#5a4a6a', '#3a4a6a']); }
       return L;
     }
     L.hair = kind === 'old' ? pk(r, ['bald', 'combover', 'short']) : era === '2000' ? pk(r, ['buzz', 'gelled', 'short', 'curly']) : pk(r, ['short', 'slick', 'curly', 'combover']);

@@ -75,6 +75,14 @@ const Portrait = (() => {
     return s;
   }
 
+  // Причёски нарисованы под овал (ширина 94, макушка на 54): подгоняем ширину и высоту под другие лица
+  const FACE_FIT = { oval: [1, 0], round: [1.1, 7], square: [1.03, 1], long: [0.9, -6] };
+  function hairFit(face) {
+    const [sx, dy] = FACE_FIT[face] || FACE_FIT.oval;
+    return `translate(100 ${54 + dy}) scale(${sx} 1) translate(-100 -54)`;
+  }
+  const HAT_DY = { oval: 0, round: 3, square: 1, long: -6 };
+  function hatFit(face) { return `translate(0 ${HAT_DY[face] || 0})`; }
   function head(p) {
     const sk = p.skin, dk = shade(sk, -32);
     let s = '';
@@ -105,7 +113,7 @@ const Portrait = (() => {
     else s += `<path d="M100 104 Q92 125 99 129 Q106 131 108 126" fill="none" stroke="${dk}" stroke-width="2.6" stroke-linecap="round"/>`;
     // рот
     switch (p.mouth) {
-      case 'grin': s += `<path d="M82 140 Q100 160 118 140 Z" fill="#fff" stroke="#5a2a1a" stroke-width="2"/><line x1="90" y1="142" x2="91" y2="150" stroke="#ccc"/><line x1="100" y1="142" x2="100" y2="153" stroke="#ccc"/><line x1="110" y1="142" x2="109" y2="150" stroke="#ccc"/>`; break;
+      case 'grin': s += `<path d="M82 140 Q100 160 118 140 Z" fill="#fff" stroke="#5a2a1a" stroke-width="2"/><line x1="91" y1="141.5" x2="91" y2="145.5" stroke="#c9c9c9" stroke-width="1.2"/><line x1="100" y1="141.5" x2="100" y2="148" stroke="#c9c9c9" stroke-width="1.2"/><line x1="109" y1="141.5" x2="109" y2="145.5" stroke="#c9c9c9" stroke-width="1.2"/>`; break;
       case 'smirk': s += `<path d="M88 146 Q104 148 116 138" fill="none" stroke="#5a2a1a" stroke-width="3" stroke-linecap="round"/>`; break;
       case 'flat': s += `<line x1="88" y1="145" x2="112" y2="145" stroke="#5a2a1a" stroke-width="3" stroke-linecap="round"/>`; break;
       case 'o': s += `<ellipse cx="100" cy="146" rx="6" ry="7" fill="#5a2a1a"/>`; break;
@@ -143,8 +151,18 @@ const Portrait = (() => {
         s += `<circle cx="117" cy="106" r="12" fill="#fff" fill-opacity="0.15" stroke="#c9a640" stroke-width="2.6"/><path d="M129 108 Q140 140 128 170" fill="none" stroke="#c9a640" stroke-width="1.4"/>`;
         break;
     }
-    // причёска
-    switch (p.hair) {
+    // причёска: рисуется для овального лица и подгоняется под форму головы
+    const hatOn = p.hat && p.hat !== 'none';
+    let hair = p.hair;
+    if (hatOn) {
+      if (['keffiyeh', 'hijab'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
+      else if (hair === 'curly') hair = 'curlyside';
+      else if (['bun', 'gelled', 'slick'].includes(hair)) hair = 'short';
+      else if (hair === 'combover') hair = 'baldside';
+      else if (hair === 'bald') hair = 'baldside';
+    }
+    s += `<g transform="${hairFit(p.face)}">`;
+    switch (hair) {
       case 'short': s += `<path d="M53 98 Q50 56 100 52 Q150 56 147 98 Q141 72 100 70 Q59 72 53 98 Z" fill="${hc}"/>`; break;
       case 'slick': s += `<path d="M53 100 Q48 52 104 50 Q152 54 147 100 Q144 74 120 66 L118 72 Q90 64 60 80 Q55 88 53 100 Z" fill="${hc}"/><path d="M118 52 Q112 60 118 72" stroke="${shade(hc, 40)}" stroke-width="1.5" fill="none"/>`; break;
       case 'curly': s += [60, 74, 88, 102, 116, 130, 142].map((x, i) => `<circle cx="${x}" cy="${66 - Math.sin(i / 6 * Math.PI) * 12}" r="12" fill="${hc}"/>`).join(''); break;
@@ -155,7 +173,10 @@ const Portrait = (() => {
       case 'gelled': s += `<path d="M53 98 Q50 60 70 56 L76 42 L84 56 L92 38 L100 54 L110 38 L116 55 L126 42 L130 58 Q150 62 147 98 Q140 74 100 72 Q60 74 53 98 Z" fill="${hc}"/>`; break;
       case 'bun': s += `<path d="M53 100 Q50 56 100 52 Q150 56 147 100 Q141 72 100 70 Q59 72 53 100 Z" fill="${hc}"/><circle cx="100" cy="44" r="16" fill="${hc}"/>`; break;
       case 'long': s += `<path d="M50 160 Q40 60 100 50 Q160 60 150 160 Q146 100 138 84 Q100 70 62 84 Q54 100 50 160 Z" fill="${hc}"/>`; break;
+      case 'curlyside': s += `<path d="M53 98 Q50 56 100 52 Q150 56 147 98 Q141 72 100 70 Q59 72 53 98 Z" fill="${hc}"/>` + [[56, 96], [58, 84], [144, 96], [142, 84]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${hc}"/>`).join(''); break;
+      case 'baldside': s += `<path d="M52 106 Q49 90 57 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M148 106 Q151 90 143 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/>`; break;
     }
+    s += '</g>';
     return s;
   }
 
@@ -174,9 +195,11 @@ const Portrait = (() => {
       case 'fez': return `<path d="M68 66 L74 26 L126 26 L132 66 Z" fill="${c}"/><path d="M100 26 Q112 34 116 52" stroke="#1b1b1b" stroke-width="2" fill="none"/><circle cx="116" cy="54" r="4" fill="#1b1b1b"/>`;
       case 'turban': return `<path d="M48 82 Q44 34 100 30 Q156 34 152 82 Q130 70 100 72 Q70 70 48 82 Z" fill="${c}"/>` +
         [44, 56, 68].map(y => `<path d="M${54 + (68 - y) * 0.2} ${y + 6} Q100 ${y - 8} ${146 - (68 - y) * 0.2} ${y + 6}" stroke="${shade(c, -25)}" stroke-width="2" fill="none"/>`).join('');
-      case 'keffiyeh': return `<path d="M40 150 Q30 80 50 60 Q100 20 150 60 Q170 80 160 150 L146 150 Q150 96 140 80 Q100 66 60 80 Q50 96 54 150 Z" fill="${c}"/>` +
-        `<path d="M50 60 Q100 20 150 60 Q100 46 50 60 Z" fill="${c}"/><ellipse cx="100" cy="62" rx="54" ry="9" fill="none" stroke="#1a1a1a" stroke-width="6"/>` +
-        [70, 90, 110, 130].map(x => `<path d="M${x} 40 L${x - 4} 66" stroke="#c1272d" stroke-width="1.4" opacity="0.6"/>`).join('');
+      case 'keffiyeh': return `<path d="M40 156 Q30 84 48 62 Q100 22 152 62 Q170 84 160 156 L144 156 Q148 104 142 90 Q100 78 58 90 Q52 104 56 156 Z" fill="${c}"/>` +
+        `<path d="M46 92 Q42 40 100 34 Q158 40 154 92 Q132 80 100 80 Q68 80 46 92 Z" fill="${c}"/><path d="M48 90 Q70 80 100 80 Q130 80 152 90" stroke="${shade(c, -25)}" stroke-width="2" fill="none"/>` +
+        [64, 82, 100, 118, 136].map(x => `<path d="M${x} 44 L${x - 3} 78" stroke="${shade(c, -30)}" stroke-width="1.3" opacity="0.5"/>`).join('') +
+        `<ellipse cx="100" cy="61" rx="52" ry="10" fill="none" stroke="#1a1a1a" stroke-width="5"/><ellipse cx="100" cy="54" rx="49" ry="9" fill="none" stroke="#1a1a1a" stroke-width="4"/>`;
+      case 'hijab': return `<path fill-rule="evenodd" d="M42 156 Q32 58 100 40 Q168 58 158 156 Q152 194 100 196 Q48 194 42 156 Z M100 66 Q60 68 60 112 Q62 160 100 166 Q138 160 140 112 Q140 68 100 66 Z" fill="${c}"/><path d="M60 100 Q62 70 100 66 Q138 70 140 100" stroke="${shade(c, 25)}" stroke-width="2" fill="none" opacity="0.7"/>`;
       case 'tubeteika': return `<path d="M58 66 Q60 40 100 38 Q140 40 142 66 Z" fill="${c}"/><rect x="58" y="60" width="84" height="8" fill="${shade(c, -30)}"/>` +
         [72, 88, 104, 120].map(x => `<path d="M${x} 46 q4 6 0 12 q-4 -6 0 -12" fill="#f2ead6"/>`).join('');
       case 'baseball': return `<path d="M52 72 Q50 34 100 32 Q150 34 148 72 Z" fill="${c}"/><path d="M52 72 Q40 78 30 84 Q60 90 100 80 Z" fill="${d}"/><circle cx="100" cy="34" r="4" fill="${d}"/><path d="M84 52 h32" stroke="#f4f1ea" stroke-width="4" opacity="0.8"/>`;
@@ -191,7 +214,7 @@ const Portrait = (() => {
     let s = '';
     if (p.cigar) s += `<g transform="rotate(12 120 146)"><rect x="112" y="142" width="38" height="8" rx="3" fill="#6b3e1e"/><rect x="118" y="142" width="6" height="8" fill="#c0392b"/><circle cx="151" cy="146" r="4" fill="#ff6a00"/></g><path d="M160 136 Q168 124 160 114 Q152 104 162 92" stroke="#bbb" stroke-width="2.5" fill="none" opacity="0.7"/>`;
     if (p.sweat) s += `<path d="M150 74 Q156 86 150 92 Q144 86 150 74 Z" fill="#8fd3ff" stroke="#3a8ec2" stroke-width="1"/>`;
-    if (p.earring) s += `<circle cx="51" cy="128" r="4" fill="#e2b33c"/><circle cx="149" cy="128" r="4" fill="#e2b33c"/>`;
+    if (p.earring && !['hijab', 'keffiyeh', 'kamilavka', 'helmet'].includes(p.hat)) s += `<circle cx="51" cy="128" r="4" fill="#e2b33c"/><circle cx="149" cy="128" r="4" fill="#e2b33c"/>`;
     if (p.bluetooth) s += `<rect x="146" y="104" width="9" height="18" rx="4" fill="#2a2f36" stroke="#7fd4ff" stroke-width="1"/><path d="M150 122 Q146 134 132 138" stroke="#2a2f36" stroke-width="2.5" fill="none"/><circle cx="151" cy="108" r="1.6" fill="#39e"/>`;
     if (p.earpiece) s += `<circle cx="149" cy="114" r="3.5" fill="#d8d8d8"/><path d="M149 118 Q156 150 140 186" stroke="#d8d8d8" stroke-width="1.4" fill="none"/>`;
     if (p.pipe) s += `<path d="M110 146 L134 156 L134 170 Q146 174 148 160 L146 150 L136 152 L112 142 Z" fill="#5a3a1a"/>`;
@@ -200,7 +223,7 @@ const Portrait = (() => {
 
   function svg(p, opts = {}) {
     const bg = opts.bg ? `<rect width="200" height="240" fill="${opts.bg}"/>` : '';
-    return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.label || 'портрет'}">${bg}${body(p)}${head(p)}${hat(p)}${extras(p)}</svg>`;
+    return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.label || 'портрет'}">${bg}${body(p)}${head(p)}<g transform="${hatFit(p.face)}">${hat(p)}</g>${extras(p)}</svg>`;
   }
 
   return { svg, shade };
