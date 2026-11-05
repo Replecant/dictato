@@ -60,7 +60,7 @@ Object.assign(Game, {
     const d = Game.demandOf(c);
     if (!d || !Game.spend()) return null;
     const changes = Game.apply(d.fxv);
-    S.demands[c] = { wait: S.turn + 3 };
+    S.demands[c] = { wait: S.turn + 4 + Math.floor(Math.random() * 3) };
     const text = `${COUNTRIES[c].name}: просьба «${d.label}» выполнена. В посольстве открыли шампанское.`;
     Game.log(text);
     return { text, changes };
@@ -177,21 +177,36 @@ Game.coupHooks.push(() => {
 });
 Game.newGameHooks.push(() => {
   S.treaties = {}; S.demands = {}; S.visits = {};
-  for (const c of REGIONS[S.region].countries) { const d = Game.pickDemand(c); if (d) S.demands[c] = d; }
+  // на старте просит только одна держава, остальные присматриваются
+  const cs = REGIONS[S.region].countries;
+  cs.forEach((c, i) => { S.demands[c] = { wait: 2 + i * 2 + Math.floor(Math.random() * 3) }; });
+  const first = pick(cs), d = Game.pickDemand(first); if (d) S.demands[first] = d;
 });
+// Не больше двух просьб одновременно и не больше одной новой за квартал
+const DEMAND_MAX = 2;
 Game.quarterHooks.push(rep => {
   S.demands = S.demands || {};
-  for (const c of REGIONS[S.region].countries) {
+  const cs = REGIONS[S.region].countries;
+  const active = () => cs.filter(c => S.demands[c] && S.demands[c].wait === undefined);
+  // старые сохранения: лишние просьбы тихо снимаются
+  for (const c of active().slice(DEMAND_MAX)) S.demands[c] = { wait: S.turn + 3 + Math.floor(Math.random() * 4) };
+  const ready = [];
+  for (const c of cs) {
     const T = (S.treaties || {})[c] || {};
     if (T.alliance) S.rel[c] = clamp(S.rel[c] + 0.7); else if (T.friend) S.rel[c] = clamp(S.rel[c] + 0.4);
     const dm = S.demands[c];
-    if (!dm) { const d = Game.pickDemand(c); if (d) S.demands[c] = d; continue; }
-    if (dm.wait !== undefined) { if (S.turn + 1 >= dm.wait) { const d = Game.pickDemand(c); if (d) S.demands[c] = d; } continue; }
+    if (!dm || (dm.wait !== undefined && S.turn + 1 >= dm.wait)) { ready.push(c); continue; }
+    if (dm.wait !== undefined) continue;
     if (S.turn + 1 > dm.until) {
       S.rel[c] = clamp(S.rel[c] - 4);
       rep.lines.push(`${COUNTRIES[c].name}: просьба так и не выполнена, в посольстве недовольны (отношения −4).`);
-      S.demands[c] = { wait: S.turn + 2 };
+      S.demands[c] = { wait: S.turn + 4 + Math.floor(Math.random() * 3) };
     }
+  }
+  // новая просьба — максимум одна за квартал и только если просьб меньше двух
+  if (ready.length && active().length < DEMAND_MAX && Math.random() < 0.5) {
+    const c = pick(ready), d = Game.pickDemand(c);
+    if (d) S.demands[c] = d;
   }
 });
 
@@ -203,7 +218,7 @@ Object.assign(UI, {
     const tchip = { trade: '📜 Торговый договор', friend: '🤝 Дружба', alliance: '⚔️ Военный союз' };
     const B = Game.budgetCalc();
     const ti = Game.treatyIncome();
-    return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. ${ti ? `Торговые договоры приносят <b>${ti.v.toFixed(1)} млн</b> в квартал.` : 'Торговых договоров пока нет.'} У каждой страны есть просьба: выполните её до срока, иначе обидятся. Договор о дружбе не даёт отношениям остывать, военный союз защищает от переворота.</p>
+    return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. ${ti ? `Торговые договоры приносят <b>${ti.v.toFixed(1)} млн</b> в квартал.` : 'Торговых договоров пока нет.'} Страны иногда обращаются с просьбами, одновременно не больше двух: выполните до срока, иначе обидятся. Договор о дружбе не даёт отношениям остывать, военный союз защищает от переворота.</p>
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c], T = Game.treaties(c), dm = Game.demandOf(c), bl = Game.blocOf(c);
         return `<article class="card country">
