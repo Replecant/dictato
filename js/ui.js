@@ -205,7 +205,7 @@ const UI = {
   report(rep) {
     const B = rep.money;
     const row = (n, v, cls = '') => `<tr class="${cls}"><td>${n}</td><td class="num">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(0)}</td></tr>`;
-    const diffs = ['treasury', 'economy', 'support', 'army', 'fear', 'swiss'].map(k => {
+    const diffs = ['treasury', 'economy', 'support', 'army', 'fear', ...(S.era === '2000' ? ['net'] : []), 'swiss'].map(k => {
       const d = rep.after[k] - rep.before[k];
       return `<div class="rep-stat"><span>${STAT_ICONS[k]} ${STAT_NAMES[k]}</span><b>${rep.after[k]}</b><i class="${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d ? sign(d) : '·'}</i></div>`;
     }).join('');
@@ -219,7 +219,7 @@ const UI = {
             ${row('Налоги', B.taxes)}${row('Экспорт: ' + REGIONS[S.region].exports, B.exports)}
             ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}
             ${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
-            ${row('Армия', -B.costs.army)}${row('Тайная полиция', -B.costs.police)}${row('Хлеб и школы', -B.costs.social)}${row('Дороги и порты', -B.costs.infra)}
+            ${row('Армия', -B.costs.army)}${row('Тайная полиция', -B.costs.police)}${row('Хлеб и школы', -B.costs.social)}${row('Дороги и порты', -B.costs.infra)}${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}
             ${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}
             ${row('Итого за квартал', B.net, 'total')}
           </tbody>
@@ -239,13 +239,14 @@ const UI = {
     $('#hdr-date').textContent = Game.dateLabel();
     $('#hdr-leader').innerHTML = Portrait.svg(S.leader.look);
     $('#hdr-ap').innerHTML = `<span class="ap-label">Приказы</span>` + Array.from({ length: AP_PER_TURN }, (_, i) => `<span class="pip ${i < S.ap ? 'on' : ''}" aria-hidden="true"></span>`).join('') + `<span class="sr">${S.ap} из ${AP_PER_TURN}</span>`;
-    const stats = ['treasury', 'economy', 'support', 'army', 'fear', 'swiss'];
+    const stats = ['treasury', 'economy', 'support', 'army', 'fear', ...(S.era === '2000' ? ['net'] : []), 'swiss'];
+    $('#stats').classList.toggle('seven', stats.length === 7);
     $('#stats').innerHTML = stats.map(k => {
       const v = S[k];
       const money = k === 'treasury' || k === 'swiss';
       const pct = money ? clamp(k === 'swiss' ? v : v / 2, 0, 100) : v;
-      const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
-      return `<div class="stat ${lvl}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
+      const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
+      return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
     for (const b of document.querySelectorAll('.tabs button')) { b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
     $('#btn-end').disabled = S.phase !== 'hub';
@@ -266,6 +267,8 @@ const UI = {
     if (S.army < 45) tips.push(['defense', 'Офицеры недовольны. Поднимите бюджет армии или устройте парад.']);
     if (S.support < 35) tips.push(['propaganda', 'Народ ворчит. Хлеб, зрелища, моё радиошоу — что-нибудь!']);
     if (S.fac.left.s > 50) tips.push(['police', `${R.factions.left.name} набирают силу. У меня есть списки.`]);
+    if (S.era === '2000' && S.net > 25 && S.fac.liberals.a < 40) tips.push(['police', `Интернетом пользуются уже ${Math.round(S.net)}% граждан. Блогеры собирают митинги за пятнадцать минут. Подумайте о фильтрах.`]);
+    if (S.era === '2000' && S.budget.netctl === 2) tips.push(['economy', 'Файрвол душит экономику. Инвесторы не любят страны, где не открывается их почта.']);
     if (Math.max(...Object.values(S.rel)) < 40) tips.push(['foreign', 'У нас нет ни одного настоящего друга в мире. Это поэтично, но опасно.']);
     if (!tips.length) tips.push(['police', 'В столице спокойно. Подозрительно спокойно. Я слежу.']);
     const tip = tips[S.turn % tips.length];
@@ -290,7 +293,7 @@ const UI = {
         </section>
         <section class="card chart-card">
           <div class="eyebrow">Динамика правления</div>
-          ${Charts.lines(hist, [['support', 'Народ', 'var(--c-support)'], ['army', 'Армия', 'var(--c-army)'], ['economy', 'Экономика', 'var(--c-economy)'], ['fear', 'Страх', 'var(--c-fear)']])}
+          ${Charts.lines(hist, [['support', 'Народ', 'var(--c-support)'], ['army', 'Армия', 'var(--c-army)'], ['economy', 'Экономика', 'var(--c-economy)'], ['fear', 'Страх', 'var(--c-fear)'], ...(S.era === '2000' ? [['net', 'Интернет', 'var(--c-net)']] : [])])}
         </section>
         <section class="card help-card">
           <div class="eyebrow">Как править</div>
@@ -299,6 +302,7 @@ const UI = {
             <li>Бюджет на вкладке «Экономика» меняется без приказов.</li>
             <li>Армия ниже 45 и злые «ястребы» — к перевороту. Народ ниже 30 и сильные левые — к революции.</li>
             <li>Деньги «нужд дворца» уходят на ваш счёт в Швейцарии. Он пригодится, если придётся бежать.</li>
+            ${S.era === '2000' ? '<li><b>Интернет</b> растёт сам и с каждым годом быстрее. Он ускоряет экономику, но усиливает блогеров и протесты. Фильтры и файрвол тормозят и то и другое, стоят денег и злят Запад.</li>' : ''}
           </ul>
           <button class="btn ghost small" data-act="retire">Уйти на покой…</button>
           <div class="confirm" id="retire-confirm" hidden><p>Передать власть и уехать в ${REGIONS[S.region].exile} с ${Math.round(S.swiss)} млн на счёте?</p><button class="btn danger small" data-act="retire-yes">Да, уезжаю</button> <button class="btn ghost small" data-act="retire-no">Остаюсь</button></div>
@@ -328,7 +332,8 @@ const UI = {
     return `<div class="eco">
       <section class="card">
         <div class="eyebrow">Бюджет на квартал · без приказов</div>
-        ${Object.entries(BUDGET).map(([k, d]) => `<div class="budget-row"><span class="budget-name">${d.name}</span><div class="seg">${d.labels.map((l, i) => `<button class="${S.budget[k] === i ? 'on' : ''}" data-budget="${k}" data-val="${i}" ${S.phase !== 'hub' ? 'disabled' : ''}>${l}${d.costs[i] ? ` <small>${d.costs[i]}</small>` : ''}</button>`).join('')}</div></div>`).join('')}
+        ${Object.entries(BUDGET).filter(([, d]) => !d.era || d.era === S.era).map(([k, d]) => `<div class="budget-row"><span class="budget-name">${d.name}</span><div class="seg">${d.labels.map((l, i) => `<button class="${S.budget[k] === i ? 'on' : ''}" data-budget="${k}" data-val="${i}" ${S.phase !== 'hub' ? 'disabled' : ''}>${l}${d.costs[i] ? ` <small>${d.costs[i]}</small>` : ''}</button>`).join('')}</div></div>`).join('')}
+        ${S.era === '2000' ? `<p class="muted small">Интернетом пользуются ${Math.round(S.net)}% граждан. Свобода: быстрый рост, экономика растёт, блогеры сильнеют. Файрвол: всё наоборот, плюс −1 к отношениям с Западом каждый квартал.</p>` : ''}
         <p class="muted small">Щедрая армия — лояльные генералы. Тайная полиция — страх. Хлеб и школы — любовь народа. Дороги — рост экономики. Высокие налоги злят и народ, и богачей. Нужды дворца идут на ваш счёт в Цюрихе.</p>
       </section>
       <section class="card">
@@ -336,7 +341,7 @@ const UI = {
         <table class="ledger"><tbody>
           ${row('Налоги', B.taxes)}${row('Экспорт (' + R.exports + ')', B.exports)}
           ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}
-          ${row('Расходы на ведомства', -(B.costs.army + B.costs.police + B.costs.social + B.costs.infra))}
+          ${row('Расходы на ведомства', -(B.costs.army + B.costs.police + B.costs.social + B.costs.infra + (B.costs.netctl || 0)))}
           ${B.palace ? row('Нужды дворца', -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
           <tr class="total"><td>Итого</td><td class="num">${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(1)}</td></tr>
         </tbody></table>

@@ -20,6 +20,7 @@
   --c-army: #7fae5a;
   --c-economy: #5aa6c9;
   --c-fear: #d0605a;
+  --c-net: #b48ae0;
   --f-display: "Rubik Mono One", "Arial Black", Impact, sans-serif;
   --f-body: "PT Serif", Georgia, "Times New Roman", serif;
   --f-mono: "PT Mono", "Courier New", monospace;
@@ -81,7 +82,14 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .setup-sec { margin-top: 24px; }
 .sec-h { font: 15px/1.3 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 .picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.picks-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.picks-2 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.stats.seven { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.stat.net .bar > span { background: var(--c-net); }
+body[data-era="2000"] .paper { background: #f4f4f2; transform: none; border-top: 10px solid #1f5fae; font-family: Arial, Helvetica, sans-serif; }
+body[data-era="2000"] .paper-mast { font: 700 clamp(22px, 5vw, 34px)/1 Arial, Helvetica, sans-serif; color: #1f5fae; text-align: left; border-bottom: 2px solid #1f5fae; letter-spacing: -0.01em; }
+body[data-era="2000"] .paper-date { text-align: left; border-bottom: 0; color: #c1272d; }
+body[data-era="2000"] .paper-head { font-family: Arial, Helvetica, sans-serif; }
+body[data-era="2000"] .paper-text { columns: auto; font-family: Arial, Helvetica, sans-serif; font-size: 16px; }
 .pick-year { font: 30px/1 var(--f-display); color: var(--fg); }
 .era-pick { padding: 18px; }
 body[data-era="1930"] .vn-bg svg { filter: sepia(0.45) saturate(0.85) contrast(1.05); }
@@ -320,7 +328,7 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 
 /* ---------- адаптив ---------- */
 @media (max-width: 900px) {
-  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stats, .stats.seven { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cab, .eco { grid-template-columns: minmax(0, 1fr); }
   .chart-card { grid-column: auto; }
   .picks { grid-template-columns: minmax(0, 1fr); }
@@ -331,7 +339,7 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 }
 @media (max-width: 560px) {
   body { font-size: 15px; }
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats, .stats.seven { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .leader-card { grid-template-columns: minmax(0, 1fr); }
   .leader-portrait { max-width: 140px; }
   .leader-info h2 { font-size: 16px; }

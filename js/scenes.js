@@ -6,6 +6,9 @@ const Scenes = (() => {
     africa: { sky1: '#fbd37a', sky2: '#d9822b', ground: '#9a5b2a', wall: '#ead2a8', accent: '#1e7a3c', roof: '#6b3e1e', plant: '#5d7a2a' },
     latam30: { sky1: '#f3d9a4', sky2: '#c9774a', ground: '#7a5a3a', wall: '#ecd8b4', accent: '#7a1f3d', roof: '#a4492d', plant: '#3d6b3a' },
     europe30: { sky1: '#c9d4dc', sky2: '#7a8a9c', ground: '#5a5a3c', wall: '#e4dcc8', accent: '#1f4e8c', roof: '#7a3a2a', plant: '#3a5a3a' },
+    africa00: { sky1: '#fcd88a', sky2: '#e07a3a', ground: '#8a4a2a', wall: '#ead2a8', accent: '#c1272d', roof: '#5a5a5a', plant: '#4d7a2a' },
+    mideast00: { sky1: '#f6e3b0', sky2: '#d99a5a', ground: '#c9a56a', wall: '#ecdcb8', accent: '#1e7a3c', roof: '#b5884a', plant: '#4a7a3a' },
+    centralasia00: { sky1: '#bfe0f0', sky2: '#6aa0c9', ground: '#b8a46a', wall: '#ece0c8', accent: '#1fa3a3', roof: '#1fa3a3', plant: '#5a8a4a' },
     asia30: { sky1: '#f2e2a8', sky2: '#9ab07a', ground: '#5a6a3a', wall: '#ece0c0', accent: '#7a1f3d', roof: '#a0322a', plant: '#3a6a3a' },
   };
   const W = 800, H = 450;
@@ -21,8 +24,18 @@ const Scenes = (() => {
     }
     return s;
   }
+  function poplars(p, n, y, scale) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const x = 40 + i * (W / n) + (i % 2) * 30;
+      const k = scale * (0.8 + (i % 3) * 0.15);
+      s += `<g transform="translate(${x} ${y}) scale(${k})"><rect x="-3" y="-30" width="6" height="30" fill="#5a4a3a"/><ellipse cx="0" cy="-90" rx="16" ry="70" fill="${i % 2 ? '#4a7a3a' : p.plant}"/></g>`;
+    }
+    return s;
+  }
   function palms(p, n, y, scale = 1) {
     if (STYLE === 'europe') return firs(p, n, y, scale);
+    if (STYLE === 'steppe') return poplars(p, n, y, scale);
     let s = '';
     for (let i = 0; i < n; i++) {
       const x = 40 + i * (W / n) + (i % 2) * 30;
@@ -81,6 +94,10 @@ const Scenes = (() => {
         `<rect x="385" y="230" width="30" height="70" fill="#7a6a50"/><circle cx="400" cy="216" r="16" fill="#7a6a50"/>` + crowd('#3a2a20', 450, 52);
     },
     village(p, r) {
+      if (STYLE === 'steppe') return sky(p, 'sv') + `<circle cx="640" cy="90" r="46" fill="#fff3b0"/><path d="M0 250 L150 170 L300 230 L470 150 L650 220 L800 180 L800 450 L0 450 Z" fill="#8aa0b0"/><path d="M0 300 Q400 270 800 300 L800 450 L0 450 Z" fill="${p.ground}"/>` +
+        [140, 330, 540].map(x => `<path d="M${x} 340 V300 Q${x + 50} 250 ${x + 100} 300 V340 Z" fill="#f2ead6"/><path d="M${x} 300 Q${x + 50} 250 ${x + 100} 300" stroke="#c1272d" stroke-width="5" fill="none"/><path d="M${x} 318 H${x + 100}" stroke="#c1272d" stroke-width="3"/><rect x="${x + 40}" y="312" width="20" height="28" fill="#7a3a2a"/>`).join('') + poplars(p, 2, 360, 0.7);
+      if (STYLE === 'mideast') return sky(p, 'sv') + `<circle cx="640" cy="90" r="46" fill="#fff3b0"/><path d="M0 300 Q200 260 400 290 T800 280 L800 450 L0 450 Z" fill="${p.ground}"/>` +
+        [100, 260, 420, 560].map((x, i) => `<rect x="${x}" y="${250 + (i % 2) * 20}" width="110" height="${80 - (i % 2) * 20}" fill="${p.wall}"/><rect x="${x + 40}" y="290" width="24" height="40" fill="#5a3a2a"/><rect x="${x + 10}" y="${262 + (i % 2) * 20}" width="18" height="18" fill="#5a3a2a"/><ellipse cx="${x + 90}" cy="${246 + (i % 2) * 20}" rx="12" ry="6" fill="#ddd"/>`).join('') + palms(p, 3, 360, 0.8);
       return sky(p, 'sv') + `<circle cx="640" cy="90" r="46" fill="#fff3b0"/>` +
         `<path d="M0 260 Q200 200 400 250 T800 230 L800 450 L0 450 Z" fill="${p.plant}"/><path d="M0 320 Q300 280 800 330 L800 450 L0 450 Z" fill="${p.ground}"/>` +
         [120, 300, 520].map(x => STYLE === 'asia'
@@ -101,6 +118,14 @@ const Scenes = (() => {
         `<rect y="400" width="${W}" height="50" fill="#0c0b16"/>` + tank(20, 430, 0.9, '#11140c') + tank(560, 440, 1.1, '#11140c');
     },
     church(p, r) {
+      if (STYLE === 'mideast' || STYLE === 'steppe') {
+        const dome = STYLE === 'steppe' ? '#1fa3a3' : '#d6a63a';
+        return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="${p.ground}"/>` +
+          (STYLE === 'steppe' ? `<rect x="230" y="150" width="340" height="180" fill="${p.wall}"/><path d="M340 330 V200 Q400 130 460 200 V330 Z" fill="#2a6a9a"/><path d="M352 330 V206 Q400 146 448 206 V330 Z" fill="#1fa3a3" opacity="0.5"/>` : `<rect x="250" y="200" width="300" height="130" fill="${p.wall}"/>`) +
+          `<path d="M320 ${STYLE === 'steppe' ? 150 : 200} Q320 90 400 80 Q480 90 480 ${STYLE === 'steppe' ? 150 : 200} Z" fill="${dome}"/><path d="M400 80 V58" stroke="${dome}" stroke-width="4"/><path d="M394 56 a8 8 0 1 0 10 -6 a6 6 0 1 1 -10 6" fill="${dome}"/>` +
+          [190, 610].map(x => `<rect x="${x - 12}" y="110" width="24" height="220" fill="${p.wall}"/><rect x="${x - 16}" y="150" width="32" height="8" fill="${dome}"/><path d="M${x - 12} 110 L${x} 80 L${x + 12} 110 Z" fill="${dome}"/>`).join('') +
+          [290, 350, 450, 510].map(x => `<path d="M${x - 12} 300 V255 Q${x} 238 ${x + 12} 255 V300 Z" fill="#3a3a4a"/>`).join('') + crowd('#2a2420', 450, 22, false);
+      }
       if (STYLE === 'europe') return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="#b8b09a"/>` +
         `<rect x="250" y="190" width="300" height="140" fill="${p.wall}"/><rect x="360" y="120" width="80" height="80" fill="${p.wall}"/>` +
         [[400, 120, 34], [290, 190, 22], [510, 190, 22]].map(([x, y, r2]) => `<path d="M${x - r2} ${y} Q${x - r2 - 8} ${y - r2 * 1.2} ${x} ${y - r2 * 2.4} Q${x + r2 + 8} ${y - r2 * 1.2} ${x + r2} ${y} Z" fill="#d6a63a"/><path d="M${x} ${y - r2 * 2.4} V${y - r2 * 2.4 - 24} M${x - 8} ${y - r2 * 2.4 - 16} H${x + 8}" stroke="#d6a63a" stroke-width="3"/><rect x="${x - r2 + 4}" y="${y}" width="${(r2 - 4) * 2}" height="14" fill="${p.wall}"/>`).join('') +

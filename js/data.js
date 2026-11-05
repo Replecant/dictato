@@ -303,7 +303,7 @@ function npcLook(key, region) {
     prince: { name: 'Наследный принц в изгнании', look: { ...base, face: 'long', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'worried', mouth: 'smile', outfit: 'military', outfitColor: '#f2ead6', medals: 9, sash: '#1f4e8c' } },
     egypt_amb: { name: 'Посол ОАР Хасан эль-Масри', look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#222', mustache: 'thick', brows: 'normal', mouth: 'smile', outfit: 'suit', outfitColor: '#3a3a3a', tie: '#ce1126' } },
   };
-  return L[key];
+  return (r.era === '2000' && npc00(key, region, base, r)) || L[key];
 }
 
 // Эпохи
@@ -367,3 +367,197 @@ const RELATIVES_BY_STYLE = {
   africa: { defense: 'Кузен Ипполит', economy: 'Шурин Бенедикт', police: 'Тётушка Мариам', propaganda: 'Племянник Тити', foreign: 'Зять Октав', abroad: 'в Париже' },
   europe: { defense: 'Кузен Збышек', economy: 'Шурин Бенедикт', police: 'Тётушка Ядвига', propaganda: 'Племянник Юзек', foreign: 'Зять Октавиан', abroad: 'в Вене' },
 };
+
+// ================= Эпоха 2000-х =================
+Object.assign(COUNTRIES, {
+  russia: { name: 'Россия', bloc: 'east', flag: 'russia', leaders: [[2008.35, 'президент Путин'], [9999, 'президент Медведев (и премьер Путин)']] },
+  eu: { name: 'Евросоюз', bloc: 'west', flag: 'eu', leaders: [[9999, 'Еврокомиссия в Брюсселе']] },
+  saudi: { name: 'Саудовская Аравия', bloc: 'neutral', flag: 'saudi', leaders: [[2005.6, 'король Фахд'], [9999, 'король Абдалла']] },
+  iran: { name: 'Иран', bloc: 'neutral', flag: 'iran', leaders: [[2005.6, 'президент Хатами'], [9999, 'президент Ахмадинежад']] },
+  turkey: { name: 'Турция', bloc: 'neutral', flag: 'turkey', leaders: [[2003.2, 'премьер Эджевит'], [9999, 'премьер Эрдоган']] },
+  libya: { name: 'Ливия', bloc: 'neutral', flag: 'libya', leaders: [[9999, 'полковник Каддафи']] },
+  sa: { name: 'ЮАР', bloc: 'neutral', flag: 'sa', leaders: [[2008.72, 'президент Мбеки'], [2009.35, 'президент Мотланте'], [9999, 'президент Зума']] },
+});
+COUNTRIES.usa.leaders00 = [[2001.05, 'президент Клинтон'], [2009.05, 'президент Буш-младший'], [9999, 'президент Обама']];
+COUNTRIES.china.leaders00 = [[2003.2, 'председатель Цзян Цзэминь'], [9999, 'председатель Ху Цзиньтао']];
+COUNTRIES.uk.leaders00 = [[2007.5, 'премьер Блэр'], [9999, 'премьер Браун']];
+COUNTRIES.france.leaders00 = [[2007.4, 'президент Ширак'], [9999, 'президент Саркози']];
+Object.assign(FLAGS, {
+  russia: `<rect width="30" height="6.7" fill="#fff"/><rect y="6.7" width="30" height="6.7" fill="#0039a6"/><rect y="13.3" width="30" height="6.7" fill="#d52b1e"/>`,
+  eu: `<rect width="30" height="20" fill="#003399"/>${Array.from({ length: 12 }, (_, i) => `<circle cx="${15 + Math.cos(i * Math.PI / 6) * 6}" cy="${10 + Math.sin(i * Math.PI / 6) * 6}" r="0.9" fill="#ffcc00"/>`).join('')}`,
+  saudi: `<rect width="30" height="20" fill="#006c35"/><path d="M8 8 h14" stroke="#fff" stroke-width="1.2" stroke-dasharray="1.5 0.8"/><path d="M8 13 H22 L23 12" stroke="#fff" stroke-width="1" fill="none"/>`,
+  iran: `<rect width="30" height="6.7" fill="#239f40"/><rect y="6.7" width="30" height="6.7" fill="#fff"/><rect y="13.3" width="30" height="6.7" fill="#da0000"/><circle cx="15" cy="10" r="2" fill="none" stroke="#da0000" stroke-width="0.8"/>`,
+  turkey: `<rect width="30" height="20" fill="#e30a17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#e30a17"/><circle cx="17.5" cy="10" r="1.6" fill="#fff"/>`,
+  libya: `<rect width="30" height="20" fill="#009a3e"/>`,
+  sa: `<rect width="30" height="20" fill="#fff"/><rect width="30" height="7" fill="#de3831"/><rect y="13" width="30" height="7" fill="#002395"/><path d="M0 0 L13 10 L0 20 Z" fill="#ffb612"/><path d="M0 2 L11 10 L0 18 Z" fill="#000"/><path d="M10 10 L30 10" stroke="#007a4d" stroke-width="4"/><path d="M0 0 L13 10 L0 20" stroke="#007a4d" stroke-width="2.6" fill="none"/>`,
+});
+Object.assign(REGIME_TYPES, {
+  heir: {
+    name: 'Наследник', icon: '👑',
+    desc: 'Страну вам оставил папа, правивший тридцать лет. Генералы помнят вас в коротких штанишках, кланы — в долгах.',
+    fx: { treasury: 20, army: 6 }, fac: { oligarchs: { a: 20 }, hawks: { a: 5 }, liberals: { a: -6 } }, rel: { russia: 5 },
+  },
+  reformer: {
+    name: 'Реформатор (на словах)', icon: '💻',
+    desc: 'Вы обещали демократию, интернет и рынок. Запад аплодирует, МВФ даёт кредиты, старые генералы точат ножи.',
+    fx: { economy: 5, support: 8, fear: -10 }, fac: { liberals: { a: 22 }, hawks: { a: -15 }, oligarchs: { a: -5 } }, rel: { usa: 15, eu: 15, uk: 6, france: 6, russia: -8, china: -4 },
+  },
+  strongman: {
+    name: 'Вертикаль власти', icon: '🦾',
+    desc: 'Стабильность, порядок и рейтинг девяносто семь процентов. Москва и Пекин всё понимают, Брюссель выражает озабоченность.',
+    fx: { fear: 15, army: 10, support: -2 }, fac: { liberals: { a: -15 }, hawks: { a: 15 } }, rel: { russia: 15, china: 12, usa: -8, eu: -10 },
+  },
+});
+
+Object.assign(REGIONS, {
+  africa00: {
+    name: 'Африка', short: 'Африка',
+    blurb: 'Нефть, алмазы и новые дороги, которые строят китайцы. Мобильные телефоны появились раньше, чем электричество в деревнях.',
+    country: 'Республика Кассанга', capital: 'Порту-Либерту', currency: 'кассангский кванзо',
+    exports: 'нефть и алмазы', exportGen: 'нефти', company: '«ПетроГлобал Оффшор»', patron: 'china',
+    sport: 'финал Кубка африканских наций', rival: 'Республика Северная Луэна', rivalShort: 'Северная Луэна',
+    disputed: 'алмазная долина Кванго-Норте', faithLeader: 'Пастор мегацеркви', capitalSquare: 'площади Независимости',
+    jungle: 'буше провинции Кабинда-Сул', nephew: 'Нелсиньо',
+    countries: ['china', 'usa', 'france', 'uk', 'russia', 'sa', 'libya'],
+    relInit: { china: 60, usa: 45, france: 45, uk: 45, russia: 40, sa: 50, libya: 45 },
+    flag: `<rect width="30" height="10" fill="#c1272d"/><rect y="10" width="30" height="10" fill="#111"/><path d="M15 5 L16.4 8.6 L20 8.7 L17.2 11 L18.2 14.6 L15 12.5 L11.8 14.6 L12.8 11 L10 8.7 L13.6 8.6 Z" fill="#f2c14e"/>`,
+    leaderSkin: 'dark', era: '2000', style: 'africa', faithStyle: 'evangelical', exile: 'Лиссабоне', critters: 'мобильных телефонов', netStart: 1,
+    factions: {
+      left: { name: 'Бывшие повстанцы', short: 'Ветераны', icon: '✊', desc: 'Подписали мир в 2002 году. Автоматы закопали, но неглубоко.' },
+      liberals: { name: 'Блогеры и студенты', short: 'Блогеры', icon: '📱', desc: 'Пишут посты с телефонов, пока работает связь. Связь работает всё лучше.' },
+      faith: { name: 'Евангельские мегацеркви', short: 'Пасторы', icon: '✝️', desc: 'Сорок тысяч прихожан на стадионе каждое воскресенье. И пастор с джетом.' },
+      oligarchs: { name: 'Нефтяная элита', short: 'Нефтяники', icon: '🛢️', desc: 'Семьи с тремя паспортами и пятью виллами в Лиссабоне. Половина из них — ваши родственники.' },
+      hawks: { name: 'Генералы-бизнесмены', short: 'Генералы', icon: '⚔️', desc: 'Каждому генералу принадлежит алмазный прииск, банк и футбольный клуб.' },
+    },
+    advisors: {
+      defense: { name: 'Генерал Фелисберту «Калаш» Мавинга', bio: 'У генерала пять мобильных телефонов. Говорит, что каждый для отдельной войны.', look: { skin: SKIN.dark, face: 'square', hair: 'short', hairColor: '#111', hat: 'cap', hatColor: '#3d4a2a', glasses: 'aviator', mustache: 'thick', brows: 'bushy', mouth: 'flat', outfit: 'military', outfitColor: '#3d4a2a', medals: 15 } },
+      economy: { name: 'Доктор Аделаида Сантуш', bio: 'Выпускница Гарварда. Делает презентации на 140 слайдов. Последний слайд «Выводы» всегда пустой.', look: { skin: SKIN.brown, face: 'oval', hair: 'bun', hairColor: '#111', glasses: 'square', mustache: 'none', brows: 'worried', mouth: 'o', outfit: 'suit', outfitColor: '#2a4a7a', tie: 'none', earring: true, sweat: true } },
+      police: { name: 'Полковник Жоаким «Симка» Нету', bio: 'Подслушивает все телефоны страны с тех пор, как в ней появилась сотовая связь. То есть с 2003 года.', look: { skin: SKIN.deep, face: 'oval', hair: 'bald', hairColor: '#111', glasses: 'aviator', mustache: 'none', beard: 'goatee', brows: 'angry', mouth: 'smirk', outfit: 'suit', outfitColor: '#141414', tie: '#111' } },
+      propaganda: { name: 'Мадам Глория Мукенге', bio: 'Хозяйка государственного телеканала. Уверена, что интернет — это мода, как диско. Скоро пройдёт.', look: { skin: SKIN.dark, face: 'round', hair: 'long', hairColor: '#1a1210', mustache: 'none', brows: 'normal', mouth: 'grin', outfit: 'robe', outfitColor: '#e0a31f', trim: '#c1272d', blush: true, earring: true } },
+      foreign: { name: 'Министр Агостинью да Кошта', bio: 'Летает в Пекин чаще, чем домой. Учит китайский по самоучителю «Нефть в обмен на кредиты».', look: { skin: SKIN.brown, face: 'long', hair: 'short', hairColor: '#777', mustache: 'pencil', brows: 'normal', mouth: 'smile', glasses: 'round', outfit: 'suit', outfitColor: '#ece6d6', tie: '#c1272d' } },
+    },
+  },
+  mideast00: {
+    name: 'Ближний Восток', short: 'Ближний Восток',
+    blurb: 'Нефть, финики и спутниковые тарелки на каждой крыше. Вашингтон воюет с террором, «Аль-Джазира» — с вашим имиджем.',
+    country: 'Республика Аль-Ваха', capital: 'Дар-эн-Нахль', currency: 'вахский динар',
+    exports: 'нефть и финики', exportGen: 'нефти', company: '«Галф Энерджи Холдингс»', patron: 'usa',
+    sport: 'финал Кубка Азии по футболу', rival: 'Королевство Аль-Джабаль', rivalShort: 'Аль-Джабаль',
+    disputed: 'оазис Бир-Самир', faithLeader: 'Верховный муфтий', capitalSquare: 'площади Освобождения',
+    jungle: 'песках у южной границы', nephew: 'Карим',
+    countries: ['usa', 'russia', 'china', 'eu', 'saudi', 'iran', 'turkey'],
+    relInit: { usa: 55, russia: 40, china: 42, eu: 45, saudi: 50, iran: 40, turkey: 48 },
+    flag: `<rect width="30" height="20" fill="#f2ead6"/><rect width="9" height="20" fill="#1e7a3c"/><rect x="9" width="21" height="6.7" fill="#c1272d"/><rect x="9" y="13.3" width="21" height="6.7" fill="#111"/><circle cx="19.5" cy="10" r="2" fill="#1e7a3c"/>`,
+    leaderSkin: 'tan', era: '2000', style: 'mideast', faithStyle: 'islam', exile: 'Лондоне', critters: 'спутниковых тарелок', netStart: 3,
+    factions: {
+      left: { name: 'Подпольная оппозиция', short: 'Оппозиция', icon: '✊', desc: 'Раздают бедным суп и листовки. Обещают справедливость. Какую именно, уточнят после победы.' },
+      liberals: { name: 'Блогеры и молодёжь', short: 'Блогеры', icon: '📱', desc: 'Половине страны меньше двадцати пяти лет. И у всех есть телефон.' },
+      faith: { name: 'Улемы и муфтият', short: 'Улемы', icon: '☪️', desc: 'Пятничную проповедь слышит вся страна. Её содержание вы узнаёте последним.' },
+      oligarchs: { name: 'Шейхи и подрядчики', short: 'Шейхи', icon: '🛢️', desc: 'Строят башни, торговые центры и острова в форме вашего профиля.' },
+      hawks: { name: 'Республиканская гвардия', short: 'Гвардия', icon: '⚔️', desc: 'Лучшие танки страны стоят не на границе, а вокруг дворца. На всякий случай.' },
+    },
+    advisors: {
+      defense: { name: 'Генерал Халид аль-Бурджи', bio: 'Купил двадцать истребителей. Летать на них умеют двое, и оба — инструкторы из Техаса.', look: { skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#111', hat: 'cap', hatColor: '#4b5320', mustache: 'thick', brows: 'bushy', mouth: 'flat', outfit: 'military', outfitColor: '#4b5320', medals: 16 } },
+      economy: { name: 'Доктор Тарик Нафтави', bio: 'Знает цену барреля в любую секунду. Даже во сне: кричит цифры и просыпается от падения котировок.', look: { skin: SKIN.tan, face: 'long', hair: 'combover', hairColor: '#333', glasses: 'square', beard: 'goatee', mustache: 'thick', brows: 'worried', mouth: 'o', outfit: 'suit', outfitColor: '#5a5a5a', tie: '#1e7a3c', sweat: true } },
+      police: { name: 'Полковник Самир Хаддад', bio: 'Глава мухабарата. Читает вашу почту раньше вас. Иногда даже отвечает на неё.', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#111', glasses: 'aviator', mustache: 'thick', brows: 'angry', mouth: 'smirk', outfit: 'suit', outfitColor: '#18181a', tie: '#111' } },
+      propaganda: { name: 'Лейла аль-Аскари', bio: 'Глава госТВ. Каждый вечер три часа новостей о вас и пять минут о погоде. Хорошая погода — тоже ваша заслуга.', look: { skin: SKIN.tan, face: 'oval', hair: 'long', hairColor: '#1a1210', mustache: 'none', brows: 'normal', mouth: 'smile', outfit: 'suit', outfitColor: '#7a1f3d', tie: 'none', earring: true, blush: true } },
+      foreign: { name: 'Принц-министр Фейсал бин Рашид', bio: 'Учился в Оксфорде. Играет в гольф с послами, а с министрами ездит на соколиную охоту.', look: { skin: SKIN.tan, face: 'long', hair: 'short', hairColor: '#222', hat: 'keffiyeh', hatColor: '#f4f1ea', beard: 'goatee', mustache: 'thick', brows: 'normal', mouth: 'smirk', outfit: 'robe', outfitColor: '#f4f1ea', trim: '#d6a63a' } },
+    },
+  },
+  centralasia00: {
+    name: 'Средняя Азия', short: 'Средняя Азия',
+    blurb: 'Газ, хлопок и золотые статуи. Москва, Пекин и Вашингтон наперебой предлагают дружбу, а вы улыбаетесь всем троим сразу.',
+    country: 'Республика Алтынстан', capital: 'Алтынабад', currency: 'алтынский манат',
+    exports: 'газ и хлопок', exportGen: 'газа', company: '«Газтранзит-Холдинг»', patron: 'russia',
+    sport: 'финал Азиатских игр по борьбе', rival: 'Республика Сарыкум', rivalShort: 'Сарыкум',
+    disputed: 'пограничный кишлак Кошбулак', faithLeader: 'Верховный муфтий', capitalSquare: 'площади Независимости',
+    jungle: 'горах на юге', nephew: 'Тимурчик',
+    countries: ['russia', 'china', 'usa', 'eu', 'turkey', 'iran'],
+    relInit: { russia: 60, china: 50, usa: 42, eu: 40, turkey: 50, iran: 42 },
+    flag: `<rect width="30" height="20" fill="#1fa3a3"/><rect x="0" width="5" height="20" fill="#d6a63a"/><circle cx="18" cy="10" r="4" fill="#f2c14e"/><circle cx="19.4" cy="9" r="3.4" fill="#1fa3a3"/>`,
+    leaderSkin: 'tan', era: '2000', style: 'steppe', faithStyle: 'islam', exile: 'Москве', critters: 'баранов', netStart: 1,
+    factions: {
+      left: { name: 'Оппозиция в эмиграции', short: 'Эмигранты', icon: '✊', desc: 'Живут в Лондоне и Москве. Пишут гневные статьи на сайтах, которые у вас заблокированы.' },
+      liberals: { name: 'Блогеры и студенты', short: 'Блогеры', icon: '📱', desc: 'Смотрят, как соседи свергают президентов, и делают выводы. Пока только в комментариях.' },
+      faith: { name: 'Духовное управление и аксакалы', short: 'Аксакалы', icon: '☪️', desc: 'Старейшины махалли. Знают всё обо всех, помнят всё за всех.' },
+      oligarchs: { name: 'Газовые и хлопковые кланы', short: 'Кланы', icon: '🛢️', desc: 'Три великих клана. Двое из них ненавидят друг друга, третий — вас.' },
+      hawks: { name: 'Силовики', short: 'Силовики', icon: '⚔️', desc: 'Армия, госбезопасность и налоговая. В свободное время охраняют свои бизнесы.' },
+    },
+    advisors: {
+      defense: { name: 'Генерал Рустам Батыров', bio: 'Фуражка у генерала размером с юрту. Танков в бою не видел, только в кино. Зато лично отбирает коней для парадов.', look: { skin: SKIN.tan, face: 'round', hair: 'short', hairColor: '#111', hat: 'cap', hatColor: '#3d5a3a', mustache: 'none', brows: 'bushy', mouth: 'flat', outfit: 'military', outfitColor: '#3d5a3a', medals: 16, blush: true } },
+      economy: { name: 'Доктор Фарход Газимов', bio: 'Автор «Хлопковой пятилетки». Пятилетка идёт уже девятый год и перевыполняется на бумаге.', look: { skin: SKIN.tan, face: 'long', hair: 'short', hairColor: '#333', hat: 'tubeteika', hatColor: '#1a1a1a', glasses: 'round', mustache: 'thick', brows: 'worried', mouth: 'o', outfit: 'suit', outfitColor: '#4a4a44', tie: '#1fa3a3', sweat: true } },
+      police: { name: 'Генерал Тимур Саидов', bio: 'Глава СНБ. Знает, кто что сказал на чьей свадьбе. И кто с кем сидел за столом.', look: { skin: SKIN.light, face: 'square', hair: 'combover', hairColor: '#444', glasses: 'square', mustache: 'none', brows: 'angry', mouth: 'flat', outfit: 'suit', outfitColor: '#1d1f24', tie: '#7a1a1a' } },
+      propaganda: { name: 'Гульшат Ордабаева', bio: 'Народная поэтесса. Пишет новый гимн каждую неделю. Старый каждую неделю отменяют.', look: { skin: SKIN.tan, face: 'round', hair: 'bun', hairColor: '#1a1210', hat: 'tubeteika', hatColor: '#7a1f3d', mustache: 'none', brows: 'normal', mouth: 'grin', outfit: 'robe', outfitColor: '#1fa3a3', trim: '#d6a63a', blush: true, earring: true } },
+      foreign: { name: 'Министр Нурлан Векторов', bio: 'Автор «многовекторной политики». Улыбается Москве, Пекину и Вашингтону одновременно, тремя разными улыбками.', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#222', mustache: 'none', brows: 'normal', mouth: 'grin', outfit: 'suit', outfitColor: '#2a2d36', tie: '#d6a63a' } },
+    },
+  },
+});
+
+ERAS['2000'] = {
+  name: '2000-е', label: 'Эпоха интернета', start: 2000,
+  blurb: '11 сентября, нефтяной бум, цветные революции и «Фейсбук». Интернет растёт сам: он двигает экономику и сплачивает оппозицию.',
+  regions: ['africa00', 'mideast00', 'centralasia00'], regimes: ['heir', 'reformer', 'strongman'], titles: ['Пожизненный Президент'],
+  intro: 'Впереди десятилетие: война с террором, нефтяной бум, цветные революции и интернет, который скоро будет в каждом кармане.',
+  aid: [['usa', 60, 3], ['eu', 60, 4], ['china', 55, 3], ['russia', 60, 4], ['saudi', 60, 4], ['libya', 60, 4], ['$patron', 60, 4]],
+  vars: { blame: 'ЦРУ. Или хакеры. Или кто-то из Фейсбука', student_meme: 'Верните интернет-кафе!', swim_ref: 'Например, сфотографироваться с голым торсом на рыбалке. В Москве это отлично работает.', mast: 'ГЛОБАЛ НЬЮС 24', rebel_icon: 'свой флаг', friendly_paper: 'телеканалу «Аль-Джазира»', friendly_res: 'Интервью посмотрели сорок миллионов человек. Вашингтон запомнил каждую минуту.' },
+  defaultNames: { africa00: 'Жозе Эдуарду Мавунду', mideast00: 'Башир Абдель-Карим', centralasia00: 'Нурсултан Алтынбаев' },
+};
+ERAS['1960'].vars.rebel_icon = 'портрет Маркса';
+ERAS['1960'].vars.china_offer = 'Председатель Мао предлагает бесплатно';
+ERAS['1960'].vars.china_quip = 'Москва будет недовольна. Москва и Пекин сейчас не разговаривают. Даже открытками не обмениваются.';
+ERAS['1960'].vars.china_workers = 'Двадцать тысяч китайских строителей прибыли с цитатниками и лопатами.';
+ERAS['2000'].vars.china_offer = 'Пекин предлагает в кредит под залог нашей ' + 'экспортной продукции';
+ERAS['1960'].vars.china_gift = 'цитатник Мао. С пометками на полях';
+ERAS['2000'].vars.china_gift = 'фарфоровую панду. Внутри что-то тихо жужжит';
+ERAS['2000'].vars.china_quip = 'Кредит на девяносто девять лет. Китайцы умеют ждать. А Вашингтон будет нервничать.';
+ERAS['2000'].vars.china_workers = 'Двадцать тысяч китайских строителей прибыли с касками, смартфонами и собственной столовой.';
+ERAS['1930'].vars.rebel_icon = 'портрет Маркса';
+ERAS['1960'].vars.friendly_paper = 'газете «Правда»';
+ERAS['1930'].vars.friendly_paper = 'газете «Правда»';
+ERAS['1960'].vars.friendly_res = ERAS['1930'].vars.friendly_res = 'В Москве ваш портрет напечатали рядом с отчётом о надоях. Почётно.';
+
+Object.assign(REGION_TALK, {
+  africa00: { addr: 'камарада президент', sir: 'камарада', lady: 'дона', holiday_acc: 'День независимости', holiday_dat: 'Дню независимости', gringo: 'эти «инвесторы»', haven: 'Дубай', exileTo: 'Лиссабон', canteen: 'фунжи', fruit_adj: 'Алмазный', locale: 'Африки', pay_in_kind: 'Талонами на бензин.', vegas: 'африканский Дубай', rebel: 'Командир повстанцев из буша', meeting: 'в VIP-ложе ночного клуба' },
+  mideast00: { addr: 'ваше превосходительство', sir: 'господин', lady: 'госпожа', holiday_acc: 'Рамадан', holiday_dat: 'Рамадану', gringo: 'эти нефтяники из Хьюстона', haven: 'Женеву', exileTo: 'Лондон', canteen: 'лепёшки с хумусом', fruit_adj: 'Нефтяной', locale: 'Ближнего Востока', pay_in_kind: 'Финиками.', vegas: 'второй Дубай', rebel: 'Командир подполья', meeting: 'в шатре на верблюжьих бегах' },
+  centralasia00: { addr: 'уважаемый президент', sir: 'господин', lady: 'ханум', holiday_acc: 'Навруз', holiday_dat: 'Наврузу', gringo: 'эти газовщики из Москвы', haven: 'Дубай', exileTo: 'Москву', canteen: 'пустой плов', fruit_adj: 'Хлопковый', locale: 'Великой степи', pay_in_kind: 'Хлопком.', vegas: 'Лас-Вегас посреди пустыни', rebel: 'Командир горных боевиков', meeting: 'в чайхане' },
+});
+Object.assign(FAITH_TALK, {
+  evangelical: { priest_open: 'Брат мой... Простите, {sir} {title}. Этой ночью Господь говорил со мной.', heavens: 'небесам', faith_quip: 'Небеса не голосуют. А прихожане пастора голосуют, по сорок тысяч за воскресенье.', sermon: 'проповеди на стадионе', faith_appeal: 'Я помолюсь против вас на стадионе. В прямом эфире.', temple_loc: 'в шатре мегацеркви', righteous: 'Пастор называет вас «помазанником года»' },
+  islam: { priest_open: 'Да хранит вас Всевышний, {sir} {title}. Но выслушайте старика.', heavens: 'Всевышнему', faith_quip: 'Всевышний не голосует. Но пятничную проповедь слышат все.', sermon: 'пятничной проповеди', faith_appeal: 'Я скажу об этом в пятничной проповеди.', temple_loc: 'в мечети', righteous: 'Муфтий называет вас «справедливым правителем»' },
+});
+Object.assign(REGION_TITLES, {
+  africa00: ['Президент-Основатель', 'Отец Нации', 'Архитектор Мира', 'Генерал-Президент', 'Пожизненный Президент', 'Верховный Вождь', 'Благодетель', 'Маршал'],
+  mideast00: ['Брат-Лидер', 'Президент-Лидер', 'Отец Нации', 'Вождь Революции', 'Защитник Нации', 'Пожизненный Президент', 'Маршал', 'Генералиссимус'],
+  centralasia00: ['Алтынбаши', 'Лидер Нации', 'Сердар', 'Великий Аксакал', 'Отец Всех Алтынцев', 'Пожизненный Президент', 'Генерал-Президент', 'Президент-Реформатор'],
+});
+Object.assign(TITLE_FORMS, {
+  'Президент-Основатель': ['Президента-Основателя', 'Президентом-Основателем'], 'Архитектор Мира': ['Архитектора Мира', 'Архитектором Мира'],
+  'Генерал-Президент': ['Генерала-Президента', 'Генералом-Президентом'], 'Брат-Лидер': ['Брата-Лидера', 'Братом-Лидером'],
+  'Президент-Лидер': ['Президента-Лидера', 'Президентом-Лидером'], 'Вождь Революции': ['Вождя Революции', 'Вождём Революции'],
+  'Защитник Нации': ['Защитника Нации', 'Защитником Нации'], 'Алтынбаши': ['Алтынбаши', 'Алтынбаши'], 'Лидер Нации': ['Лидера Нации', 'Лидером Нации'],
+  'Сердар': ['Сердара', 'Сердаром'], 'Великий Аксакал': ['Великого Аксакала', 'Великим Аксакалом'], 'Отец Всех Алтынцев': ['Отца Всех Алтынцев', 'Отцом Всех Алтынцев'],
+  'Президент-Реформатор': ['Президента-Реформатора', 'Президентом-Реформатором'],
+});
+Object.assign(RELATIVES_BY_STYLE, {
+  mideast: { defense: 'Кузен Тарик', economy: 'Шурин Наджиб', police: 'Тётушка Фатима', propaganda: 'Племянник Зияд', foreign: 'Зять Омар', abroad: 'в Лондоне' },
+  steppe: { defense: 'Кузен Бахтияр', economy: 'Шурин Ильдар', police: 'Тётушка Гульнара', propaganda: 'Племянник Санжар', foreign: 'Зять Азиз', abroad: 'в Дубае' },
+});
+
+// Персонажи 2000-х (заменяют или дополняют общих)
+function npc00(key, region, base, r) {
+  const M = {
+    usa_amb: { name: 'Посол США мистер Дуглас', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#c9a640', mustache: 'none', brows: 'normal', mouth: 'grin', outfit: 'suit', outfitColor: '#1f2a44', tie: '#b22234' } },
+    china_amb: { name: 'Посол КНР господин Чжан', look: { skin: SKIN.light, face: 'oval', hair: 'short', hairColor: '#111', mustache: 'none', brows: 'normal', mouth: 'smile', outfit: 'suit', outfitColor: '#2a2a2a', tie: '#c1272d', glasses: 'square' } },
+    russia_amb: { name: 'Посол России Аркадий Трубопроводов', look: { skin: SKIN.light, face: 'round', hair: 'short', hairColor: '#999', mustache: 'none', brows: 'bushy', browColor: '#777', mouth: 'smirk', outfit: 'suit', outfitColor: '#2a2d36', tie: '#0039a6', blush: true } },
+    eu_amb: { name: 'Еврокомиссар фрау Хельга Регламент', look: { skin: SKIN.light, face: 'long', hair: 'bun', hairColor: '#c9b48a', mustache: 'none', brows: 'worried', mouth: 'flat', glasses: 'square', outfit: 'suit', outfitColor: '#003399', tie: 'none', earring: true } },
+    blogger: { name: 'Блогер под ником Свободный_Орёл', look: { ...base, face: 'oval', hair: 'curly', hairColor: '#1a1a1a', mustache: 'none', beard: 'goatee', brows: 'angry', mouth: 'grin', glasses: 'square', outfit: 'hoodie', outfitColor: '#3a3a4a' } },
+    techboss: { name: 'Мистер Брэд из Кремниевой долины', look: { skin: SKIN.light, face: 'long', hair: 'short', hairColor: '#7a5a3a', mustache: 'none', brows: 'normal', mouth: 'grin', glasses: 'round', outfit: 'hoodie', outfitColor: '#1d1d1d' } },
+    prosecutor: { name: 'Прокурор из Гааги мэтр ван дер Берг', look: { skin: SKIN.light, face: 'long', hair: 'combover', hairColor: '#bbb', mustache: 'none', brows: 'worried', mouth: 'flat', glasses: 'round', outfit: 'robe', outfitColor: '#141414', trim: '#f4f1ea' } },
+    worker: { name: 'Профсоюзный активист', look: { ...base, face: 'square', hair: 'short', hairColor: '#222', mustache: 'thick', brows: 'angry', mouth: 'frown', outfit: 'hoodie', outfitColor: '#5a6a7a' } },
+    student: { name: 'Студентка-активистка', look: { ...base, face: 'oval', hair: 'long', hairColor: '#2b1b10', mustache: 'none', brows: 'angry', mouth: 'o', glasses: 'square', outfit: 'hoodie', outfitColor: '#c95b3a', earring: true } },
+    priest: { name: r.faithLeader, look: r.faithStyle === 'islam'
+      ? { ...base, face: 'long', hair: 'short', hairColor: '#ddd', beard: 'full', mustache: 'thick', brows: 'bushy', browColor: '#ddd', mouth: 'flat', outfit: 'robe', outfitColor: '#ece6d6', trim: '#8a7a5a', hat: 'turban', hatColor: '#f4f1ea', glasses: 'round' }
+      : { ...base, face: 'round', hair: 'short', hairColor: '#111', mustache: 'pencil', brows: 'normal', mouth: 'grin', outfit: 'suit', outfitColor: '#5a2a7a', tie: '#e2b33c', glasses: 'aviator', earring: false } },
+  };
+  return M[key];
+}
