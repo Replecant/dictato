@@ -550,3 +550,159 @@ body[data-era="2000"] .club-list li.me { background: rgba(63, 176, 232, 0.16); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ===== Облик 1930-х: газетная полоса — бумага, типографская краска, красные заголовки ===== */
+body[data-era="1930"] {
+  --bg: #e7ddc4; --wood: #d9ccab; --panel: #f2ead6; --panel-2: #f9f3e3;
+  --fg: #1d1812; --muted: #5f5443; --brass: #1d1812; --brass-dim: rgba(29, 24, 18, 0.28);
+  --red: #a3291c; --green: #3f6b2a; --amber: #a8701a;
+  --paper: #f7f0dc; --paper-2: #e2d5b2; --ink: #1d1812; --ink-muted: #5f5443; --news: #f1e8d0;
+  --c-support: #a8780f; --c-army: #4b7a2c; --c-economy: #2b6a8a; --c-fear: #a3291c;
+  --f-display: "Oswald", "Arial Narrow", "Franklin Gothic Medium", sans-serif;
+  --f-body: "Old Standard TT", "PT Serif", Georgia, serif;
+  --r: 0px;
+  color-scheme: light;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 250, 235, 0.55), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(29, 24, 18, 0.018) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(29, 24, 18, 0.012) 0 1px, transparent 1px 5px);
+}
+body[data-era="1930"] .eyebrow { color: var(--red); font-family: var(--f-display); font-weight: 600; letter-spacing: 0.14em; }
+body[data-era="1930"] h1, body[data-era="1930"] h2, body[data-era="1930"] h3, body[data-era="1930"] .pick-name, body[data-era="1930"] .hdr-id b, body[data-era="1930"] .leader-info h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+body[data-era="1930"] .leader-info h2 { font-size: 26px; line-height: 1.05; }
+body[data-era="1930"] .logo { color: var(--fg); text-shadow: none; text-transform: uppercase; letter-spacing: 0.04em; border-top: 6px double var(--fg); border-bottom: 6px double var(--fg); padding: 6px 0 2px; }
+body[data-era="1930"] .setup-head h1 { color: var(--fg); }
+/* кнопки — оттиск типографской краской */
+body[data-era="1930"] .btn { background: var(--fg); color: var(--panel-2); box-shadow: 3px 3px 0 rgba(29, 24, 18, 0.22); font-family: var(--f-display); font-weight: 600; letter-spacing: 0.1em; }
+body[data-era="1930"] .btn:active:not(:disabled) { box-shadow: 1px 1px 0 rgba(29, 24, 18, 0.22); transform: translate(2px, 2px); }
+body[data-era="1930"] .btn.ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1.5px var(--fg); }
+body[data-era="1930"] .btn.danger { background: var(--red); color: #fbf3e2; box-shadow: 3px 3px 0 rgba(163, 41, 28, 0.25); }
+body[data-era="1930"] .btn.danger-o { color: var(--red); box-shadow: inset 0 0 0 1.5px var(--red); }
+/* колонки и рубрики */
+body[data-era="1930"] .card, body[data-era="1930"] .pick { background: var(--panel); border: 1px solid rgba(29, 24, 18, 0.45); border-top: 4px double var(--fg); box-shadow: 2px 3px 0 rgba(29, 24, 18, 0.08); }
+body[data-era="1930"] .pick.on { background: var(--panel-2); box-shadow: inset 0 0 0 2px var(--fg), 3px 3px 0 rgba(29, 24, 18, 0.18); border-color: var(--fg); }
+body[data-era="1930"] .stat { background: var(--panel); border: 1px solid rgba(29, 24, 18, 0.35); }
+body[data-era="1930"] .stat-name, body[data-era="1930"] .sec-h, body[data-era="1930"] .sub-h { font-family: var(--f-display); font-weight: 500; letter-spacing: 0.12em; }
+body[data-era="1930"] .stat-val { font-family: var(--f-display); font-weight: 600; font-size: 20px; }
+body[data-era="1930"] .stat.bad .stat-val { color: var(--red); }
+body[data-era="1930"] .bar { background: rgba(29, 24, 18, 0.12); border-radius: 0; }
+body[data-era="1930"] .bar > span { background: var(--fg); border-radius: 0; }
+body[data-era="1930"] .hdr { border-bottom: 4px double var(--fg); }
+body[data-era="1930"] .tabs { border-bottom: 3px double var(--fg); gap: 0; }
+body[data-era="1930"] .tabs button { background: transparent; color: var(--muted); font: 600 14px var(--f-display); letter-spacing: 0.12em; border-right: 1px solid rgba(29, 24, 18, 0.25); }
+body[data-era="1930"] .tabs button.on { background: var(--fg); color: var(--panel-2); }
+body[data-era="1930"] .seg button, body[data-era="1930"] .dtabs button, body[data-era="1930"] .setup-form input, body[data-era="1930"] .setup-form select { background: var(--panel-2); border-color: rgba(29, 24, 18, 0.4); }
+body[data-era="1930"] .seg button.on, body[data-era="1930"] .dtabs button.on, body[data-era="1930"] .chip.gold, body[data-era="1930"] .plate { background: var(--fg); color: var(--panel-2); border-color: var(--fg); }
+body[data-era="1930"] .dtabs button { border-radius: 0; }
+body[data-era="1930"] .pip { border-color: var(--fg); }
+body[data-era="1930"] .pip.on { background: var(--red); border-color: var(--red); box-shadow: none; }
+/* фотографии в газете: зерно и сепия */
+body[data-era="1930"] .leader-portrait, body[data-era="1930"] .setup-portrait, body[data-era="1930"] .end-portrait, body[data-era="1930"] .adv-portrait, body[data-era="1930"] .hdr-leader {
+  background: radial-gradient(circle at 50% 38%, #d8cbaa, #a99b7a 80%); border: 1px solid var(--fg); box-shadow: 0 0 0 5px var(--panel-2), 0 0 0 6px rgba(29, 24, 18, 0.5); filter: sepia(0.55) grayscale(0.35) contrast(1.08);
+}
+body[data-era="1930"] .setup-portrait { border-width: 1px; }
+body[data-era="1930"] .mini-portrait, body[data-era="1930"] .adv-tag { filter: sepia(0.5) grayscale(0.3); }
+body[data-era="1930"] .tp { filter: sepia(0.6) grayscale(0.3) drop-shadow(0 10px 14px rgba(29, 24, 18, 0.35)); }
+body[data-era="1930"] .tip-card { background: var(--panel-2); border: 1px dashed rgba(29, 24, 18, 0.5); border-top: 4px double var(--fg); }
+/* мелкие элементы на светлой бумаге */
+body[data-era="1930"] .chip { background: rgba(29, 24, 18, 0.08); color: var(--muted); }
+body[data-era="1930"] .chip.banned, body[data-era="1930"] .chip.danger, body[data-era="1930"] .chip.east { background: rgba(163, 41, 28, 0.12); color: var(--red); }
+body[data-era="1930"] .chip.coopted { background: rgba(63, 107, 42, 0.14); color: var(--green); }
+body[data-era="1930"] .chip.west { background: rgba(43, 106, 138, 0.14); color: #23556f; }
+body[data-era="1930"] .chip.neutral { background: rgba(168, 112, 26, 0.14); color: #7a5210; }
+body[data-era="1930"] .chip.trait { background: rgba(94, 58, 134, 0.12); color: #5e3a86; }
+body[data-era="1930"] .chip.treaty { background: rgba(29, 24, 18, 0.1); color: var(--fg); }
+body[data-era="1930"] .fx, body[data-era="1930"] .hint { background: rgba(29, 24, 18, 0.08); }
+body[data-era="1930"] .hint { color: #7a5210; }
+body[data-era="1930"] .fx.up b, body[data-era="1930"] .hint.up, body[data-era="1930"] .vn-text .won { color: #2e6a22; }
+body[data-era="1930"] .fx.down b, body[data-era="1930"] .hint.down, body[data-era="1930"] .vn-text .lost, body[data-era="1930"] .dec-tag.dec-risk { color: var(--red); }
+body[data-era="1930"] .fx.neutral b { color: #7a5210; }
+body[data-era="1930"] .risk, body[data-era="1930"] .fac-ic, body[data-era="1930"] .fac-leader, body[data-era="1930"] .proj-item, body[data-era="1930"] .demand { background: rgba(29, 24, 18, 0.06); }
+body[data-era="1930"] .ledger td, body[data-era="1930"] .br, body[data-era="1930"] .club-list li, body[data-era="1930"] .log li { border-bottom-color: rgba(29, 24, 18, 0.2); }
+body[data-era="1930"] .chart .grid, body[data-era="1930"] .spark .grid { stroke: rgba(29, 24, 18, 0.14); }
+body[data-era="1930"] .club-list li.me { background: rgba(163, 41, 28, 0.1); border-left-color: var(--red); }
+body[data-era="1930"] .log time, body[data-era="1930"] .br-money, body[data-era="1930"] .club-n { color: var(--red); }
+body[data-era="1930"] .toast { border: 1px solid var(--fg); border-left: 6px solid var(--red); }
+body[data-era="1930"] .proj-item.absurd { border-left-color: #6a4a96; }
+body[data-era="1930"] .modal { background: rgba(29, 24, 18, 0.72); }
+/* новелла: фото в газете и вырезка с текстом */
+body[data-era="1930"] .vn-bg svg { filter: sepia(0.6) saturate(0.55) contrast(1.08) brightness(1.02); }
+body[data-era="1930"] .vn-bg::after { background: radial-gradient(rgba(29, 24, 18, 0.16) 0.9px, transparent 1.3px) 0 0 / 4px 4px, radial-gradient(ellipse at center, transparent 55%, rgba(40, 28, 14, 0.45) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 30%, rgba(0, 0, 0, 0.35)); }
+body[data-era="1930"] .actor { filter: sepia(0.35) saturate(0.8) drop-shadow(0 10px 18px rgba(29, 24, 18, 0.5)); }
+body[data-era="1930"] .vn-title { display: inline-block; right: auto; background: var(--panel-2); color: var(--fg); font: 700 clamp(18px, 2.8vw, 28px)/1.1 var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 14px 6px; border-top: 4px double var(--fg); border-bottom: 4px double var(--fg); text-shadow: none; box-shadow: 4px 4px 0 rgba(29, 24, 18, 0.3); }
+body[data-era="1930"] .vn.crisis .vn-title { color: var(--red); }
+body[data-era="1930"] .vn-box { background: var(--panel-2); color: var(--fg); border: 1px solid var(--fg); border-top: 5px double var(--fg); box-shadow: 6px 8px 0 rgba(29, 24, 18, 0.35), 0 16px 40px rgba(0, 0, 0, 0.45); }
+body[data-era="1930"] .vn-name { background: var(--fg); color: var(--panel-2); }
+body[data-era="1930"] .vn-name b { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-era="1930"] .vn-text { font-size: clamp(17px, 2vw, 20px); }
+body[data-era="1930"] .vn-text.narr { color: var(--muted); }
+body[data-era="1930"] .choice { background: var(--panel); border: 1px solid rgba(29, 24, 18, 0.4); }
+body[data-era="1930"] .choice:hover:not(:disabled), body[data-era="1930"] .choice:focus-visible { background: #fffaf0; border-color: var(--fg); box-shadow: 3px 3px 0 rgba(29, 24, 18, 0.2); }
+
+/* ===== Облик 1960-х: ламповый телевизор — ореховый корпус, горчица и бирюза, экран с развёрткой ===== */
+body[data-era="1960"] {
+  --bg: #15100c; --wood: #2c1e13; --panel: #231a13; --panel-2: #2f2319;
+  --fg: #f4ebd8; --muted: #b8a88c; --brass: #f0a630; --brass-dim: rgba(240, 166, 48, 0.28);
+  --red: #d9482b; --green: #5fae6e; --amber: #f0a630; --teal: #4fb9ad;
+  --c-support: #f0c24a; --c-army: #7fbf6a; --c-economy: #4fb9ad; --c-fear: #e0634a;
+  --f-display: "Russo One", "Arial Black", sans-serif; --f-script: "Lobster", "Brush Script MT", cursive;
+  --r: 14px;
+  background-image:
+    radial-gradient(ellipse at 50% -10%, rgba(240, 166, 48, 0.08), transparent 55%),
+    repeating-linear-gradient(92deg, rgba(255, 220, 170, 0.018) 0 2px, transparent 2px 11px, rgba(0, 0, 0, 0.05) 11px 13px, transparent 13px 23px);
+}
+body[data-era="1960"] .logo { font-family: var(--f-script); font-size: clamp(54px, 9vw, 112px); color: var(--brass); text-shadow: 4px 4px 0 #2b7f76, 8px 8px 0 rgba(0, 0, 0, 0.35); letter-spacing: 0; }
+body[data-era="1960"] .eyebrow { color: var(--teal); }
+body[data-era="1960"] .hdr-id b, body[data-era="1960"] .leader-info h2, body[data-era="1960"] .pick-name, body[data-era="1960"] .fac h3, body[data-era="1960"] .country h3, body[data-era="1960"] .adv h3 { letter-spacing: 0.01em; }
+/* кнопки — хромированные ручки и клавиши */
+body[data-era="1960"] .btn { background: linear-gradient(180deg, #ffc860 0%, #f0a630 55%, #d98a1a 100%); color: #2a1606; border-radius: 999px; box-shadow: 0 3px 0 #8a5212, inset 0 1px 0 rgba(255, 255, 255, 0.5); font: 13px/1.2 var(--f-display); letter-spacing: 0.04em; padding: 10px 20px; }
+body[data-era="1960"] .btn.big { padding: 14px 28px; font-size: 15px; }
+body[data-era="1960"] .btn.small { padding: 7px 12px; font-size: 11.5px; }
+body[data-era="1960"] .btn.ghost { background: rgba(255, 255, 255, 0.03); color: var(--fg); box-shadow: inset 0 0 0 1.5px rgba(240, 166, 48, 0.4); }
+body[data-era="1960"] .btn.danger { background: linear-gradient(180deg, #f2735a, #d9482b 55%, #b8371f); color: #fff4ea; box-shadow: 0 3px 0 #6e1f12, inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+/* панели — корпус радиолы */
+body[data-era="1960"] .card, body[data-era="1960"] .pick { background: linear-gradient(180deg, #2a1f17, #1f1711); border: 1px solid rgba(240, 166, 48, 0.14); box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.05), 0 6px 18px rgba(0, 0, 0, 0.3); }
+body[data-era="1960"] .pick.on { background: linear-gradient(180deg, #3a2a1c, #2a1f16); box-shadow: inset 0 0 0 2px var(--brass), 0 0 22px rgba(240, 166, 48, 0.15); }
+body[data-era="1960"] .stat { background: linear-gradient(180deg, #261c15, #1c150f); border: 1px solid rgba(240, 166, 48, 0.1); }
+body[data-era="1960"] .bar { height: 7px; background: #0e0a07; border-radius: 99px; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6); }
+body[data-era="1960"] .bar > span { border-radius: 99px; box-shadow: 0 0 6px rgba(240, 166, 48, 0.35); }
+/* вкладки — переключатель каналов */
+body[data-era="1960"] .tabs { counter-reset: ch; gap: 6px; border-bottom: 0; padding-bottom: 12px; margin-bottom: 14px; box-shadow: 0 1px 0 rgba(240, 166, 48, 0.18); }
+body[data-era="1960"] .tabs button { counter-increment: ch; border-radius: 999px; background: linear-gradient(180deg, #33261b, #241a12); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(240, 166, 48, 0.12); font: 12px var(--f-display); letter-spacing: 0.03em; padding: 8px 14px 8px 8px; }
+body[data-era="1960"] .tabs button::before { content: counter(ch); display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 8px; border-radius: 50%; background: #0e0a07; color: var(--teal); font-size: 11px; box-shadow: inset 0 0 0 1px rgba(79, 185, 173, 0.4); }
+body[data-era="1960"] .tabs button.on { background: linear-gradient(180deg, #ffc860, #f0a630); color: #2a1606; }
+body[data-era="1960"] .tabs button.on::before { background: #2a1606; color: #ffc860; box-shadow: none; }
+body[data-era="1960"] .seg button, body[data-era="1960"] .dtabs button { border-radius: 999px; }
+body[data-era="1960"] .seg button.on, body[data-era="1960"] .dtabs button.on, body[data-era="1960"] .chip.gold, body[data-era="1960"] .plate { background: var(--brass); color: #2a1606; }
+body[data-era="1960"] .pip { border-color: var(--teal); }
+body[data-era="1960"] .pip.on { background: var(--teal); box-shadow: 0 0 10px rgba(79, 185, 173, 0.8); }
+/* портреты — на экране телевизора */
+body[data-era="1960"] .leader-portrait, body[data-era="1960"] .setup-portrait, body[data-era="1960"] .end-portrait {
+  position: relative; background: radial-gradient(ellipse at 50% 40%, #3f8f86, #12302d 78%); border: 8px solid #3a2616; border-radius: 26px / 22px; overflow: hidden;
+  box-shadow: inset 0 0 0 2px #120b06, 0 0 0 2px #5a3c22, 0 14px 30px rgba(0, 0, 0, 0.55);
+}
+body[data-era="1960"] .leader-portrait::after, body[data-era="1960"] .setup-portrait::after, body[data-era="1960"] .end-portrait::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
+}
+body[data-era="1960"] .setup-portrait .plate { position: relative; z-index: 1; }
+body[data-era="1960"] .adv-portrait { background: radial-gradient(ellipse at 50% 40%, #2f6f68, #102624 78%); border: 4px solid #3a2616; border-radius: 16px / 13px; }
+body[data-era="1960"] .hdr-leader { background: #1f4a45; border-color: var(--teal); }
+body[data-era="1960"] .tip-card { border-radius: 14px; }
+body[data-era="1960"] .club-list li.me { background: rgba(79, 185, 173, 0.14); border-left-color: var(--teal); }
+body[data-era="1960"] .log time { color: var(--teal); }
+/* новелла — телевизор: ореховая рамка, скруглённый экран, развёртка и плашка эфира */
+body[data-era="1960"] .vn { border: 18px solid #2c1d12; border-radius: 56px / 44px; box-shadow: 0 0 0 80px #1a110a, inset 0 0 0 3px #050302; background: #0b0806; }
+body[data-era="1960"] .vn::after { content: "● ПРЯМОЙ ЭФИР"; position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); right: 30px; z-index: 4; font: 12px var(--f-display); letter-spacing: 0.08em; color: #fff; background: rgba(217, 72, 43, 0.85); padding: 5px 10px; border-radius: 6px; pointer-events: none; animation: onair 2s infinite; }
+@keyframes onair { 50% { opacity: 0.6; } }
+body[data-era="1960"] .vn-bg svg { filter: saturate(1.18) contrast(1.04) sepia(0.08); }
+body[data-era="1960"] .vn-bg::after { background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.13) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.55) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent 30%, rgba(0, 0, 0, 0.5)); }
+body[data-era="1960"] .vn-title { display: inline-block; right: auto; left: 30px; font: clamp(22px, 3.4vw, 36px)/1.1 var(--f-script); color: var(--brass); background: rgba(14, 10, 7, 0.7); padding: 6px 16px 8px; border-radius: 12px; text-shadow: 2px 2px 0 #2b7f76; box-shadow: inset 0 0 0 1px rgba(240, 166, 48, 0.3); }
+body[data-era="1960"] .vn-box { background: linear-gradient(180deg, rgba(30, 22, 15, 0.94), rgba(16, 11, 8, 0.96)); border: 0; border-top: 3px solid var(--brass); border-radius: 18px; box-shadow: 0 0 0 1px rgba(240, 166, 48, 0.2), 0 12px 40px rgba(0, 0, 0, 0.6); }
+body[data-era="1960"] .vn-name { background: linear-gradient(180deg, #ffc860, #f0a630); color: #2a1606; border-radius: 999px; padding: 6px 16px; }
+body[data-era="1960"] .choice { border-radius: 14px; background: linear-gradient(180deg, #2c2118, #211912); }
+body[data-era="1960"] .choice:hover:not(:disabled), body[data-era="1960"] .choice:focus-visible { border-color: var(--teal); box-shadow: 0 0 14px rgba(79, 185, 173, 0.2); }
+body[data-era="1960"] .toast { border-radius: 14px; border-left-color: var(--teal); }
+body[data-era="1960"] .tip-card { background: linear-gradient(180deg, #f6ead0, #e9d8ae); color: var(--ink); border-color: rgba(240, 166, 48, 0.4); }
+body[data-era="1960"] .tip-card .eyebrow { color: #7a5a1a; }
