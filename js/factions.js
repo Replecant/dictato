@@ -319,7 +319,7 @@ Game.quarterHooks.push(rep => {
       if (d.kind !== 'pay' && Game.demandMet(d, d.since)) Game.resolveDemand(f, true, rep);
       else if (S.turn + 1 > d.until) Game.resolveDemand(f, false, rep);
     } else if (!st.demand || (st.demand.wait !== undefined && S.turn + 1 >= st.demand.wait)) {
-      const nd = Game.pickFacDemand(f); if (nd) { st.demand = nd; rep.lines.push(`${Game.facDef(f).name} выдвинули требование: «${(FAC_DEMANDS[f].find(x => x.id === nd.id) || {}).text}».`); }
+      const nd = Game.pickFacDemand(f); if (nd) { st.demand = nd; rep.lines.push(`Новое требование движения «${Game.facDef(f).name}»: «${(FAC_DEMANDS[f].find(x => x.id === nd.id) || {}).text}».`); }
     }
   }
   // новое движение

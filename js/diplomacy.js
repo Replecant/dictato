@@ -189,7 +189,7 @@ Game.quarterHooks.push(rep => {
     if (dm.wait !== undefined) { if (S.turn + 1 >= dm.wait) { const d = Game.pickDemand(c); if (d) S.demands[c] = d; } continue; }
     if (S.turn + 1 > dm.until) {
       S.rel[c] = clamp(S.rel[c] - 4);
-      rep.lines.push(`${COUNTRIES[c].name} обиделись: их просьбу так и не выполнили (отношения −4).`);
+      rep.lines.push(`${COUNTRIES[c].name}: просьба так и не выполнена, в посольстве недовольны (отношения −4).`);
       S.demands[c] = { wait: S.turn + 2 };
     }
   }

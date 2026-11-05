@@ -166,13 +166,10 @@ const UI = {
   async startQuarter() {
     if (S.over) return UI.showEnding();
     S.phase = 'news'; Game.save();
-    const news = Game.historyFor(S.year, S.q);
-    for (const h of news) {
-      if (S.hist.includes(h.head)) continue;
-      S.hist.push(h.head);
-      await UI.newspaper(h);
-      if (S.over) return UI.showEnding();
-    }
+    const news = Game.historyFor(S.year, S.q).filter(h => !S.hist.includes(h.head));
+    for (const h of news) S.hist.push(h.head);
+    await UI.pressPage(news);
+    if (S.over) return UI.showEnding();
     for (const make of Game.forcedList) {
       const forced = make();
       if (!forced) continue;
@@ -572,9 +569,10 @@ const UI = {
 
 // ---------- модальное окно ----------
 const Modal = {
-  open(html, btn = 'Дальше') {
+  open(html, btn = 'Дальше', size = '') {
     return new Promise(resolve => {
       const m = $('#modal');
+      m.querySelector('.modal-card').classList.toggle('wide', size === 'wide');
       $('#toast').hidden = true;
       $('#modal-body').innerHTML = html;
       const b = $('#modal-btn');
@@ -665,6 +663,7 @@ const VN = {
         box.classList.add('narr');
         box.innerHTML = `${out.won === true ? '<b class="won">Удача!</b> ' : out.won === false ? '<b class="lost">Неудача.</b> ' : ''}${esc(out.res || '')}${out.changes.length ? `<div class="fx-list">${UI.changes(out.changes)}</div>` : ''}`;
         Game.log(`${Game.fmt(scene.title)}: ${out.res}`);
+        if (Game.pressAdd && scene.title) Game.pressAdd({ kind: 'event', head: Game.fmt(scene.title), text: out.res });
         next.hidden = false;
         next.textContent = 'Продолжить ▸';
         el.onclick = null;
