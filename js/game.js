@@ -82,6 +82,9 @@ const Game = {
       sport: R.sport, rival: R.rival, rivalShort: R.rivalShort, disputed: R.disputed, faithLeader: R.faithLeader,
       square: R.capitalSquare, jungle: R.jungle, nephew: R.nephew, year: S.year,
       ...ERAS[S.era].vars,
+      ...(REGION_TALK[S.region] || REGION_TALK.latam),
+      ...(FAITH_TALK[R.faithStyle] || FAITH_TALK.catholic),
+      title_gen: Game.titleGen(), title_ins: Game.titleIns(),
     };
     for (const r of Object.keys(ROLES)) v[r] = S.adv[r].name;
     for (const f of Object.keys(R.factions)) v['f.' + f] = R.factions[f].name;
@@ -94,10 +97,18 @@ const Game = {
       : 'Посол СССР просит разрешения разместить военно-морскую базу в бухте. Аренда — 8 миллионов в квартал, рублями и гречкой.';
     return v;
   },
+  titleGen() { const f = TITLE_FORMS[S.leader.title]; return f ? f[0] : S.leader.title; },
+  titleIns() { const f = TITLE_FORMS[S.leader.title]; return f ? f[1] : S.leader.title; },
   fmt(str) {
     if (!str) return '';
     const v = Game.vars();
-    return str.replace(/\{([\w.]+)\}/g, (m, k) => (v[k] !== undefined ? v[k] : m));
+    const one = t => t.replace(/\{([\w.]+)\}/g, (m, k) => {
+      if (v[k] !== undefined) return v[k];
+      const low = k[0].toLowerCase() + k.slice(1);
+      if (k[0] !== low[0] && typeof v[low] === 'string') return v[low][0].toUpperCase() + v[low].slice(1);
+      return m;
+    });
+    return one(one(str));
   },
 
   leaderAt(cKey) {
@@ -485,10 +496,11 @@ const Game = {
     if (role === 'defense') fx = { army: -5, fac: { hawks: { a: -10 } } };
     if (role === 'police') fx = { fear: -5 };
     if (role === 'propaganda') fx = { support: -2 };
-    S.adv[role] = { name: rel.name, bio: rel.bio, look: { ...RELATIVE_LOOK[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true };
-    if (A.relative) S.adv[role].name = rel.name + ' (снова)';
+    const relName = (RELATIVES_BY_STYLE[REGIONS[S.region].style] || RELATIVES_BY_STYLE.latam)[role];
+    S.adv[role] = { name: relName, bio: rel.bio, look: { ...RELATIVE_LOOK[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true };
+    if (A.relative) S.adv[role].name = relName + ' (снова)';
     const changes = Game.apply(fx);
-    const text = `${old} отправлен в отставку. Новый ${ROLES[role].title.toLowerCase()} — ${rel.name}. Семья — это надёжно.`;
+    const text = `${old} отправлен в отставку. Новый ${ROLES[role].title.toLowerCase()} — ${relName}. Семья — это надёжно.`;
     Game.log(text);
     return { text, changes };
   },
@@ -586,8 +598,8 @@ const Game = {
       title: 'Танки у дворца!', bg: 'night', crisis: true,
       lines: [
         ['narrator', 'Три часа ночи. Грохот гусениц. Радио передаёт марши вместо новостей.'],
-        leaderRole === 'defense' ? ['defense', `Сеньор ${S.leader.title}... Ничего личного. Просто лента вам не идёт. Мне — идёт больше.`] : ['npc:colonel', 'Внимание! Говорит Революционный совет спасения отечества! Тиран низложен! Ну, почти.'],
-        ['police', 'Сеньор, у нас минут двадцать. Может, десять. Решайте.'],
+        leaderRole === 'defense' ? ['defense', Game.fmt(`{Sir} ${S.leader.title}... Ничего личного.`) + ` Просто лента вам не идёт. Мне — идёт больше.`] : ['npc:colonel', 'Внимание! Говорит Революционный совет спасения отечества! Тиран низложен! Ну, почти.'],
+        ['police', '{Addr}, у нас минут двадцать. Может, десять. Решайте.'],
       ],
       choices: [
         { text: 'Выступить по радио и поднять народ', chance: () => 0.12 + S.support / 140, win: { fx: {}, res: 'Тысячи людей вышли на улицы и окружили танки. Танкисты вылезли и стали раздавать сигареты. Переворот провалился!' }, lose: { fx: {}, res: 'Радиостанцию уже заняли. Вы говорили в микрофон, отключённый от сети.' } },
@@ -615,7 +627,7 @@ const Game = {
       lines: [
         ['narrator', `Сотни тысяч людей на ${R.capitalSquare}. Портреты сорваны. Ворота дворца трещат.`],
         ['npc:rebel', 'Народ пришёл за своим! Выходи, тиран!'],
-        ['propaganda', 'Сеньор, я... я, пожалуй, пойду проверю радиостанцию. Надолго.'],
+        ['propaganda', '{Addr}, я... я, пожалуй, пойду проверю радиостанцию. Надолго.'],
         ['defense', 'Армия ждёт приказа. Но солдаты смотрят на толпу и видят там своих матерей.'],
       ],
       choices: [
@@ -667,8 +679,8 @@ const Game = {
     const T = S.leader.title;
     const E = {
       coup: { title: 'Свергнут', text: rich
-        ? `Вас свергли. Но благодаря швейцарскому счёту вы живёте на вилле в ${ex}, пишете мемуары «Я был ${T}ом» и раз в неделю грозите новой хунте по телефону.`
-        : `Вас свергли. Денег на счёте не хватило даже на приличную виллу. Теперь вы водите такси в ${ex} и рассказываете пассажирам, что когда-то были ${T}ом. Они не верят.` },
+        ? `Вас свергли. Но благодаря швейцарскому счёту вы живёте на вилле в ${ex}, пишете мемуары «Я был ${Game.titleIns()}» и раз в неделю грозите новой хунте по телефону.`
+        : `Вас свергли. Денег на счёте не хватило даже на приличную виллу. Теперь вы водите такси в ${ex} и рассказываете пассажирам, что когда-то были ${Game.titleIns()}. Они не верят.` },
       exile: { title: 'Бегство с казной', text: `Вы улетели за час до того, как танки вошли во дворец. Новая власть требует вашей выдачи, но ${ex} не выдаёт тех, кто платит налоги наличными.` },
       revolution: { title: 'Сметён революцией', text: `Революционный трибунал рассмотрел ваше дело и приговорил вас... к работе в сельской библиотеке. Каждый день вы выдаёте читателям книги о тиранах. Иногда — о себе.` },
       helicopter: { title: 'Вертолёт с крыши', text: rich

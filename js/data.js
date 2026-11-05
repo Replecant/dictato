@@ -64,12 +64,12 @@ const REGIME_TYPES = {
   },
   estado: {
     name: '«Новое государство»', icon: '🏛️',
-    desc: 'Порядок, церковь, корпорации и гимнастика по утрам. Рим и Берлин шлют поздравительные телеграммы, Москва — проклятия.',
+    desc: 'Порядок, вера предков, корпорации и гимнастика по утрам. Рим и Берлин шлют поздравительные телеграммы, Москва — проклятия.',
     fx: { fear: 10, economy: 3 }, fac: { faith: { a: 20 }, oligarchs: { a: 15 }, left: { a: -25 }, liberals: { a: -10 } }, rel: { germany: 15, italy: 15, ussr: -15, france: -5 },
   },
   front: {
     name: 'Народный фронт', icon: '✊',
-    desc: 'Вы пришли к власти на волне забастовок и красных флагов. Москва довольна, банкиры паникуют, епископы молятся.',
+    desc: 'Вы пришли к власти на волне забастовок и красных флагов. Москва довольна, банкиры паникуют, духовенство молится.',
     fx: { support: 15, economy: -5, army: -6 }, fac: { left: { a: 30 }, oligarchs: { a: -25, s: -5 }, faith: { a: -12 } }, rel: { ussr: 25, germany: -15, italy: -15, usa: -5, france: 5 },
   },
 };
@@ -254,7 +254,7 @@ const RELATIVES = {
   economy: { name: 'Шурин Бенедикт', bio: 'Муж вашей сестры. Однажды выиграл в лотерею и с тех пор считает себя экономистом.', comp: 0.5 },
   police: { name: 'Тётушка Консуэло', bio: 'Знает все сплетни столицы. Тайная полиция ей, в сущности, не нужна.', comp: 0.8 },
   propaganda: { name: 'Племянник Тито', bio: 'Играет на гитаре и разбирается в мотоциклах. Очень громкий.', comp: 0.6 },
-  foreign: { name: 'Зять Октавио', bio: 'Был в Майами два раза. Говорит на трёх языках, все — с ошибками.', comp: 0.5 },
+  foreign: { name: 'Зять Октавио', bio: 'Был за границей два раза. Говорит на трёх языках, все — с ошибками.', comp: 0.5 },
 };
 const RELATIVE_LOOK = {
   defense: { face: 'round', hair: 'curly', hairColor: '#2b2118', hat: 'beret', hatColor: '#6b1d1d', mustache: 'thick', brows: 'normal', mouth: 'grin', outfit: 'military', outfitColor: '#5c6b33', medals: 3 },
@@ -275,9 +275,9 @@ function npcLook(key, region) {
     france_amb: { name: 'Месье Лефевр, «технический советник»', look: { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#4a3a2a', mustache: 'pencil', brows: 'normal', mouth: 'smirk', outfit: 'suit', outfitColor: '#30364a', tie: '#0055a4', cigar: false, pipe: true } },
     uk_amb: { name: 'Сэр Реджинальд Пемброк', look: { skin: SKIN.light, face: 'long', hair: 'combover', hairColor: '#bbb', mustache: 'walrus', brows: 'bushy', browColor: '#bbb', mouth: 'flat', outfit: 'suit', outfitColor: '#3a3a3a', tie: '#012169', hat: 'top', hatColor: '#333', glasses: 'monocle' } },
     journalist: { name: 'Мисс Дороти Хейл, журнал «Тайм»', look: { skin: SKIN.light, face: 'oval', hair: 'long', hairColor: '#b5651d', mustache: 'none', brows: 'normal', mouth: 'smile', glasses: 'square', outfit: 'suit', outfitColor: '#7d9c8c', tie: '#f4f1ea', earring: true } },
-    worker: { name: 'Профсоюзный вожак', look: { ...base, face: 'square', hair: 'short', hairColor: '#222', hat: 'flatcap', hatColor: '#5a4a3a', mustache: 'thick', brows: 'angry', mouth: 'frown', outfit: 'guayabera', outfitColor: '#7a8a9a' } },
-    student: { name: 'Студент-активист', look: { ...base, face: 'long', hair: 'long', hairColor: '#2b1b10', beard: 'goatee', mustache: 'none', brows: 'angry', mouth: 'o', glasses: 'round', outfit: 'guayabera', outfitColor: '#c95b3a' } },
-    rebel: { name: 'Команданте из гор', look: { ...base, face: 'oval', hair: 'curly', hairColor: '#1a1a1a', hat: 'beret', hatColor: '#1a1a1a', beard: 'full', mustache: 'thick', brows: 'bushy', mouth: 'smirk', outfit: 'military', outfitColor: '#556b2f', cigar: true, medals: 0 } },
+    worker: { name: 'Профсоюзный вожак', look: { ...base, face: 'square', hair: 'short', hairColor: '#222', hat: 'flatcap', hatColor: '#5a4a3a', mustache: 'thick', brows: 'angry', mouth: 'frown', outfit: r.style === 'latam' ? 'guayabera' : 'mao', outfitColor: '#7a8a9a' } },
+    student: { name: 'Студент-активист', look: { ...base, face: 'long', hair: 'long', hairColor: '#2b1b10', beard: 'goatee', mustache: 'none', brows: 'angry', mouth: 'o', glasses: 'round', outfit: r.style === 'latam' ? 'guayabera' : 'suit', outfitColor: '#c95b3a' } },
+    rebel: { name: REGION_TALK[region].rebel, look: { ...base, face: 'oval', hair: 'curly', hairColor: '#1a1a1a', hat: r.style === 'europe' ? 'flatcap' : 'beret', hatColor: '#1a1a1a', beard: 'full', mustache: 'thick', brows: 'bushy', mouth: 'smirk', outfit: 'military', outfitColor: '#556b2f', cigar: r.style === 'latam', medals: 0 } },
     priest: { name: r.faithLeader, look: r.faithStyle === 'orthodox'
       ? { ...base, face: 'long', hair: 'long', hairColor: '#9a9a9a', beard: 'full', mustache: 'walrus', brows: 'bushy', browColor: '#9a9a9a', mouth: 'flat', outfit: 'robe', outfitColor: '#141414', trim: '#d6a63a', hat: 'kamilavka', hatColor: '#141414' }
       : r.faithStyle === 'buddhist'
@@ -326,4 +326,44 @@ const ERAS = {
     vars: { blame: 'Коминтерн. Или германская разведка', student_meme: 'Свободу джазу!', swim_ref: 'Например, переплыть реку. Муссолини постоянно позирует полуголым перед кинокамерой, и все в восторге.', mast: 'ВЕЧЕРНИЙ ТЕЛЕГРАФ' },
     defaultNames: { latam30: 'Аугусто Себастьян Ферро', europe30: 'Владислав Чернович-Гроза', asia30: 'Принц Сурапонг Вонгсакди' },
   },
+};
+
+// Местный колорит речи: обращения, праздники, валюта «натурой», куда бегут деньги и т. п.
+const REGION_TALK = {
+  latam: { addr: 'сеньор', sir: 'сеньор', lady: 'сеньора', holiday_acc: 'Рождество', holiday_dat: 'Рождеству', gringo: 'гринго', haven: 'Майами', exileTo: 'Мадрид', canteen: 'рис с фасолью', fruit_adj: 'Банановый', locale: 'тропиков', pay_in_kind: 'Бананами.', vegas: 'тропический Лас-Вегас', rebel: 'Команданте из гор', meeting: 'в казино' },
+  asia: { addr: 'ваше превосходительство', sir: 'господин', lady: 'госпожа', holiday_acc: 'Новый год', holiday_dat: 'Новому году', gringo: 'фаранги', haven: 'Гонконг', exileTo: 'Лондон', canteen: 'пустой рис', fruit_adj: 'Каучуковый', locale: 'Юго-Восточной Азии', pay_in_kind: 'Каучуком. Жевать его нельзя.', vegas: 'азиатский Лас-Вегас', rebel: 'Командир повстанцев', meeting: 'в чайном домике' },
+  africa: { addr: 'месье президент', sir: 'месье', lady: 'мадам', holiday_acc: 'День независимости', holiday_dat: 'Дню независимости', gringo: 'колонизаторы', haven: 'Париж', exileTo: 'Париж', canteen: 'маниок', fruit_adj: 'Шоколадный', locale: 'Африки', pay_in_kind: 'Какао-бобами.', vegas: 'африканский Монте-Карло', rebel: 'Командир повстанцев', meeting: 'в офицерском клубе' },
+  latam30: { addr: 'сеньор', sir: 'сеньор', lady: 'сеньора', holiday_acc: 'Рождество', holiday_dat: 'Рождеству', gringo: 'гринго', haven: 'Нью-Йорк', exileTo: 'Париж', canteen: 'фасоль с маисом', fruit_adj: 'Кофейный', locale: 'тропиков', pay_in_kind: 'Мешками кофе.', vegas: 'тропический Монте-Карло', rebel: 'Вожак повстанцев из сельвы', meeting: 'в казино' },
+  europe30: { addr: 'ваше превосходительство', sir: 'пан', lady: 'пани', holiday_acc: 'Рождество', holiday_dat: 'Рождеству', gringo: 'эти пижоны из Парижа', haven: 'Цюрих', exileTo: 'Вену', canteen: 'капустный суп', fruit_adj: 'Пшеничный', locale: 'Карпат', pay_in_kind: 'Мешками зерна.', vegas: 'Монте-Карло у подножия Карпат', rebel: 'Командир лесных партизан', meeting: 'в кофейне «Империал»' },
+  asia30: { addr: 'ваше превосходительство', sir: 'господин', lady: 'госпожа', holiday_acc: 'праздник Сонгкран', holiday_dat: 'празднику Сонгкран', gringo: 'фаранги', haven: 'Сингапур', exileTo: 'Гонконг', canteen: 'пустой рис', fruit_adj: 'Рисовый', locale: 'Индокитая', pay_in_kind: 'Мешками риса.', vegas: 'азиатский Монте-Карло', rebel: 'Командир подпольщиков', meeting: 'в чайном домике' },
+};
+const FAITH_TALK = {
+  catholic: { priest_open: 'Сын мой... Простите, {sir} {title}.', heavens: 'небесам', faith_quip: 'Небеса пока не голосуют. Но вот прихожане...', sermon: 'проповеди', faith_appeal: 'Я напишу в Ватикан... или куда следует.', temple_loc: 'в церкви', righteous: 'Церковь называет вас «христианином года»' },
+  orthodox: { priest_open: 'Чадо... Простите, {sir} {title}.', heavens: 'небесам', faith_quip: 'Небеса пока не голосуют. Но вот прихожане...', sermon: 'проповеди', faith_appeal: 'Я предам это заведение анафеме... или хотя бы напишу в газету.', temple_loc: 'в церкви', righteous: 'Патриарх называет вас «праведником года»' },
+  buddhist: { priest_open: 'Почтенный мирянин... Простите, {sir} {title}.', heavens: 'Будде', faith_quip: 'Будда в выборах не участвует. Но вот его последователи...', sermon: 'проповеди', faith_appeal: 'Монахи уйдут в медитацию протеста... на сорок дней.', temple_loc: 'в храме', righteous: 'Монахи называют вас «милосердным правителем»' },
+  chief: { priest_open: 'Сын мой... Простите, {sir} {title}. Старейшины велели передать:', heavens: 'предкам', faith_quip: 'Предки уже не голосуют. Но вот их внуки...', sermon: 'речи на совете старейшин', faith_appeal: 'Я созову совет старейшин... и предков.', temple_loc: 'в доме старейшин', righteous: 'Старейшины называют вас «мудрым отцом»' },
+};
+// Титулы правителя по регионам (первый — по умолчанию) и их падежи: [родительный, творительный]
+const REGION_TITLES = {
+  latam: ['Генералиссимус', 'Каудильо', 'Пожизненный Президент', 'Команданте', 'Благодетель', 'Отец Нации', 'Спаситель Отечества', 'Маршал'],
+  asia: ['Отец Нации', 'Маршал', 'Пожизненный Президент', 'Великий Кормчий', 'Генералиссимус', 'Благодетель', 'Верховный Вождь', 'Спаситель Отечества'],
+  africa: ['Пожизненный Президент', 'Отец Нации', 'Маршал', 'Генералиссимус', 'Мудрый Кормчий', 'Верховный Вождь', 'Благодетель', 'Спаситель Отечества'],
+  latam30: ['Каудильо', 'Генералиссимус', 'Пожизненный Президент', 'Благодетель Отечества', 'Вождь Нации', 'Маршал', 'Отец Народов', 'Регент'],
+  europe30: ['Регент', 'Маршал', 'Вождь Нации', 'Воевода', 'Генералиссимус', 'Пожизненный Президент', 'Отец Народов', 'Благодетель Отечества'],
+  asia30: ['Фельдмаршал', 'Регент', 'Отец Нации', 'Маршал', 'Великий Покровитель', 'Генералиссимус', 'Пожизненный Премьер', 'Благодетель'],
+};
+const TITLE_FORMS = {
+  'Генералиссимус': ['Генералиссимуса', 'Генералиссимусом'], 'Каудильо': ['Каудильо', 'Каудильо'], 'Команданте': ['Команданте', 'Команданте'],
+  'Пожизненный Президент': ['Пожизненного Президента', 'Пожизненным Президентом'], 'Пожизненный Премьер': ['Пожизненного Премьера', 'Пожизненным Премьером'],
+  'Благодетель': ['Благодетеля', 'Благодетелем'], 'Благодетель Отечества': ['Благодетеля Отечества', 'Благодетелем Отечества'],
+  'Отец Нации': ['Отца Нации', 'Отцом Нации'], 'Отец Народов': ['Отца Народов', 'Отцом Народов'], 'Спаситель Отечества': ['Спасителя Отечества', 'Спасителем Отечества'],
+  'Маршал': ['Маршала', 'Маршалом'], 'Фельдмаршал': ['Фельдмаршала', 'Фельдмаршалом'], 'Регент': ['Регента', 'Регентом'], 'Воевода': ['Воеводы', 'Воеводой'],
+  'Великий Кормчий': ['Великого Кормчего', 'Великим Кормчим'], 'Мудрый Кормчий': ['Мудрого Кормчего', 'Мудрым Кормчим'], 'Великий Покровитель': ['Великого Покровителя', 'Великим Покровителем'],
+  'Верховный Вождь': ['Верховного Вождя', 'Верховным Вождём'], 'Вождь Нации': ['Вождя Нации', 'Вождём Нации'],
+};
+const RELATIVES_BY_STYLE = {
+  latam: { defense: 'Кузен Рамон', economy: 'Шурин Бенедикт', police: 'Тётушка Консуэло', propaganda: 'Племянник Тито', foreign: 'Зять Октавио', abroad: 'в Майами' },
+  asia: { defense: 'Кузен Сомчай', economy: 'Шурин Прасит', police: 'Тётушка Мали', propaganda: 'Племянник Бун', foreign: 'Зять Анан', abroad: 'в Сингапуре' },
+  africa: { defense: 'Кузен Ипполит', economy: 'Шурин Бенедикт', police: 'Тётушка Мариам', propaganda: 'Племянник Тити', foreign: 'Зять Октав', abroad: 'в Париже' },
+  europe: { defense: 'Кузен Збышек', economy: 'Шурин Бенедикт', police: 'Тётушка Ядвига', propaganda: 'Племянник Юзек', foreign: 'Зять Октавиан', abroad: 'в Вене' },
 };

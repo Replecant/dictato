@@ -48,7 +48,7 @@ const UI = {
       <button class="pick ${st.regime === k ? 'on' : ''}" data-regime="${k}" aria-pressed="${st.regime === k}">
         <span class="pick-icon" aria-hidden="true">${t.icon}</span><span class="pick-name">${t.name}</span><span class="pick-desc">${t.desc}</span>
       </button>`).join('');
-    $('#setup-title').innerHTML = E.titles.map(t => `<option ${t === st.title ? 'selected' : ''}>${t}</option>`).join('');
+    $('#setup-title').innerHTML = (REGION_TITLES[st.region] || E.titles).map(t => `<option ${t === st.title ? 'selected' : ''}>${t}</option>`).join('');
     $('#setup-name').value = st.name;
     $('#setup-country').value = st.country;
     const opts = {
@@ -67,13 +67,13 @@ const UI = {
       if (st.era === b.dataset.era) return;
       st.era = b.dataset.era;
       const E2 = ERAS[st.era];
-      st.region = E2.regions[0]; st.regime = E2.regimes[0]; st.title = E2.titles[0];
+      st.region = E2.regions[0]; st.regime = E2.regimes[0]; st.title = REGION_TITLES[st.region][0];
       st.country = REGIONS[st.region].country; st.name = E2.defaultNames[st.region];
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-region]')) b.onclick = () => {
-      st.region = b.dataset.region; st.country = REGIONS[st.region].country; st.name = defaults[st.region];
+      st.region = b.dataset.region; st.country = REGIONS[st.region].country; st.name = defaults[st.region]; st.title = REGION_TITLES[st.region][0];
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
       st.look.hat = st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
       UI.renderSetup();
@@ -136,10 +136,10 @@ const UI = {
     const R = REGIONS[S.region];
     const lines = [
       ['narrator', `1 января ${ERAS[S.era].start} года. ${S.country}. Столица — ${R.capital}. Население — четыре миллиона человек и сорок миллионов ${R.critters}.`],
-      ['narrator', `Вчера вечером вы стали ${S.leader.title}ом. Сегодня утром — собрали кабинет министров.`],
+      ['narrator', `Вчера вечером вы стали ${Game.titleIns()}. Сегодня утром — собрали кабинет министров.`],
     ];
     for (const r of Object.keys(ROLES)) lines.push([r, `${ROLES[r].title}. ${S.adv[r].bio}`]);
-    lines.push(['police', 'Добро пожаловать во дворец, сеньор. Предыдущий хозяин продержался четырнадцать месяцев. Давайте побьём рекорд.']);
+    lines.push(['police', 'Добро пожаловать во дворец, {addr}. Предыдущий хозяин продержался четырнадцать месяцев. Давайте побьём рекорд.']);
     lines.push(['narrator', `${ERAS[S.era].intro} Ваша задача — дожить до ${ERAS[S.era].start + 10} года у власти. Желательно — с приличным счётом в Швейцарии.`]);
     return VN.play({ title: 'Первое заседание кабинета', bg: 'palace', lines });
   },
