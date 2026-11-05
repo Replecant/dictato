@@ -18,7 +18,6 @@ const BUDGET = {
   palace: { name: 'Нужды дворца', costs: [0, 5, 12], labels: ['Скромно', 'Умеренно', 'По-королевски'] },
 };
 const RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: ['left'], oligarchs: ['left'], hawks: ['liberals', 'left'] };
-const EXILE = { latam: 'Майами', asia: 'Гонолулу', africa: 'Ницце' };
 
 let S = null;
 
@@ -28,12 +27,13 @@ const Game = {
   newGame(cfg) {
     const R = REGIONS[cfg.region];
     const T = REGIME_TYPES[cfg.regime];
+    const era = cfg.era || '1960';
     S = {
-      v: 1, region: cfg.region, regime: cfg.regime,
+      v: 1, era, region: cfg.region, regime: cfg.regime,
       leader: { name: cfg.name, title: cfg.title, look: cfg.look },
       country: cfg.country || R.country,
-      turn: 0, year: 1960, q: 1, ap: AP_PER_TURN,
-      treasury: 80, swiss: 0, economy: 45, support: 50, army: 60, fear: 25,
+      turn: 0, year: ERAS[era].start, q: 1, ap: AP_PER_TURN,
+      treasury: era === '1930' ? 110 : 80, swiss: 0, economy: 45, support: 50, army: 60, fear: 25,
       price: 1, priceHist: [1],
       budget: { army: 1, police: 1, social: 1, infra: 1, tax: 1, palace: 1 },
       fac: {
@@ -44,9 +44,12 @@ const Game = {
       statHist: [],
     };
     for (const c of R.countries) S.rel[c] = 45;
-    S.rel.usa = 50; S.rel.ussr = 40; S.rel.china = 35;
-    if (S.rel.cuba !== undefined) S.rel.cuba = 35;
-    if (R.patron !== 'usa') S.rel[R.patron] = 60;
+    if (era === '1960') {
+      S.rel.usa = 50; S.rel.ussr = 40; S.rel.china = 35;
+      if (S.rel.cuba !== undefined) S.rel.cuba = 35;
+      if (R.patron !== 'usa') S.rel[R.patron] = 60;
+    }
+    Object.assign(S.rel, R.relInit || {});
     for (const role of Object.keys(ROLES)) {
       const a = R.advisors[role];
       S.adv[role] = { name: a.name, bio: a.bio, look: a.look, loy: Math.round(rnd(52, 72)), comp: 1, relative: false };
@@ -62,7 +65,7 @@ const Game = {
 
   save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* хранилище недоступно */ } },
   load() {
-    try { const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; S = JSON.parse(raw); return S; } catch (e) { return null; }
+    try { const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; S = JSON.parse(raw); S.era = S.era || '1960'; return S; } catch (e) { return null; }
   },
   hasSave() { try { const raw = localStorage.getItem(SAVE_KEY); return !!raw && !JSON.parse(raw).over; } catch (e) { return false; } },
   clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* */ } },
@@ -78,6 +81,7 @@ const Game = {
       exports: R.exports, exportGen: R.exportGen, company: R.company, patron: COUNTRIES[R.patron].name,
       sport: R.sport, rival: R.rival, rivalShort: R.rivalShort, disputed: R.disputed, faithLeader: R.faithLeader,
       square: R.capitalSquare, jungle: R.jungle, nephew: R.nephew, year: S.year,
+      ...ERAS[S.era].vars,
     };
     for (const r of Object.keys(ROLES)) v[r] = S.adv[r].name;
     for (const f of Object.keys(R.factions)) v['f.' + f] = R.factions[f].name;
@@ -105,11 +109,13 @@ const Game = {
 
   // ---------- применение эффектов ----------
   resolveFx(fx) { return typeof fx === 'function' ? fx(S) : (fx || {}); },
+  blocOf(c) { const C = COUNTRIES[c]; return (S.era === '1930' && C.bloc30) || C.bloc; },
   relTargets(key) {
     const R = REGIONS[S.region];
     if (key === '$patron') return [R.patron];
-    if (key === '$west') return R.countries.filter(c => COUNTRIES[c].bloc === 'west');
-    if (key === '$east') return R.countries.filter(c => COUNTRIES[c].bloc === 'east');
+    if (key === '$west') return R.countries.filter(c => Game.blocOf(c) === 'west');
+    if (key === '$east') return R.countries.filter(c => Game.blocOf(c) === 'east');
+    if (key === '$axis') return R.countries.filter(c => Game.blocOf(c) === 'axis');
     return S.rel[key] !== undefined ? [key] : [];
   },
   apply(fxIn, opts = {}) {
@@ -123,6 +129,10 @@ const Game = {
         d = S[k] - before;
         if (Math.round(d)) ch.push({ k, d: Math.round(d), label: STAT_NAMES[k], icon: STAT_ICONS[k], money: k === 'treasury' || k === 'swiss' });
       }
+    }
+    if (fx.price) {
+      const b = S.price; S.price = clamp(S.price + fx.price, 0.4, 1.6);
+      ch.push({ k: 'price', d: Math.round((S.price - b) * 100), label: 'Цена экспорта, %', icon: '📦' });
     }
     if (fx.fac) for (const [f, e] of Object.entries(fx.fac)) {
       const F = S.fac[f]; if (!F) continue;
@@ -159,6 +169,7 @@ const Game = {
       if (e.s) out.push({ icon: F.icon, d: e.s, label: `${F.name}: сила`, text: `${F.short}: сила ${sign(e.s)}`, inv: true });
     }
     if (fx.rel) for (const [key, d] of Object.entries(fx.rel)) for (const c of Game.relTargets(key)) out.push({ flag: c, d, label: COUNTRIES[c].name });
+    if (fx.price) out.push({ icon: '📦', d: fx.price * 100, label: 'Мировая цена на экспорт', text: `цена ${sign(fx.price * 100)}%` });
     if (fx.schedule) out.push({ icon: '⏳', d: 0, label: 'Отложенный эффект', text: 'потом' });
     if (fx.loan) out.push({ icon: '🧾', d: -fx.loan.per, label: `Кредит: ${fx.loan.turns} выплат` });
     return out;
@@ -184,9 +195,8 @@ const Game = {
   aidList() {
     const R = REGIONS[S.region];
     const out = [];
-    const add = (c, th, div) => { if (S.rel[c] !== undefined && S.rel[c] >= th) out.push({ c, v: Math.round((S.rel[c] - th + 5) / div) }); };
-    add('usa', 60, 3); add('ussr', 60, 3); add('china', 65, 4);
-    if (R.patron !== 'usa') add(R.patron, 60, 4);
+    const add = (c, th, div) => { if (S.rel[c] !== undefined && S.rel[c] >= th && !out.some(o => o.c === c)) out.push({ c, v: Math.round((S.rel[c] - th + 5) / div) }); };
+    for (const [c, th, div] of ERAS[S.era].aid) add(c === '$patron' ? R.patron : c, th, div);
     return out.filter(x => x.v > 0);
   },
 
@@ -224,6 +234,11 @@ const Game = {
     return { w: 'вот-вот', c: 'crit' };
   },
   bloc() {
+    if (S.era === '1930') {
+      const avg = list => { const v = list.filter(c => S.rel[c] !== undefined).map(c => S.rel[c]); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
+      const g = [['Друг демократий', avg(['uk', 'france', 'usa'])], ['Друг Берлина и Рима', avg(['germany', 'italy', 'japan'])], ['Друг Москвы', avg(['ussr'])]].sort((a, b) => b[1] - a[1]);
+      return g[0][1] - g[1][1] > 15 ? g[0][0] : 'Нейтралитет';
+    }
     const w = S.rel.usa, e = S.rel.ussr;
     if (w - e > 20) return 'Западный лагерь';
     if (e - w > 20) return 'Социалистический лагерь';
@@ -232,11 +247,13 @@ const Game = {
 
   // ---------- события ----------
   historyFor(year, q) {
-    return HISTORY.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));
+    const list = S.era === '1930' ? HISTORY_30 : HISTORY;
+    return list.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));
   },
   drawEvent() {
     const pool = EVENTS.filter(e =>
       (!e.regions || e.regions.includes(S.region)) &&
+      (!e.eras || e.eras.includes(S.era)) &&
       (!e.once || !S.used.includes(e.id)) &&
       (e.minTurn === undefined || S.turn >= e.minTurn) &&
       (!e.cond || e.cond(S)) &&
@@ -338,7 +355,7 @@ const Game = {
   },
 
   countryActions(c) {
-    const isBig = ['usa', 'ussr', 'uk', 'france', 'china'].includes(c);
+    const isBig = ['usa', 'ussr', 'uk', 'france', 'china', 'germany', 'italy', 'japan'].includes(c);
     const acts = [
       { id: 'visit', name: 'Государственный визит', cost: '−5 млн', ok: S.treasury >= 5 },
       { id: 'trade', name: 'Торговое соглашение', cost: '', ok: S.rel[c] >= 30 },
@@ -351,7 +368,10 @@ const Game = {
   countryAction(c, act) {
     if (!Game.spend()) return null;
     const C = COUNTRIES[c], R = REGIONS[S.region];
-    const opp = C.bloc === 'west' ? '$east' : C.bloc === 'east' ? '$west' : null;
+    const bl = Game.blocOf(c);
+    const opp = S.era === '1930'
+      ? (bl === 'west' ? '$axis' : bl === 'axis' ? '$west' : bl === 'east' ? '$axis' : null)
+      : (bl === 'west' ? '$east' : bl === 'east' ? '$west' : null);
     let fx = {}, text = '';
     const isSuper = ['usa', 'ussr'].includes(c);
     switch (act) {
@@ -387,8 +407,13 @@ const Game = {
     const acts = [
       { id: 'highway', name: `Шоссе имени ${S.leader.name.split(' ').slice(-1)[0]}`, desc: 'Через 3 квартала экономика +6. Подрядчик — родственник.', cost: '−30 млн', ok: S.treasury >= 30 },
       { id: 'print', name: 'Напечатать деньги', desc: 'Казна +25. Экономика −5, народ −2.', cost: '', ok: true },
-      { id: 'loan_w', name: 'Кредит Всемирного банка', desc: 'Казна +50, затем 8 выплат по 7 млн.', cost: 'США ≥ 40', ok: S.rel.usa >= 40 && S.loans.length < 2 },
-      { id: 'loan_e', name: 'Кредит Госбанка СССР', desc: 'Казна +50, затем 8 выплат по 7 млн. Москва довольна.', cost: 'СССР ≥ 40', ok: S.rel.ussr >= 40 && S.loans.length < 2 },
+      ...(S.era === '1930' ? [
+        { id: 'loan_w', name: 'Заём лондонского Сити', desc: 'Казна +50, затем 8 выплат по 7 млн.', cost: 'Британия ≥ 40', ok: (S.rel.uk || 0) >= 40 && S.loans.length < 2 },
+        { id: 'loan_e', name: 'Кредит Рейхсбанка', desc: 'Казна +50, затем 8 выплат по 7 млн. Берлин доволен, Лондон — нет.', cost: 'Германия ≥ 40', ok: (S.rel.germany || 0) >= 40 && S.loans.length < 2 },
+      ] : [
+        { id: 'loan_w', name: 'Кредит Всемирного банка', desc: 'Казна +50, затем 8 выплат по 7 млн.', cost: 'США ≥ 40', ok: S.rel.usa >= 40 && S.loans.length < 2 },
+        { id: 'loan_e', name: 'Кредит Госбанка СССР', desc: 'Казна +50, затем 8 выплат по 7 млн. Москва довольна.', cost: 'СССР ≥ 40', ok: S.rel.ussr >= 40 && S.loans.length < 2 },
+      ]),
       { id: 'transfer', name: 'Перевести 15 млн в Цюрих', desc: 'На чёрный день. Шанс скандала 20%.', cost: '−15 млн казны', ok: S.treasury >= 15 },
     ];
     if (!S.flags.nationalized) acts.splice(1, 0, { id: 'nationalize', name: `Национализировать ${R.company}`, desc: `Казна +35, доходы от экспорта выше. ${COUNTRIES[R.patron].name} будут в ярости.`, cost: 'один раз', ok: true, danger: true });
@@ -410,9 +435,11 @@ const Game = {
         fx = { treasury: 25, economy: -5, support: -2 };
         text = 'Станок Монетного двора работал всю ночь. Утром цены выросли. Совпадение?'; break;
       case 'loan_w':
+        if (S.era === '1930') { fx = { treasury: 50, rel: { uk: 3 }, loan: { per: 7, turns: 8 } }; text = 'Банкиры Сити выдали заём под залог таможенных сборов. Теперь на таможне сидит англичанин в котелке.'; break; }
         fx = { treasury: 50, rel: { usa: 3 }, loan: { per: 7, turns: 8 } };
         text = 'Всемирный банк выдал кредит. Эксперты в очках оставили 300-страничный список рекомендаций.'; break;
       case 'loan_e':
+        if (S.era === '1930') { fx = { treasury: 50, rel: { germany: 5, uk: -3 }, loan: { per: 7, turns: 8 } }; text = 'Рейхсбанк выдал кредит в марках, которые можно потратить только в Германии. Очень удобно. Для Германии.'; break; }
         fx = { treasury: 50, rel: { ussr: 5, usa: -3 }, loan: { per: 7, turns: 8 } };
         text = 'Госбанк СССР выдал кредит. В придачу — делегация экономистов с пятилетним планом.'; break;
       case 'transfer':
@@ -620,10 +647,21 @@ const Game = {
   },
 
   // ---------- финалы ----------
+  epilogue30() {
+    const b = Game.bloc();
+    if (S.region === 'europe30') {
+      if (b === 'Друг Берлина и Рима') return 'Берлин называет вас союзником. Это самая опасная дружба на континенте.';
+      if (b === 'Друг Москвы') return 'Москва предлагает «договор о взаимопомощи» и уже подтягивает войска к границе. Подозрительно щедро.';
+      if (b === 'Друг демократий') return 'Лондон и Париж дали гарантии. Хватит ли их надолго, не знает никто.';
+      return 'Вы лавируете между Берлином и Москвой, как канатоходец над пропастью.';
+    }
+    if (S.region === 'asia30') return (S.rel.japan || 0) > 60 ? 'Токио считает вас частью своего «нового порядка».' : 'Японские войска всё ближе к вашим границам.';
+    return (S.rel.usa || 0) > 60 ? 'Вашингтон называет вас «добрым соседом».' : 'Немецкие подводные лодки уже заходят в южные моря.';
+  },
   ending(type) {
     S.over = type;
     const R = REGIONS[S.region];
-    const ex = EXILE[S.region];
+    const ex = R.exile;
     const rich = S.swiss >= 40;
     const years = (S.turn / 4).toFixed(1).replace('.0', '');
     const T = S.leader.title;
@@ -637,7 +675,7 @@ const Game = {
         ? `Вертолёт доставил вас на борт яхты. Через неделю вы уже в ${ex}, где пьёте коктейли с другими бывшими диктаторами. Вас тут целый клуб.`
         : `Вертолёт долетел до границы, и топливо кончилось. Вы пересекли её пешком, в пижаме и с медалями. Соседи дали вам убежище и маленькую квартиру.` },
       retired: { title: 'Ушёл на покой', text: `Вы добровольно передали власть «временному совету» и уехали в ${ex}. Историки до сих пор спорят, был ли это жест мудрости или хорошо рассчитанный побег.` },
-      survived: { title: 'Пережил шестидесятые', text: `31 декабря 1969 года. Вы стоите на балконе дворца, а внизу салют. Десятилетие переворотов, ракетных кризисов и революций позади — а вы всё ещё ${T}. Впереди семидесятые. Говорят, там нефть подорожает.` },
+      survived: S.era === '1930' ? { title: 'Пережил тридцатые', text: `31 декабря 1939 года. Европа в огне, Китай в огне, мир снова воюет, а вы всё ещё ${T}. Вы пережили Депрессию, «рубашки», путчи и Лигу Наций. ${Game.epilogue30()} Впереди сороковые, и они будут куда страшнее.` } : { title: 'Пережил шестидесятые', text: `31 декабря 1969 года. Вы стоите на балконе дворца, а внизу салют. Десятилетие переворотов, ракетных кризисов и революций позади — а вы всё ещё ${T}. Впереди семидесятые. Говорят, там нефть подорожает.` },
     }[type];
     const verdicts = [];
     if (S.swiss >= 100) verdicts.push('Самый богатый пенсионер континента');

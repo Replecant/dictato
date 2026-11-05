@@ -16,36 +16,44 @@ const UI = {
   title() {
     UI.show('screen-title');
     $('#btn-continue').hidden = !Game.hasSave();
-    const looks = [REGIONS.latam.advisors.defense.look, REGIONS.africa.advisors.propaganda.look, REGIONS.asia.advisors.police.look];
+    document.body.dataset.era = '';
+    const looks = [REGIONS.latam.advisors.defense.look, REGIONS.africa.advisors.propaganda.look, REGIONS.europe30.advisors.foreign.look];
     $('#title-portraits').innerHTML = looks.map((l, i) => `<div class="tp tp${i}">${Portrait.svg(l)}</div>`).join('');
   },
 
   // ---------- настройка ----------
   startSetup() {
-    UI.setup = { region: 'latam', regime: 'junta', name: 'Хосе Мария Альварадо', title: 'Генералиссимус', country: REGIONS.latam.country,
+    UI.setup = { era: '1960', region: 'latam', regime: 'junta', name: 'Хосе Мария Альварадо', title: 'Генералиссимус', country: REGIONS.latam.country,
       look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#1a1410', hat: 'cap', hatColor: '#4b5320', mustache: 'thick', brows: 'bushy', mouth: 'smile', glasses: 'none', outfit: 'military', outfitColor: '#4b5320', medals: 10, sash: '#c1272d' } };
     UI.show('screen-setup');
     UI.renderSetup();
   },
   renderSetup() {
     const st = UI.setup;
-    const defaults = { latam: 'Хосе Мария Альварадо', asia: 'Пхра Сомсак Ратанавонг', africa: 'Жозеф Мбеки-Нгуема' };
-    $('#setup-regions').innerHTML = Object.entries(REGIONS).map(([k, r]) => `
+    const E = ERAS[st.era];
+    const defaults = E.defaultNames;
+    document.body.dataset.era = st.era;
+    $('#setup-eras').innerHTML = Object.entries(ERAS).sort((a, b) => a[1].start - b[1].start).map(([k, e]) => `
+      <button class="pick era-pick ${st.era === k ? 'on' : ''}" data-era="${k}" aria-pressed="${st.era === k}">
+        <span class="pick-year">${e.name}</span><span class="pick-name">${e.label}</span><span class="pick-desc">${e.blurb}</span>
+        <span class="pick-meta">${e.regions.map(r => REGIONS[r].name).join(' · ')}</span>
+      </button>`).join('');
+    $('#setup-regions').innerHTML = E.regions.map(k => [k, REGIONS[k]]).map(([k, r]) => `
       <button class="pick ${st.region === k ? 'on' : ''}" data-region="${k}" aria-pressed="${st.region === k}">
         <svg viewBox="0 0 30 20" class="pick-flag">${r.flag}</svg>
         <span class="pick-name">${r.name}</span><span class="pick-desc">${r.blurb}</span>
         <span class="pick-meta">${r.country} · экспорт: ${r.exports}</span>
       </button>`).join('');
-    $('#setup-regimes').innerHTML = Object.entries(REGIME_TYPES).map(([k, t]) => `
+    $('#setup-regimes').innerHTML = E.regimes.map(k => [k, REGIME_TYPES[k]]).map(([k, t]) => `
       <button class="pick ${st.regime === k ? 'on' : ''}" data-regime="${k}" aria-pressed="${st.regime === k}">
         <span class="pick-icon" aria-hidden="true">${t.icon}</span><span class="pick-name">${t.name}</span><span class="pick-desc">${t.desc}</span>
       </button>`).join('');
-    $('#setup-title').innerHTML = TITLES.map(t => `<option ${t === st.title ? 'selected' : ''}>${t}</option>`).join('');
+    $('#setup-title').innerHTML = E.titles.map(t => `<option ${t === st.title ? 'selected' : ''}>${t}</option>`).join('');
     $('#setup-name').value = st.name;
     $('#setup-country').value = st.country;
     const opts = {
       skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
-      hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Кепи', 'kepi'], ['Шляпа', 'fedora'], ['Без убора', 'none']],
+      hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Кепи', 'kepi'], ['Шляпа', 'fedora'], ['Котелок', 'bowler'], ['Цилиндр', 'top'], ['Без убора', 'none']],
       mustache: [['Пышные', 'thick'], ['Моржовые', 'walrus'], ['Ниточка', 'pencil'], ['Руль', 'handlebar'], ['Нет', 'none']],
       glasses: [['Нет', 'none'], ['Авиаторы', 'aviator'], ['Круглые', 'round'], ['Монокль', 'monocle']],
       outfit: [['Мундир', 'military'], ['Костюм', 'suit'], ['Френч', 'mao'], ['Гуаябера', 'guayabera']],
@@ -55,15 +63,32 @@ const UI = {
     $('#setup-look').innerHTML = Object.entries(opts).map(([k, list]) => `
       <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${st.look[k] === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
     UI.renderSetupPortrait();
+    for (const b of document.querySelectorAll('[data-era]')) b.onclick = () => {
+      if (st.era === b.dataset.era) return;
+      st.era = b.dataset.era;
+      const E2 = ERAS[st.era];
+      st.region = E2.regions[0]; st.regime = E2.regimes[0]; st.title = E2.titles[0];
+      st.country = REGIONS[st.region].country; st.name = E2.defaultNames[st.region];
+      st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
+      UI.renderSetup();
+    };
     for (const b of document.querySelectorAll('[data-region]')) b.onclick = () => {
       st.region = b.dataset.region; st.country = REGIONS[st.region].country; st.name = defaults[st.region];
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
-      st.look.hat = st.region === 'africa' ? 'kepi' : 'cap';
+      st.look.hat = st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-regime]')) b.onclick = () => {
       st.regime = b.dataset.regime;
-      Object.assign(st.look, st.regime === 'junta' ? { outfit: 'military', outfitColor: '#4b5320', medals: 12 } : st.regime === 'revolution' ? { outfit: 'military', outfitColor: '#556b2f', medals: 1, hat: 'beret', hatColor: '#1a1a1a' } : { outfit: 'suit', outfitColor: '#2a2d36', medals: 0, hat: 'none', sash: '#c1272d' });
+      const looks = {
+        junta: { outfit: 'military', outfitColor: '#4b5320', medals: 12, hat: 'cap', hatColor: '#4b5320' },
+        revolution: { outfit: 'military', outfitColor: '#556b2f', medals: 1, hat: 'beret', hatColor: '#1a1a1a' },
+        western: { outfit: 'suit', outfitColor: '#2a2d36', medals: 0, hat: 'none', sash: '#c1272d' },
+        putsch: { outfit: 'military', outfitColor: '#5a5f3a', medals: 14, hat: 'kepi', hatColor: '#5a5f3a' },
+        estado: { outfit: 'suit', outfitColor: '#1d1d22', medals: 0, hat: 'top', hatColor: '#1a1a1a', sash: '#1f4e8c' },
+        front: { outfit: 'suit', outfitColor: '#5a4a3a', medals: 0, hat: 'flatcap', hatColor: '#4a3a2a', sash: '#c1272d' },
+      };
+      Object.assign(st.look, looks[st.regime]);
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-look]')) b.onclick = () => {
@@ -82,6 +107,7 @@ const UI = {
     st.title = $('#setup-title').value;
     st.country = $('#setup-country').value.trim() || REGIONS[st.region].country;
     Game.newGame(st);
+    document.body.dataset.era = S.era;
     UI.show('screen-game');
     UI.tab = 'cabinet';
     UI.render();
@@ -89,6 +115,7 @@ const UI = {
   },
   continueGame() {
     if (!Game.load()) return UI.title();
+    document.body.dataset.era = S.era;
     if (S.over) return UI.showEnding();
     UI.show('screen-game');
     if (S.phase === 'crisis' && S.lastReport && S.lastReport.crisis) {
@@ -108,12 +135,12 @@ const UI = {
   intro() {
     const R = REGIONS[S.region];
     const lines = [
-      ['narrator', `1 января 1960 года. ${S.country}. Столица — ${R.capital}. Население — четыре миллиона человек и сорок миллионов попугаев.`],
+      ['narrator', `1 января ${ERAS[S.era].start} года. ${S.country}. Столица — ${R.capital}. Население — четыре миллиона человек и сорок миллионов ${R.critters}.`],
       ['narrator', `Вчера вечером вы стали ${S.leader.title}ом. Сегодня утром — собрали кабинет министров.`],
     ];
     for (const r of Object.keys(ROLES)) lines.push([r, `${ROLES[r].title}. ${S.adv[r].bio}`]);
     lines.push(['police', 'Добро пожаловать во дворец, сеньор. Предыдущий хозяин продержался четырнадцать месяцев. Давайте побьём рекорд.']);
-    lines.push(['narrator', 'Впереди десятилетие: холодная война, ракетные кризисы, революции. Ваша задача — дожить до 1970 года у власти. Желательно — с приличным счётом в Швейцарии.']);
+    lines.push(['narrator', `${ERAS[S.era].intro} Ваша задача — дожить до ${ERAS[S.era].start + 10} года у власти. Желательно — с приличным счётом в Швейцарии.`]);
     return VN.play({ title: 'Первое заседание кабинета', bg: 'palace', lines });
   },
 
@@ -145,8 +172,8 @@ const UI = {
     Game.log('Мировые новости: ' + h.head);
     await Modal.open(`
       <div class="paper">
-        <div class="paper-mast">МИРОВЫЕ НОВОСТИ</div>
-        <div class="paper-date">${Game.dateLabel()} · цена 5 ${esc(REGIONS[S.region].currency)}</div>
+        <div class="paper-mast">${ERAS[S.era].vars.mast}</div>
+        <div class="paper-date">${Game.dateLabel()} · экстренный выпуск</div>
         <h2 class="paper-head">${esc(h.head)}</h2>
         <p class="paper-text">${esc(h.text)}</p>
         ${ch.length ? `<div class="fx-list">${UI.changes(ch)}</div>` : ''}
@@ -222,7 +249,7 @@ const UI = {
     }).join('');
     for (const b of document.querySelectorAll('.tabs button')) { b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
     $('#btn-end').disabled = S.phase !== 'hub';
-    $('#btn-end').textContent = S.turn >= LAST_TURN ? 'Встретить 1970 год' : 'Завершить квартал';
+    $('#btn-end').textContent = S.turn >= LAST_TURN ? `Встретить ${ERAS[S.era].start + 10} год` : 'Завершить квартал';
     const body = $('#tab-body');
     body.innerHTML = UI['tab_' + UI.tab]();
     UI.bindTab();
@@ -249,7 +276,7 @@ const UI = {
           <div class="leader-info">
             <div class="eyebrow">${esc(REGIME_TYPES[S.regime].name)} · ${esc(Game.bloc())}</div>
             <h2>${esc(S.leader.title)}<br>${esc(S.leader.name)}</h2>
-            <p class="muted">У власти ${(S.turn / 4).toFixed(1).replace('.0', '')} г. До 1970 года осталось кварталов: <b>${left}</b>.</p>
+            <p class="muted">У власти ${(S.turn / 4).toFixed(1).replace('.0', '')} г. До ${ERAS[S.era].start + 10} года осталось кварталов: <b>${left}</b>.</p>
             <div class="risk-row">
               <div class="risk ${cr.c}"><span>Риск переворота</span><b>${cr.w}</b></div>
               <div class="risk ${rr.c}"><span>Риск революции</span><b>${rr.w}</b></div>
@@ -274,7 +301,7 @@ const UI = {
             <li>Деньги «нужд дворца» уходят на ваш счёт в Швейцарии. Он пригодится, если придётся бежать.</li>
           </ul>
           <button class="btn ghost small" data-act="retire">Уйти на покой…</button>
-          <div class="confirm" id="retire-confirm" hidden><p>Передать власть и уехать в ${EXILE[S.region]} с ${Math.round(S.swiss)} млн на счёте?</p><button class="btn danger small" data-act="retire-yes">Да, уезжаю</button> <button class="btn ghost small" data-act="retire-no">Остаюсь</button></div>
+          <div class="confirm" id="retire-confirm" hidden><p>Передать власть и уехать в ${REGIONS[S.region].exile} с ${Math.round(S.swiss)} млн на счёте?</p><button class="btn danger small" data-act="retire-yes">Да, уезжаю</button> <button class="btn ghost small" data-act="retire-no">Остаюсь</button></div>
         </section>
       </div>`;
   },
@@ -313,7 +340,7 @@ const UI = {
           ${B.palace ? row('Нужды дворца', -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
           <tr class="total"><td>Итого</td><td class="num">${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(1)}</td></tr>
         </tbody></table>
-        <div class="price"><span>Мировая цена на ${R.exportGen}</span><b>${Math.round(S.price * 100)}%</b>${Charts.spark(S.priceHist)}</div>
+        <div class="price"><span>Мировая цена: ${R.exports}</span><b>${Math.round(S.price * 100)}%</b>${Charts.spark(S.priceHist)}</div>
       </section>
       <section class="card wide">
         <div class="eyebrow">Проекты · 1 приказ</div>
@@ -324,12 +351,12 @@ const UI = {
 
   tab_world() {
     const R = REGIONS[S.region];
-    const blocName = { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
+    const blocName = S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
     return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. Дружба со сверхдержавой приносит помощь каждый квартал, если отношения выше 60. Но другая сверхдержава это запомнит.</p>
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c];
         return `<article class="card country">
-          <header>${flagSvg(c)}<div><h3>${C.name}</h3><span class="muted small">${Game.leaderAt(c)}</span></div><span class="chip ${C.bloc}">${blocName[C.bloc]}</span></header>
+          <header>${flagSvg(c)}<div><h3>${C.name}</h3><span class="muted small">${Game.leaderAt(c)}</span></div><span class="chip ${Game.blocOf(c)}">${blocName[Game.blocOf(c)]}</span></header>
           ${UI.meter('Отношения', v, v < 25 ? 'bad' : v < 50 ? 'warn' : 'good')}
           <div class="acts">${Game.countryActions(c).map(a => UI.actBtn(`world:${c}:${a.id}`, a)).join('')}</div>
         </article>`;
@@ -565,7 +592,7 @@ const Charts = {
     }).join('');
     const legend = series.map(([k, n2, col]) => `<span><i style="background:${col}"></i>${n2} <b>${Math.round(S[k])}</b></span>`).join('');
     const empty = hist.length < 2 ? `<text x="${w / 2}" y="${h / 2}" text-anchor="middle" class="axis">График появится после первого квартала</text>` : '';
-    return `<div class="chart"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Динамика показателей">${grid}${paths}${empty}<text x="${pl}" y="${h - 6}" class="axis">1960</text><text x="${w - pr}" y="${h - 6}" text-anchor="end" class="axis">${Game.dateLabel()}</text></svg><div class="legend">${legend}</div></div>`;
+    return `<div class="chart"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Динамика показателей">${grid}${paths}${empty}<text x="${pl}" y="${h - 6}" class="axis">${ERAS[S.era].start}</text><text x="${w - pr}" y="${h - 6}" text-anchor="end" class="axis">${Game.dateLabel()}</text></svg><div class="legend">${legend}</div></div>`;
   },
   spark(arr) {
     const w = 140, h = 36;

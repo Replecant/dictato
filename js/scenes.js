@@ -4,10 +4,25 @@ const Scenes = (() => {
     latam: { sky1: '#f7c46c', sky2: '#e0704a', ground: '#7a5230', wall: '#e8c9a0', accent: '#0b6e4f', roof: '#b5532d', plant: '#2f7a3a' },
     asia: { sky1: '#bfe3d0', sky2: '#4f9a8a', ground: '#4d6b3a', wall: '#e6dcc0', accent: '#c1272d', roof: '#8e2a2a', plant: '#2e6b44' },
     africa: { sky1: '#fbd37a', sky2: '#d9822b', ground: '#9a5b2a', wall: '#ead2a8', accent: '#1e7a3c', roof: '#6b3e1e', plant: '#5d7a2a' },
+    latam30: { sky1: '#f3d9a4', sky2: '#c9774a', ground: '#7a5a3a', wall: '#ecd8b4', accent: '#7a1f3d', roof: '#a4492d', plant: '#3d6b3a' },
+    europe30: { sky1: '#c9d4dc', sky2: '#7a8a9c', ground: '#5a5a3c', wall: '#e4dcc8', accent: '#1f4e8c', roof: '#7a3a2a', plant: '#3a5a3a' },
+    asia30: { sky1: '#f2e2a8', sky2: '#9ab07a', ground: '#5a6a3a', wall: '#ece0c0', accent: '#7a1f3d', roof: '#a0322a', plant: '#3a6a3a' },
   };
   const W = 800, H = 450;
 
+  let STYLE = 'latam';
+  function firs(p, n, y, scale) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const x = 40 + i * (W / n) + (i % 2) * 30;
+      const k = scale * (0.8 + (i % 3) * 0.15);
+      s += `<g transform="translate(${x} ${y}) scale(${k})"><rect x="-4" y="-20" width="8" height="20" fill="#3a2a1a"/>` +
+        [0, 1, 2, 3].map(j => `<path d="M${-40 + j * 8} ${-20 - j * 30} L0 ${-70 - j * 30} L${40 - j * 8} ${-20 - j * 30} Z" fill="${j % 2 ? '#2f4a32' : p.plant}"/>`).join('') + '</g>';
+    }
+    return s;
+  }
   function palms(p, n, y, scale = 1) {
+    if (STYLE === 'europe') return firs(p, n, y, scale);
     let s = '';
     for (let i = 0; i < n; i++) {
       const x = 40 + i * (W / n) + (i % 2) * 30;
@@ -42,7 +57,7 @@ const Scenes = (() => {
     office(p, r) {
       return `<rect width="${W}" height="${H}" fill="#5a2f1c"/>` +
         Array.from({ length: 10 }, (_, i) => `<rect x="${i * 80 + 4}" y="0" width="72" height="${H}" fill="#6b3a22"/><rect x="${i * 80 + 10}" y="300" width="60" height="120" fill="none" stroke="#4a2614" stroke-width="3"/>`).join('') +
-        `<rect x="430" y="40" width="300" height="230" fill="#3a1d10"/><g><svg x="440" y="50" width="280" height="210" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${sky(p, 'os')}${r === 'asia' ? `<path d="M0 330 L200 180 L360 300 L520 160 L800 320 L800 450 L0 450 Z" fill="#3d6e5a"/>` : ''}${palms(p, 5, 420, 1.4)}</svg></g>` +
+        `<rect x="430" y="40" width="300" height="230" fill="#3a1d10"/><g><svg x="440" y="50" width="280" height="210" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${sky(p, 'os')}${STYLE === 'asia' ? `<path d="M0 330 L200 180 L360 300 L520 160 L800 320 L800 450 L0 450 Z" fill="#3d6e5a"/>` : ''}${palms(p, 5, 420, 1.4)}</svg></g>` +
         `<path d="M580 40 V270 M430 155 H730" stroke="#3a1d10" stroke-width="10"/>` +
         `<rect x="110" y="60" width="150" height="190" fill="#e2b33c"/><rect x="122" y="72" width="126" height="166" fill="#2a1a12"/><text x="185" y="166" text-anchor="middle" font-size="64" fill="#e2b33c" opacity="0.5">★</text>` +
         `<line x1="330" y1="40" x2="330" y2="330" stroke="#c9a640" stroke-width="5"/><circle cx="330" cy="38" r="7" fill="#e2b33c"/><g transform="translate(333 50)"><svg width="90" height="60" viewBox="0 0 30 20">${REGIONS[r].flag}</svg></g>` +
@@ -68,9 +83,9 @@ const Scenes = (() => {
     village(p, r) {
       return sky(p, 'sv') + `<circle cx="640" cy="90" r="46" fill="#fff3b0"/>` +
         `<path d="M0 260 Q200 200 400 250 T800 230 L800 450 L0 450 Z" fill="${p.plant}"/><path d="M0 320 Q300 280 800 330 L800 450 L0 450 Z" fill="${p.ground}"/>` +
-        [120, 300, 520].map(x => r === 'asia'
+        [120, 300, 520].map(x => STYLE === 'asia'
           ? `<rect x="${x}" y="270" width="90" height="50" fill="#a07a4a"/><path d="M${x - 20} 272 L${x + 45} 220 L${x + 110} 272 Z" fill="#6b4a2a"/><rect x="${x + 10}" y="320" width="8" height="20" fill="#5a3a20"/><rect x="${x + 72}" y="320" width="8" height="20" fill="#5a3a20"/>`
-          : `<rect x="${x}" y="270" width="80" height="60" fill="${r === 'africa' ? '#b5793e' : p.wall}"/><path d="M${x - 14} 272 L${x + 40} ${r === 'africa' ? 214 : 236} L${x + 94} 272 Z" fill="${r === 'africa' ? '#c9a24a' : p.roof}"/><rect x="${x + 30}" y="296" width="20" height="34" fill="#3a2a1a"/>`).join('') +
+          : `<rect x="${x}" y="270" width="80" height="60" fill="${STYLE === 'africa' ? '#b5793e' : p.wall}"/><path d="M${x - 14} 272 L${x + 40} ${STYLE === 'africa' ? 214 : 236} L${x + 94} 272 Z" fill="${STYLE === 'africa' ? '#c9a24a' : p.roof}"/><rect x="${x + 30}" y="296" width="20" height="34" fill="#3a2a1a"/>`).join('') +
         palms(p, 2, 340, 0.8);
     },
     jungle(p, r) {
@@ -86,10 +101,15 @@ const Scenes = (() => {
         `<rect y="400" width="${W}" height="50" fill="#0c0b16"/>` + tank(20, 430, 0.9, '#11140c') + tank(560, 440, 1.1, '#11140c');
     },
     church(p, r) {
-      if (r === 'asia') return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="#c9b48a"/>` +
+      if (STYLE === 'europe') return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="#b8b09a"/>` +
+        `<rect x="250" y="190" width="300" height="140" fill="${p.wall}"/><rect x="360" y="120" width="80" height="80" fill="${p.wall}"/>` +
+        [[400, 120, 34], [290, 190, 22], [510, 190, 22]].map(([x, y, r2]) => `<path d="M${x - r2} ${y} Q${x - r2 - 8} ${y - r2 * 1.2} ${x} ${y - r2 * 2.4} Q${x + r2 + 8} ${y - r2 * 1.2} ${x + r2} ${y} Z" fill="#d6a63a"/><path d="M${x} ${y - r2 * 2.4} V${y - r2 * 2.4 - 24} M${x - 8} ${y - r2 * 2.4 - 16} H${x + 8}" stroke="#d6a63a" stroke-width="3"/><rect x="${x - r2 + 4}" y="${y}" width="${(r2 - 4) * 2}" height="14" fill="${p.wall}"/>`).join('') +
+        [300, 360, 440, 500].map(x => `<path d="M${x - 10} 300 V250 Q${x} 236 ${x + 10} 250 V300 Z" fill="#3a3a4a"/>`).join('') +
+        `<path d="M385 330 V270 Q400 252 415 270 V330 Z" fill="#4a2a1a"/>` + crowd('#2a2a30', 450, 22, false);
+      if (STYLE === 'asia') return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="#c9b48a"/>` +
         [0, 1, 2, 3].map(i => `<path d="M${260 - i * 20} ${300 - i * 60} L${540 + i * 20} ${300 - i * 60} L${500 + i * 6} ${270 - i * 60} L${300 - i * 6} ${270 - i * 60} Z" fill="${p.roof}"/><rect x="${300 - i * 6 + 10}" y="${300 - i * 60}" width="${200 + i * 12 - 20}" height="34" fill="#e2b33c"/>`).join('') +
         `<path d="M400 60 L392 90 L408 90 Z" fill="#e2b33c"/>` + crowd('#e07a1f', 450, 20, false);
-      if (r === 'africa') return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="${p.ground}"/>` +
+      if (STYLE === 'africa') return sky(p, 'sc') + `<rect y="330" width="${W}" height="120" fill="${p.ground}"/>` +
         `<path d="M380 330 Q370 230 390 170 L410 170 Q430 230 420 330 Z" fill="#6b4a2a"/><path d="M390 175 Q300 140 260 100 M400 172 Q400 110 380 70 M410 175 Q500 140 540 104 M400 180 Q330 180 300 150 M400 180 Q470 180 500 150" stroke="#6b4a2a" stroke-width="12" fill="none" stroke-linecap="round"/>` +
         `<ellipse cx="400" cy="90" rx="200" ry="50" fill="${p.plant}" opacity="0.9"/>` + crowd('#3a2014', 450, 24, false);
       return `<rect width="${W}" height="${H}" fill="#3a2a22"/>` +
@@ -123,6 +143,7 @@ const Scenes = (() => {
   function svg(bg, region) {
     const p = PAL[region] || PAL.latam;
     const b = builders[bg] || builders.office;
+    STYLE = (REGIONS[region] && REGIONS[region].style) || 'latam';
     return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${b(p, region)}</svg>`;
   }
   return { svg };

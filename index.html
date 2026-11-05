@@ -16,9 +16,9 @@
   <div class="title-wrap">
     <div class="title-portraits" id="title-portraits" aria-hidden="true"></div>
     <div class="title-text">
-      <p class="eyebrow">Визуальная новелла · симулятор правителя · 1960–1969</p>
+      <p class="eyebrow">Визуальная новелла · симулятор правителя · 1930-е и 1960-е</p>
       <h1 class="logo">ДИКТАТО</h1>
-      <p class="tagline">Десять лет холодной войны. Пять министров, которым нельзя доверять. Одна президентская лента. Продержитесь у власти до 1970 года.</p>
+      <p class="tagline">Десять лет Великой депрессии или холодной войны. Пять министров, которым нельзя доверять. Одна президентская лента. Продержитесь у власти до конца десятилетия.</p>
       <div class="title-btns">
         <button class="btn big" id="btn-new">Новый режим</button>
         <button class="btn big ghost" id="btn-continue" hidden>Продолжить правление</button>
@@ -30,11 +30,12 @@
 
 <main id="screen-setup" class="screen setup" hidden>
   <header class="setup-head"><button class="btn ghost small" id="btn-back">← Назад</button><h1>Учредительное собрание</h1></header>
-  <section class="setup-sec"><h2 class="sec-h">1. Где вы будете править</h2><div class="picks" id="setup-regions"></div></section>
-  <section class="setup-sec"><h2 class="sec-h">2. Как вы пришли к власти</h2><div class="picks" id="setup-regimes"></div></section>
+  <section class="setup-sec"><h2 class="sec-h">1. Эпоха</h2><div class="picks picks-2" id="setup-eras"></div></section>
+  <section class="setup-sec"><h2 class="sec-h">2. Где вы будете править</h2><div class="picks" id="setup-regions"></div></section>
+  <section class="setup-sec"><h2 class="sec-h">3. Как вы пришли к власти</h2><div class="picks" id="setup-regimes"></div></section>
   <section class="setup-sec setup-leader">
     <div class="setup-form">
-      <h2 class="sec-h">3. Кто вы</h2>
+      <h2 class="sec-h">4. Кто вы</h2>
       <label for="setup-name">Имя</label><input id="setup-name" type="text" maxlength="40" autocomplete="off">
       <label for="setup-title">Титул</label><select id="setup-title"></select>
       <label for="setup-country">Название страны</label><input id="setup-country" type="text" maxlength="48" autocomplete="off">
@@ -85,6 +86,7 @@
 <script src="js/portraits.js"></script>
 <script src="js/data.js"></script>
 <script src="js/events.js"></script>
+<script src="js/events30.js"></script>
 <script src="js/game.js"></script>
 <script src="js/scenes.js"></script>
 <script src="js/ui.js"></script>

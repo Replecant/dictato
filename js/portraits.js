@@ -143,6 +143,8 @@ const Portrait = (() => {
       case 'helmet': return `<path d="M40 80 Q42 20 100 20 Q158 20 160 80 Z" fill="${c}"/><ellipse cx="100" cy="80" rx="72" ry="11" fill="${d}"/><path d="M100 22 L100 78" stroke="${d}" stroke-width="2"/>`;
       case 'top': return `<ellipse cx="100" cy="66" rx="64" ry="10" fill="#111"/><rect x="66" y="8" width="68" height="58" rx="4" fill="#1a1a1a"/><rect x="66" y="50" width="68" height="9" fill="${c}"/>`;
       case 'fez': return `<path d="M68 66 L74 26 L126 26 L132 66 Z" fill="${c}"/><path d="M100 26 Q112 34 116 52" stroke="#1b1b1b" stroke-width="2" fill="none"/><circle cx="116" cy="54" r="4" fill="#1b1b1b"/>`;
+      case 'bowler': return `<ellipse cx="100" cy="64" rx="62" ry="9" fill="${d}"/><path d="M62 64 Q60 22 100 22 Q140 22 138 64 Z" fill="${c}"/><rect x="62" y="54" width="76" height="8" fill="${shade(c, 25)}"/>`;
+      case 'kamilavka': return `<path d="M60 70 L62 20 L138 20 L140 70 Z" fill="${c}"/><ellipse cx="100" cy="20" rx="40" ry="6" fill="${shade(c, 25)}"/><path d="M58 70 L58 96 Q50 120 44 150 L56 150 Q62 116 66 86 Z M142 70 L142 96 Q150 120 156 150 L144 150 Q138 116 134 86 Z" fill="${c}"/>`;
       case 'flatcap': return `<path d="M50 74 Q46 38 100 36 Q154 38 158 70 Q120 66 50 74 Z" fill="${c}"/><path d="M48 74 Q120 64 164 72 Q150 82 108 82 Z" fill="${d}"/>`;
       default: return '';
     }
