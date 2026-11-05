@@ -48,7 +48,7 @@ const DIFFICULTY = {
 };
 const Game = {
   get S() { return S; },
-  applyHooks: [], previewHooks: [], incomeHooks: [], coupHooks: [], revHooks: [], quarterHooks: [], endingHooks: [], newGameHooks: [],
+  forcedList: [], applyHooks: [], previewHooks: [], incomeHooks: [], coupHooks: [], revHooks: [], quarterHooks: [], endingHooks: [], newGameHooks: [],
   diff() { return DIFFICULTY[(S && S.diff) || 'normal']; },
   apTurn() { return Game.diff().ap; },
 

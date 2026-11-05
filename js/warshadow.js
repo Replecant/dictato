@@ -109,11 +109,11 @@ Game.quarterHooks.push(rep => {
   if (st[0] >= 75 && dz > 0.5 && Game.warReadiness() < 35) rep.warn.push(`${st[1]}: армия и укрепления не готовы. Генерал пьёт валерьянку.`);
 });
 // Ультиматум в IV квартале 1939 года (Европа и Азия)
-Game.forcedScene = () => {
+Game.forcedList.push(() => {
   if (S.era !== '1930' || !['europe30', 'asia30'].includes(S.region) || S.year !== 1939 || S.q !== 4 || S.flags.ultimatum) return null;
   S.flags.ultimatum = true;
   return Game.ultimatumScene();
-};
+});
 Game.endingHooks.push((type, E, verdicts) => {
   if (S.era !== '1930') return;
   if (type === 'survived' && S.flags.puppet) { E.title = 'Под чужим протекторатом'; E.text = `31 декабря 1939 года. Формально вы всё ещё ${S.leader.title}. Фактически каждое утро вам приносят на подпись указы из посольства страны ${COUNTRIES[S.flags.puppet].name}. Говорят, это и называется «реализм».`; verdicts.push('Сохранил кресло, но не страну'); }

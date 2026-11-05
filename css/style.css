@@ -257,9 +257,17 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .dec-fx { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
 .dec-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .dec-tag { font: 10.5px var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); min-width: 6.5em; }
-.dec-tag.risk { color: #ff9a88; }
+.dec-tag.dec-risk { color: #ff9a88; }
 .dec-row .hint { font-size: 11.5px; }
 .proj-item.absurd { border-left: 3px solid #b48ae0; }
+/* движения */
+.fac-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.card.fac.pillar { border-color: var(--brass); box-shadow: inset 0 0 0 1px var(--brass-dim); }
+.fac-leader { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; align-items: center; background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 6px 8px; margin: 6px 0 8px; }
+.fac-leader .mini-portrait { background: var(--paper-2); }
+.fac-leader b { display: block; font-size: 14.5px; }
+.fac-leader p { margin: 2px 0 0; }
+.chip.trait { background: rgba(180, 138, 224, 0.2); color: #d2b8f2; margin-top: 3px; }
 /* дипломатия */
 .rel-line { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 4px 0 6px; }
 .chip.treaty { background: rgba(214, 166, 58, 0.18); color: var(--brass); text-transform: none; letter-spacing: 0; }

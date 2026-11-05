@@ -161,11 +161,12 @@ const UI = {
       await UI.newspaper(h);
       if (S.over) return UI.showEnding();
     }
-    const forced = Game.forcedScene && Game.forcedScene();
-    if (forced) {
+    for (const make of Game.forcedList) {
+      const forced = make();
+      if (!forced) continue;
       Game.save();
       const res = await VN.play(forced);
-      const end = forced.after(res.out, res.choice);
+      const end = forced.after ? forced.after(res.out, res.choice) : null;
       if (end) { Game.ending(end); return UI.showEnding(); }
     }
     S.phase = 'event'; Game.save();
@@ -417,7 +418,7 @@ const UI = {
       const groups = {};
       for (const f of later) (groups[f.later] = groups[f.later] || []).push(f);
       for (const [n, list] of Object.entries(groups)) rows.push(`<div class="dec-row"><span class="dec-tag">Через ${n} кв.</span>${UI.fxChips(list)}</div>`);
-      if (P.risk) rows.push(`<div class="dec-row"><span class="dec-tag risk">Риск ${Math.round(P.risk.p * 100)}%</span>${UI.fxChips(P.risk.fx)}</div>`);
+      if (P.risk) rows.push(`<div class="dec-row"><span class="dec-tag dec-risk">Риск ${Math.round(P.risk.p * 100)}%</span>${UI.fxChips(P.risk.fx)}</div>`);
     }
     return rows.length ? `<div class="dec-fx">${rows.join('')}</div>` : '';
   },
