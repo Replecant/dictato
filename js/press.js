@@ -73,7 +73,7 @@ Object.assign(Game, {
 
 // Записываем поводы для прессы
 const _pDecree = Game.decree, _pEco = Game.economyAction, _pFac = Game.factionAction, _pCountry = Game.countryAction, _pFire = Game.fireAdvisor;
-Game.decree = (cat, id) => { const d = DECREES[cat].find(x => x.id === id); const r = _pDecree(cat, id); if (r && d) Game.pressAdd({ kind: 'decree', cat, id, name: d.name }); return r; };
+Game.decree = (cat, id) => { const d = DECREES[cat].find(x => x.id === id); const r = _pDecree(cat, id); if (r && d) Game.pressAdd({ kind: 'decree', cat, id, name: decreePressName(id, d.name) }); return r; };
 Game.economyAction = id => { const a = Game.economyActions().find(x => x.id === id); const r = _pEco(id); if (r && a) Game.pressAdd({ kind: 'decree', cat: 'economy', id, name: a.name }); return r; };
 Game.factionAction = (f, act) => { const L = Game.leader(f).name; const r = _pFac(f, act); if (r && ['ban', 'legalize', 'arrest', 'coopt'].includes(act)) Game.pressAdd({ kind: 'faction', act, f, leader: L }); return r; };
 Game.countryAction = (c, act) => { const r = _pCountry(c, act); if (r && ['visit', 'friend', 'alliance', 'break', 'denounce', 'arms'].includes(act)) Game.pressAdd({ kind: 'diplo', act, c, text: r.text }); return r; };
@@ -92,7 +92,7 @@ Object.assign(UI, {
     for (const it of items) {
       if (it.kind === 'decree') {
         const absurd = it.cat === 'absurd';
-        off.push({ head: rot([`Исторический указ: «${it.name}»`, `Мудрое решение ${tg}: «${it.name}»`, `Страна единодушно поддержала указ «${it.name}»`, `Новый шаг к процветанию: «${it.name}»`]), text: absurd ? 'Трудовые коллективы благодарят правительство за смелость и дальновидность.' : rot(OFF_TXT) });
+        off.push({ head: rot([`Исторический указ: «${it.name}»`, `Мудрое решение ${tg}: «${it.name}»`, `Страна единодушно поддержала указ «${it.name}»`, `Новый шаг к процветанию: «${it.name}»`]), text: (DECREE_NEWS[it.id] ? DECREE_NEWS[it.id] + ' ' : '') + (absurd ? 'Трудовые коллективы благодарят правительство за смелость и дальновидность.' : rot(OFF_TXT)) });
         crit.push({ head: absurd ? `Указ «${it.name}»: смеяться или плакать?` : rot([`«${it.name}»: деньги на ветер?`, `Экономисты сомневаются в указе «${it.name}»`, `Кому выгоден указ «${it.name}»?`]), text: rot(CRIT_TXT) });
         if (absurd || Math.random() < 0.35) foreign.push(absurd && DECREE_PRESS[it.id] ? `${DECREE_PRESS[it.id]}.` : `Режим объявил «${it.name}». Наблюдатели гадают, что за этим стоит.`);
       } else if (it.kind === 'faction') {
@@ -121,7 +121,7 @@ Object.assign(UI, {
     if (S.fear >= 60) foreign.push('Правозащитники: режим закручивает гайки.');
     if (S.support < 30) foreign.push('Дипломаты в частных беседах: дни режима, возможно, сочтены.');
     if (S.treasury < 0) foreign.push('Инвесторы обеспокоены пустой казной и долгами правительства.');
-    return { off, crit, foreign, notes };
+    return { off, crit, foreign, notes, decrees: items.filter(x => x.kind === 'decree') };
   },
   interview() {
     const roles = Object.keys(ROLES), r = roles[S.turn % roles.length], A = S.adv[r];
@@ -159,15 +159,17 @@ Object.assign(UI, {
     const notes = P.notes.slice(0, 3).map(n => `<li>${esc(n)}</li>`).join('');
     const opp = free >= 40 && P.crit.length ? `<section class="np-opp"><h4>${site ? 'Независимые СМИ' : 'Из независимой прессы'} · ${esc(oppName)}</h4><ul>${P.crit.slice(0, 2).map(x => `<li><b>${esc(x.head)}</b>${x.text ? ` ${esc(x.text)}` : ''}</li>`).join('')}<li><b>Независимый опрос:</b> правительству доверяют ${Math.round(S.support)}% граждан.</li></ul></section>`
       : `<section class="np-opp muted-box"><h4>${site ? 'Независимые СМИ' : 'Независимая пресса'}</h4><p>${free < 20 ? 'Независимых изданий в стране не осталось.' : 'Оппозиционные газеты в этом квартале «временно не вышли по техническим причинам».'}</p></section>`;
-    const IV = UI.interview();
+    const ivk = S.turn % 3;
+    const IV = ivk === 0 ? UI.interview() : ivk === 1 ? PressGen.celebInterview(PressGen.rng(3)) : PressGen.personInterview(PressGen.rng(4), P.decrees[1]);
     const pool = NAME_POOLS[R.style] || NAME_POOLS.latam;
     const recentDec = P.off.find(x => /указ «/.test(x.head));
     const letterTexts = [...LETTERS, ...(site ? LETTERS_00 : [])];
     const letters = [0, 1].map(i => {
       let t = Game.fmt(letterTexts[(S.turn * 3 + i * 5) % letterTexts.length]);
       if (i === 0 && recentDec) t = `Спасибо за ${recentDec.head.match(/указ «[^»]+»/)[0]}! Наконец-то. Правда, я пока не понял, что он означает.`;
-      const nm = pool.m[(S.turn + i * 4) % pool.m.length], ln = pool.last[(S.turn * 2 + i) % pool.last.length], ini = (ln.match(/[А-ЯЁ]/) || [ln[0]])[0];
-      return `<p class="np-letter">«${esc(t)}»<span>— ${nm} ${ini}., ${LETTER_JOBS[(S.turn + i * 3) % LETTER_JOBS.length]}</span></p>`;
+      const job = LETTER_JOBS[(S.turn + i * 3) % LETTER_JOBS.length], fj = /(ница|ка|сестра)( |$)/.test(job), fp = fj ? PressGen.fem() : pool.m;
+      const nm = fp[(S.turn + i * 4) % fp.length], ln = pool.last[(S.turn * 2 + i) % pool.last.length], ini = (ln.match(/[А-ЯЁ]/) || [ln[0]])[0];
+      return `<p class="np-letter">«${esc(t)}»<span>— ${nm} ${ini}., ${job}</span></p>`;
     }).join('');
     const hot = ['latam', 'asia', 'africa', 'mideast'].includes(R.style), wet = ['latam', 'asia', 'africa'].includes(R.style);
     const temp = hot ? [28, 33, 35, 30][S.q - 1] + (S.turn % 3) : R.style === 'europe' ? [-6, 12, 24, 8][S.q - 1] : [-8, 18, 34, 10][S.q - 1];
@@ -175,7 +177,7 @@ Object.assign(UI, {
     const weather = `В столице ${temp > 0 ? '+' : ''}${temp}°, ${sky}. Во дворце, как всегда, тепло и безоблачно.`;
     const ga = (S.turn * 7) % 4, gb = (S.turn * 5 + 1) % 3;
     const sport = `Сборная сыграла с командой страны ${R.rivalShort} — ${ga}:${gb}. ${ga > gb ? 'Болельщики праздновали до утра.' : ga === gb ? 'Судья уже даёт объяснения.' : 'Тренер отправлен в отпуск. Бессрочный.'}`;
-    const afisha = AFISHA[S.era][S.turn % AFISHA[S.era].length];
+    const afisha = Game.fmt(AFISHA[S.era][S.turn % AFISHA[S.era].length]);
     const rateV = Math.max(2, Math.round(10 * (1 + (50 - S.economy) / 60) * (1 + S.turn * 0.012)));
     const rate = `${S.era === '1930' ? 'Фунт стерлингов' : 'Доллар США'}: ${rateV} ед. местной валюты (${R.currency}). ${S.economy < 40 ? `На чёрном рынке — ${rateV * 2}, но вслух об этом не говорят.` : 'Курс стабилен, валюта крепка.'}`;
     const lads = LOCAL_ADS[R.style] || LOCAL_ADS.latam;
@@ -192,11 +194,18 @@ Object.assign(UI, {
     const editorial = `<h3 class="np-sub">${site ? 'Колонка редакции' : 'Передовая статья'}: ${esc(S.support >= 50 ? 'Страна уверенно идёт вперёд' : S.support >= 30 ? 'Временные трудности нас только закаляют' : 'Не верьте паникёрам!')}</h3>
       <p>${esc(`${S.leader.title} ${S.leader.name} ${S.turn % 2 ? 'провёл совещание с министрами и дал ряд важных поручений' : 'посетил столичные предприятия и побеседовал с трудящимися'}. ${S.economy >= 50 ? 'Экономика растёт, на рынках изобилие.' : 'Враги нации распространяют слухи о трудностях, но народ им не верит.'} ${S.fear >= 55 ? 'Органы правопорядка надёжно охраняют покой граждан.' : 'В стране царят спокойствие и порядок.'}`)}</p>`;
     const mainHtml = main
-      ? `<article class="np-main"><div class="np-kicker">${site ? 'Главное' : 'Мировые новости'}</div><h2>${esc(main.head)}</h2>${photo(/войн|кризис|теракт|напал|захват|ракет/i.test(main.head) ? 'night' : 'un', site ? 'Фото: агентства' : 'Фото: архив редакции')}<p>${esc(main.text)}</p>${chMain.length ? `<div class="fx-list">${UI.changes(chMain)}</div>` : ''}
-          ${news.slice(1).map(h => `<h3 class="np-sub">${esc(h.head)}</h3><p>${esc(h.text)}</p>`).join('')}
+      ? `<article class="np-main"><div class="np-kicker">${site ? 'Главное' : 'Мировые новости'}</div><h2>${esc(main.head)}</h2>${photo(/войн|кризис|теракт|напал|захват|ракет/i.test(main.head) ? 'night' : 'un', site ? 'Фото: агентства' : 'Фото: архив редакции')}<p>${esc(ARTICLES[main.head] || main.text)}</p>${chMain.length ? `<div class="fx-list">${UI.changes(chMain)}</div>` : ''}
+          ${news.slice(1).map(h => `<h3 class="np-sub">${esc(h.head)}</h3><p>${esc(ARTICLES[h.head] || h.text)}</p>`).join('')}
           ${rest.map(x => `<h3 class="np-sub">${esc(x.head)}</h3>${x.text ? `<p>${esc(x.text)}</p>` : ''}`).join('')}${editorial}</article>`
       : `<article class="np-main"><div class="np-kicker">${site ? 'Главное' : 'Передовица'}</div><h2>${esc(lead ? lead.head : econ)}</h2>${photo(lead ? 'square' : 'palace', `На снимке: ${S.leader.title} ${S.leader.name}`)}<p>${esc(lead && lead.text ? lead.text : `${S.leader.title} ${S.leader.name} провёл совещание с министрами и дал ряд важных поручений.`)}</p>
           ${rest.map(x => `<h3 class="np-sub">${esc(x.head)}</h3>${x.text ? `<p>${esc(x.text)}</p>` : ''}`).join('')}${editorial}</article>`;
+    const VX = PressGen.vox(PressGen.rng(6), P.decrees, main && main.head);
+    const people = `<div class="np-people">
+          <section class="np-vox"><h4>${site ? 'Опрос редакции' : 'Уличный опрос'}</h4><p class="np-q">${esc(VX.q)}</p>${VX.answers.map(a => `<p class="np-vox-a">${a.t[0] === '(' ? esc(a.t) : `«${esc(a.t)}»`}<span>— ${esc(a.who)}</span></p>`).join('')}</section>
+          <section><h4>${site ? 'Звёзды и тусовка' : 'Светская хроника'}</h4>${PressGen.gossip(PressGen.rng(7)).map(t => `<p>${esc(t)}</p>`).join('')}
+</section>
+          <section class="np-horo"><h4>Гороскоп</h4>${PressGen.horoscope(PressGen.rng(9)).map(h => `<p><b>${h.s}.</b> ${esc(h.t)}</p>`).join('')}</section>
+        </div>`;
     await Modal.open(`
       <div class="np ${site ? 'np-site' : ''}">
         <header class="np-mast">
@@ -209,16 +218,18 @@ Object.assign(UI, {
             <section><h4>${site ? 'Лента новостей · страна' : 'В стране'}</h4><ul>${domestic}<li><b>Опрос:</b> ${pollOff}% граждан поддерживают курс ${esc(Game.titleGen())}.</li></ul></section>
             ${notes ? `<section><h4>Коротко</h4><ul class="np-short">${notes}</ul></section>` : ''}
             <section><h4>${site ? 'Лента новостей · мир' : 'В мире'}</h4><ul>${fillerPick.map(([, t]) => `<li>${esc(t)}.</li>`).join('') || '<li>За рубежом без перемен.</li>'}</ul></section>
+            <section class="np-inc"><h4>Происшествия</h4><ul>${PressGen.incidents(PressGen.rng(8)).map(t => `<li>${esc(t)}</li>`).join('')}</ul></section>
             <section class="np-eco"><h4>Экономика</h4><p>Мировая цена: ${esc(R.exports)} — <b>${Math.round(S.price * 100)}%</b> от уровня года.</p><p>${esc(econ)}.</p></section>
           </aside>
         </div>
         <div class="np-bottom">
-          <section class="np-interview"><h4>${site ? 'Эксклюзивное интервью' : 'Интервью номера'}</h4>
-            <div class="np-iv-head"><div class="np-iv-pic">${Portrait.svg(IV.A.look)}</div><div><b>${esc(IV.A.name)}</b><span>${esc(IV.role)}</span></div></div>
+          <section class="np-interview"><h4>${site ? 'Эксклюзивное интервью' : 'Интервью номера'}${IV.kind ? ' · ' + esc(IV.kind) : ''}</h4>
+            <div class="np-iv-head"><div class="np-iv-pic">${Portrait.svg(IV.look)}</div><div><b>${esc(IV.name)}</b><span>${esc(IV.role)}</span></div></div>
             ${IV.qa.map(([q, a]) => `<p class="np-q">— ${esc(q)}</p><p class="np-a">— ${esc(a)}</p>`).join('')}
             <p class="np-by">Беседовал корреспондент «${esc(offName)}»</p></section>
           <section class="np-letters"><h4>Письма в редакцию</h4>${letters}</section>
         </div>
+        ${people}
         <div class="np-strip">
           <section><h4>Погода</h4><p>${esc(weather)}</p></section>
           <section><h4>Спорт</h4><p>${esc(sport)}</p></section>

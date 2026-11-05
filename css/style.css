@@ -290,6 +290,18 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .np-letter span { display: block; font-style: normal; font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
 .np-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(42, 32, 23, 0.4); }
 .np-strip p { margin: 0; font: 13px/1.4 "PT Serif", Georgia, serif; }
+.np-people { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.9fr); gap: 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(42, 32, 23, 0.4); }
+.np-people section { min-width: 0; }
+.np-people section + section { border-left: 1px solid rgba(42, 32, 23, 0.3); padding-left: 14px; }
+.np-people p { margin: 0 0 8px; font: 13.5px/1.42 "PT Serif", Georgia, serif; }
+.np-people h4 + p.np-q { margin-top: 0; }
+.np-people section h4:not(:first-child) { margin-top: 12px; }
+.np-vox-a { font-style: italic !important; }
+.np-vox-a span { display: block; font-style: normal; font-size: 12px; color: var(--ink-muted); margin-top: 1px; }
+.np-horo p b { font-variant: small-caps; letter-spacing: 0.04em; }
+.np-site .np-people { border-color: #1f5fae; }
+.np-site .np-people p { font-family: Arial, Helvetica, sans-serif; font-size: 13px; }
+.np-site .np-people section + section { border-color: rgba(31, 95, 174, 0.3); }
 .np-classified { margin-top: 12px; padding-top: 8px; border-top: 3px double var(--ink); }
 .np-ads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .np-ads p { margin: 0; border: 1px solid rgba(42, 32, 23, 0.45); padding: 6px 8px; font: 12.5px/1.35 "PT Serif", Georgia, serif; }
