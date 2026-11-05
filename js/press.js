@@ -48,7 +48,7 @@ const AFISHA = {
   '1960': ['В кинотеатре «Родина» — цветной фильм «Отец Нации покоряет космос».', 'Концерт ансамбля «Поющие лейтенанты». Явка желательна.', 'На стадионе — мотогонки и выступление вертолётчиков.', 'Выставка «Десять лет процветания» во дворце культуры.'],
   '2000': ['В мультиплексе «Империя» — блокбастер «Президент: Возмездие».', 'Концерт поп-звезды из Москвы. Билеты — у министерства культуры.', 'Бизнес-форум «Инвестируй в стабильность». Фуршет.', 'Ночной клуб «Вертикаль»: вход по фейс-контролю и спискам.'],
 };
-const LETTER_JOBS = ['пенсионер', 'учительница', 'водитель такси', 'студент', 'торговка на рынке', 'фермер', 'почтальон', 'медсестра'];
+const LETTER_JOBS = ['пенсионер', 'учительница', 'водитель такси', 'студент', 'торговка на рынке', 'фермер', 'почтальон', 'медсестра', 'инженер', 'домохозяйка', 'рыбак', 'бухгалтер', 'пенсионерка', 'шахтёр', 'библиотекарь', 'портниха', 'ветеран', 'сапожник'];
 const LETTERS = [
   'Пишу вам, чтобы сказать: у нас в деревне всё хорошо. Мне объяснили, что так и надо писать.',
   'Мой сын хочет стать министром. Подскажите, в какой семье для этого надо родиться?',
@@ -121,7 +121,7 @@ Object.assign(UI, {
     if (S.fear >= 60) foreign.push('Правозащитники: режим закручивает гайки.');
     if (S.support < 30) foreign.push('Дипломаты в частных беседах: дни режима, возможно, сочтены.');
     if (S.treasury < 0) foreign.push('Инвесторы обеспокоены пустой казной и долгами правительства.');
-    return { off, crit, foreign, notes, decrees: items.filter(x => x.kind === 'decree') };
+    return { off, crit, foreign, notes, decrees: items.filter(x => x.kind === 'decree'), events: items.filter(x => x.kind === 'event' && x.id) };
   },
   interview() {
     const roles = Object.keys(ROLES), r = roles[S.turn % roles.length], A = S.adv[r];
@@ -149,7 +149,6 @@ Object.assign(UI, {
     const filler = WORLD_FILLER[S.era].filter(([y]) => y === S.year);
     const fillerPick = filler.length ? [filler[(S.q - 1) % filler.length]] : [];
     if (filler.length > 1 && S.q === 4 && filler[filler.length - 1] !== fillerPick[0]) fillerPick.push(filler[filler.length - 1]);
-    const ad = ADS[S.era][S.turn % ADS[S.era].length];
     const econ = S.economy >= 55 ? 'Экономика растёт рекордными темпами' : S.economy >= 40 ? 'Экономика уверенно преодолевает временные трудности' : 'Враги нации распространяют слухи о спаде';
     const pollOff = Math.min(99, 85 + Math.round(S.support / 8));
     const site = S.era === '2000';
@@ -164,30 +163,14 @@ Object.assign(UI, {
     const pool = NAME_POOLS[R.style] || NAME_POOLS.latam;
     const recentDec = P.off.find(x => /указ «/.test(x.head));
     const letterTexts = [...LETTERS, ...(site ? LETTERS_00 : [])];
-    const letters = [0, 1].map(i => {
-      let t = Game.fmt(letterTexts[(S.turn * 3 + i * 5) % letterTexts.length]);
-      if (i === 0 && recentDec) t = `Спасибо за ${recentDec.head.match(/указ «[^»]+»/)[0]}! Наконец-то. Правда, я пока не понял, что он означает.`;
-      const job = LETTER_JOBS[(S.turn + i * 3) % LETTER_JOBS.length], fj = /(ница|ка|сестра)( |$)/.test(job), fp = fj ? PressGen.fem() : pool.m;
-      const nm = fp[(S.turn + i * 4) % fp.length], ln = pool.last[(S.turn * 2 + i) % pool.last.length], ini = (ln.match(/[А-ЯЁ]/) || [ln[0]])[0];
-      return `<p class="np-letter">«${esc(t)}»<span>— ${nm} ${ini}., ${job}</span></p>`;
-    }).join('');
-    const hot = ['latam', 'asia', 'africa', 'mideast'].includes(R.style), wet = ['latam', 'asia', 'africa'].includes(R.style);
-    const temp = hot ? [28, 33, 35, 30][S.q - 1] + (S.turn % 3) : R.style === 'europe' ? [-6, 12, 24, 8][S.q - 1] : [-8, 18, 34, 10][S.q - 1];
-    const sky = wet ? (S.q === 3 ? 'сезон дождей, ливни к вечеру' : 'солнечно, влажно') : R.style === 'mideast' ? (S.q === 3 ? 'зной, к вечеру песчаная буря' : 'солнечно, сухо') : S.q === 1 ? 'снег, гололёд' : S.q === 3 ? 'ясно, жарко' : 'облачно, ветрено';
-    const weather = `В столице ${temp > 0 ? '+' : ''}${temp}°, ${sky}. Во дворце, как всегда, тепло и безоблачно.`;
-    const ga = (S.turn * 7) % 4, gb = (S.turn * 5 + 1) % 3;
-    const sport = `Сборная сыграла с командой страны ${R.rivalShort} — ${ga}:${gb}. ${ga > gb ? 'Болельщики праздновали до утра.' : ga === gb ? 'Судья уже даёт объяснения.' : 'Тренер отправлен в отпуск. Бессрочный.'}`;
-    const afisha = Game.fmt(AFISHA[S.era][S.turn % AFISHA[S.era].length]);
+    const letters = PressAtmo.letters(PressGen.rng(11), P, main).map(l => `<p class="np-letter">«${esc(l.t)}»<span>— ${esc(l.who)}</span></p>`).join('');
+    const weather = PressAtmo.weather(PressGen.rng(12));
+    const sport = PressAtmo.sport(PressGen.rng(13));
+    const afisha = PressAtmo.afisha(PressGen.rng(14));
     const rateV = Math.max(2, Math.round(10 * (1 + (50 - S.economy) / 60) * (1 + S.turn * 0.012)));
-    const rate = `${S.era === '1930' ? 'Фунт стерлингов' : 'Доллар США'}: ${rateV} ед. местной валюты (${R.currency}). ${S.economy < 40 ? `На чёрном рынке — ${rateV * 2}, но вслух об этом не говорят.` : 'Курс стабилен, валюта крепка.'}`;
-    const lads = LOCAL_ADS[R.style] || LOCAL_ADS.latam;
-    const localAds = [0, 1, 2].map(i => lads[(S.turn + i * 2) % lads.length]);
-    const nicks = ['Patriot_77', 'бабушка_онлайн', 'Simka2004', 'хакер_из_подвала', 'Свободный_Орёл', 'Юзер1985', 'анонимно'];
-    const comments = site && (S.net || 0) >= 3 ? `<section class="np-comments"><h4>Комментарии читателей (${Math.round(40 + S.net * 30)})</h4>${[
-      S.support > 55 ? 'Всё правильно делает! Стабильность — это главное.' : 'А где деньги? Опять на дворец ушли?',
-      P.off[0] ? `Опять «${P.off[0].head.slice(0, 40)}…». Лучше бы дороги починили.` : 'Тишина в стране. Подозрительная тишина.',
-      free < 40 ? 'Комментарий удалён модератором.' : 'Пишу, пока не заблокировали. Привет из подвала!',
-    ].map((t, i) => `<p><b>${nicks[(S.turn + i * 3) % nicks.length]}</b> ${esc(t)}</p>`).join('')}</section>` : '';
+    const rate = `${S.era === '1930' ? 'Фунт стерлингов' : 'Доллар США'}: ${rateV} ед. местной валюты (${R.currency}). ${S.economy < 40 ? [`На чёрном рынке — ${rateV * 2}, но вслух об этом не говорят.`, `Менялы у рынка дают ${rateV * 2}. Редакция менял не видела.`, `В обменных пунктах валюты нет. Курс от этого только крепче.`][S.turn % 3] : ['Курс стабилен, валюта крепка.', 'Национальная валюта уверенно держится. Министр финансов — тоже.', 'Сбережения граждан надёжно защищены.', `Золотой запас страны, по данным министерства, «достаточный».`][S.turn % 4]}`;
+    const AD = PressAtmo.ads(PressGen.rng(15));
+    const comments = site && (S.net || 0) >= 3 ? `<section class="np-comments"><h4>Комментарии читателей (${Math.round(40 + S.net * 30 + S.turn % 17)})</h4>${PressAtmo.comments(PressGen.rng(16), P, main).map(c => `<p><b>${esc(c.nick)}</b> ${esc(c.t)}</p>`).join('')}</section>` : '';
     const photo = (bg, cap) => `<figure class="np-photo"><div class="np-img">${Scenes.svg(bg, S.region)}</div><figcaption>${esc(cap)}</figcaption></figure>`;
     const lead = P.off[0];
     const rest = main ? P.off.slice(0, 2) : P.off.slice(1, 3);
@@ -199,7 +182,7 @@ Object.assign(UI, {
           ${rest.map(x => `<h3 class="np-sub">${esc(x.head)}</h3>${x.text ? `<p>${esc(x.text)}</p>` : ''}`).join('')}${editorial}</article>`
       : `<article class="np-main"><div class="np-kicker">${site ? 'Главное' : 'Передовица'}</div><h2>${esc(lead ? lead.head : econ)}</h2>${photo(lead ? 'square' : 'palace', `На снимке: ${S.leader.title} ${S.leader.name}`)}<p>${esc(lead && lead.text ? lead.text : `${S.leader.title} ${S.leader.name} провёл совещание с министрами и дал ряд важных поручений.`)}</p>
           ${rest.map(x => `<h3 class="np-sub">${esc(x.head)}</h3>${x.text ? `<p>${esc(x.text)}</p>` : ''}`).join('')}${editorial}</article>`;
-    const VX = PressGen.vox(PressGen.rng(6), P.decrees, main && main.head);
+    const VX = PressGen.vox(PressGen.rng(6), P.decrees, main && main.head, P.events);
     const people = `<div class="np-people">
           <section class="np-vox"><h4>${site ? 'Опрос редакции' : 'Уличный опрос'}</h4><p class="np-q">${esc(VX.q)}</p>${VX.answers.map(a => `<p class="np-vox-a">${a.t[0] === '(' ? esc(a.t) : `«${esc(a.t)}»`}<span>— ${esc(a.who)}</span></p>`).join('')}</section>
           <section><h4>${site ? 'Звёзды и тусовка' : 'Светская хроника'}</h4>${PressGen.gossip(PressGen.rng(7)).map(t => `<p>${esc(t)}</p>`).join('')}
@@ -232,12 +215,12 @@ Object.assign(UI, {
         ${people}
         <div class="np-strip">
           <section><h4>Погода</h4><p>${esc(weather)}</p></section>
-          <section><h4>Спорт</h4><p>${esc(sport)}</p></section>
-          <section><h4>${site ? 'Афиша' : 'Афиша'}</h4><p>${esc(afisha)}</p></section>
+          <section><h4>Спорт</h4>${sport.map(t => `<p>${esc(t)}</p>`).join('')}</section>
+          <section><h4>Афиша</h4>${afisha.map(t => `<p>${esc(t)}</p>`).join('')}</section>
           <section><h4>Курс валют</h4><p>${esc(rate)}</p></section>
         </div>
         ${comments}
-        <section class="np-classified"><h4>${site ? 'Реклама' : 'Объявления'}</h4><div class="np-ads"><p class="np-bigad">${esc(ad)}</p>${localAds.map(a => `<p>${esc(a)}</p>`).join('')}</div></section>
+        <section class="np-classified"><h4>${site ? 'Реклама' : 'Объявления'}</h4><div class="np-ads"><p class="np-bigad">${esc(AD.big)}</p>${AD.local.map(a => `<p>${esc(a)}</p>`).join('')}</div></section>
       </div>`, news.some(h => h.choice) ? 'Что скажет правительство?' : 'Перевернуть страницу', 'wide');
     for (const h of news) if (h.choice) await VN.play({ title: h.head, bg: 'office', lines: h.choice.lines, choices: h.choice.choices });
   },

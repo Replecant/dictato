@@ -191,7 +191,7 @@ const UI = {
     UI.render();
   },
   eventScene(ev) {
-    return { title: Game.fmt(ev.title), bg: ev.bg, lines: ev.lines, choices: ev.choices };
+    return { id: ev.id, title: Game.fmt(ev.title), bg: ev.bg, lines: ev.lines, choices: ev.choices };
   },
   async newspaper(h) {
     const fx = h.fx ? Game.resolveFx(h.fx) : null;
@@ -667,7 +667,9 @@ const VN = {
         box.classList.add('narr');
         box.innerHTML = `${out.won === true ? '<b class="won">Удача!</b> ' : out.won === false ? '<b class="lost">Неудача.</b> ' : ''}${esc(out.res || '')}${out.changes.length ? `<div class="fx-list">${UI.changes(out.changes)}</div>` : ''}`;
         Game.log(`${Game.fmt(scene.title)}: ${out.res}`);
-        if (Game.pressAdd && scene.title) Game.pressAdd({ kind: 'event', head: Game.fmt(scene.title), text: out.res });
+        // в газету попадают только публичные события, и в официальной подаче
+        const pub = scene.id && typeof EVENT_PRESS !== 'undefined' && EVENT_PRESS[scene.id];
+        if (Game.pressAdd && pub) Game.pressAdd({ kind: 'event', id: scene.id, head: Game.fmt(pub[0]), text: Game.fmt(pub[1]) });
         next.hidden = false;
         next.textContent = 'Продолжить ▸';
         el.onclick = null;

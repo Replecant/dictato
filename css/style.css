@@ -290,6 +290,7 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .np-letter span { display: block; font-style: normal; font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
 .np-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(42, 32, 23, 0.4); }
 .np-strip p { margin: 0; font: 13px/1.4 "PT Serif", Georgia, serif; }
+.np-strip p + p { margin-top: 6px; }
 .np-people { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.9fr); gap: 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(42, 32, 23, 0.4); }
 .np-people section { min-width: 0; }
 .np-people section + section { border-left: 1px solid rgba(42, 32, 23, 0.3); padding-left: 14px; }

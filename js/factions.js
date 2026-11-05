@@ -224,7 +224,7 @@ Object.assign(Game, {
         F.st = 'banned';
         S.pillars = (S.pillars || []).filter(x => x !== f);
         fx = { fear: 6, fac: { [f]: { s: -15, a: -35 } } };
-        const extra = { left: { rel: { usa: 5, ussr: -8, cuba: -5, china: -4 } }, liberals: { rel: { $west: -6 }, support: -3 }, faith: { support: -8 }, oligarchs: { economy: -8, rel: { usa: -8, $patron: -6 } }, hawks: { army: -12 }, new: { support: -2 } }[f] || {};
+        const extra = { left: { rel: Game.leftBanRel() }, liberals: { rel: { $west: -6 }, support: -3 }, faith: { support: -8 }, oligarchs: { economy: -8, rel: { usa: -8, $patron: -6 } }, hawks: { army: -12 }, new: { support: -2 } }[f] || {};
         Object.assign(fx, extra, { fac: fx.fac });
         if (Math.random() < 0.5) { st.leader = Game.makeLeader(f, 'radical'); text = `Движение «${nm}» запрещено. В подполье им теперь руководит ${st.leader.name}. Он радикальнее прежнего.`; }
         else text = `Движение «${nm}» запрещено указом №${Math.floor(rnd(100, 999))}. Его лидеры ушли в подполье.`;
@@ -426,3 +426,14 @@ UI.actionHandlers.push(id => {
   }
   return false;
 });
+
+// Кто и как реагирует на запрет левых: зависит от эпохи и региона
+Game.leftBanRel = () => {
+  if (S.era === '1960') return { usa: 5, ussr: -8, cuba: -5, china: -4 };
+  if (S.era === '1930') return { ussr: -8, uk: 2, italy: 3, japan: 2, ...(S.year >= 1933 ? { germany: 3 } : {}) };
+  return {
+    africa00: { usa: -3, uk: -3, france: -2, china: 2 },          // бывшие повстанцы: удар по мирному процессу
+    mideast00: { eu: -4, usa: -2, saudi: 3, russia: 2, china: 2 }, // Запад критикует, соседи-монархи довольны
+    centralasia00: { eu: -6, usa: -4, russia: 3, china: 2 },       // оппозиция в эмиграции: Европа возмущена
+  }[S.region] || { $west: -4 };
+};

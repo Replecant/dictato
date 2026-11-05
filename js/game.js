@@ -444,7 +444,7 @@ const Game = {
         F.st = 'banned';
         fx = { fear: 6, fac: { [f]: { s: -15, a: -35 } } };
         const extra = {
-          left: { rel: { usa: 5, ussr: -8, cuba: -5, china: -4 } },
+          left: { rel: Game.leftBanRel ? Game.leftBanRel() : { usa: 5, ussr: -8 } },
           liberals: { rel: { $west: -6 }, support: -3 },
           faith: { support: -8 },
           oligarchs: { economy: -8, rel: { usa: -8, $patron: -6 } },
