@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Диктато 1960</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Mono&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!--APP-->
+<main id="screen-title" class="screen title-screen">
+  <div class="title-wrap">
+    <div class="title-portraits" id="title-portraits" aria-hidden="true"></div>
+    <div class="title-text">
+      <p class="eyebrow">Визуальная новелла · симулятор правителя · 1960–1969</p>
+      <h1 class="logo">ДИКТАТО</h1>
+      <p class="tagline">Десять лет холодной войны. Пять министров, которым нельзя доверять. Одна президентская лента. Продержитесь у власти до 1970 года.</p>
+      <div class="title-btns">
+        <button class="btn big" id="btn-new">Новый режим</button>
+        <button class="btn big ghost" id="btn-continue" hidden>Продолжить правление</button>
+      </div>
+      <p class="fine">Все страны-герои, правители и министры вымышлены. Сверхдержавы и события 1960-х — настоящие.</p>
+    </div>
+  </div>
+</main>
+
+<main id="screen-setup" class="screen setup" hidden>
+  <header class="setup-head"><button class="btn ghost small" id="btn-back">← Назад</button><h1>Учредительное собрание</h1></header>
+  <section class="setup-sec"><h2 class="sec-h">1. Где вы будете править</h2><div class="picks" id="setup-regions"></div></section>
+  <section class="setup-sec"><h2 class="sec-h">2. Как вы пришли к власти</h2><div class="picks" id="setup-regimes"></div></section>
+  <section class="setup-sec setup-leader">
+    <div class="setup-form">
+      <h2 class="sec-h">3. Кто вы</h2>
+      <label for="setup-name">Имя</label><input id="setup-name" type="text" maxlength="40" autocomplete="off">
+      <label for="setup-title">Титул</label><select id="setup-title"></select>
+      <label for="setup-country">Название страны</label><input id="setup-country" type="text" maxlength="48" autocomplete="off">
+      <div id="setup-look" class="look"></div>
+    </div>
+    <div class="setup-portrait" id="setup-portrait"></div>
+  </section>
+  <div class="setup-go"><button class="btn big" id="btn-begin">Принять присягу</button></div>
+</main>
+
+<main id="screen-game" class="screen game" hidden>
+  <header class="hdr">
+    <div class="hdr-id"><span class="hdr-flag" id="hdr-flag"></span><div><b id="hdr-country"></b><span id="hdr-date"></span></div></div>
+    <div class="hdr-leader" id="hdr-leader" aria-hidden="true"></div>
+    <div class="hdr-ap" id="hdr-ap"></div>
+    <button class="btn" id="btn-end">Завершить квартал</button>
+    <button class="btn ghost small" id="btn-menu" aria-label="В главное меню">Меню</button>
+  </header>
+  <div class="stats" id="stats"></div>
+  <nav class="tabs" role="tablist">
+    <button data-tab="cabinet" role="tab">Кабинет</button>
+    <button data-tab="factions" role="tab">Движения</button>
+    <button data-tab="economy" role="tab">Экономика</button>
+    <button data-tab="world" role="tab">Мир</button>
+    <button data-tab="advisors" role="tab">Советники</button>
+    <button data-tab="log" role="tab">Летопись</button>
+  </nav>
+  <div id="tab-body" class="tab-body"></div>
+</main>
+
+<main id="screen-end" class="screen end" hidden><div class="end-wrap" id="end-body"></div></main>
+
+<div id="vn" class="vn" hidden>
+  <div id="vn-bg" class="vn-bg"></div>
+  <div id="vn-title" class="vn-title"></div>
+  <div id="vn-stage" class="vn-stage"></div>
+  <div class="vn-box">
+    <div id="vn-name" class="vn-name" hidden></div>
+    <div id="vn-text" class="vn-text" aria-live="polite"></div>
+    <div id="vn-choices" class="vn-choices" hidden></div>
+    <button id="vn-next" class="btn vn-next">Дальше ▸</button>
+  </div>
+</div>
+
+<div id="modal" class="modal" hidden><div class="modal-card"><div id="modal-body"></div><button class="btn" id="modal-btn">Дальше</button></div></div>
+<div id="toast" class="toast" hidden role="status"></div>
+<!--/APP-->
+<script src="js/portraits.js"></script>
+<script src="js/data.js"></script>
+<script src="js/events.js"></script>
+<script src="js/game.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
