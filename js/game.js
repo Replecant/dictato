@@ -115,6 +115,7 @@ const Game = {
       ...(REGION_TALK[S.region] || REGION_TALK.latam),
       ...(FAITH_TALK[R.faithStyle] || FAITH_TALK.catholic),
       title_gen: Game.titleGen(), title_ins: Game.titleIns(),
+      shirts_ref: S.era === '1930' ? (Game.eraTime() >= 1933 ? 'В Риме и Берлине такие рубашки уже правят. Лондон и Париж смотрят на нас очень внимательно.' : 'В Риме такие рубашки уже правят, в Германии они вот-вот придут к власти. Лондон и Париж смотрят на нас очень внимательно.') : '',
     };
     for (const r of Object.keys(ROLES)) v[r] = S.adv[r].name;
     for (const f of Object.keys(R.factions)) v['f.' + f] = R.factions[f].name;
@@ -151,7 +152,18 @@ const Game = {
 
   // ---------- применение эффектов ----------
   resolveFx(fx) { return typeof fx === 'function' ? fx(S) : (fx || {}); },
-  blocOf(c) { const C = COUNTRIES[c]; return (S.era === '1930' && C.bloc30) || C.bloc; },
+  eraTime() { return S.year + (S.q - 1) / 4; },
+  // В 1930-е лагеря меняются со временем: Веймарская Германия, Италия до Эфиопии, Япония до Маньчжурии
+  blocOf(c) {
+    const C = COUNTRIES[c];
+    if (S.era === '1930' && C.blocs30) { const t = Game.eraTime(); return C.blocs30.find(([until]) => t < until)[1]; }
+    return (S.era === '1930' && C.bloc30) || C.bloc;
+  },
+  axisFormed() { return S.era === '1930' && Game.eraTime() >= 1936.75; },
+  cName(c) {
+    if (S.era === '1930' && c === 'germany') return Game.eraTime() < 1933 ? 'Германия (Веймарская республика)' : 'Германия (Третий рейх)';
+    return COUNTRIES[c].name;
+  },
   relTargets(key) {
     const R = REGIONS[S.region];
     if (key === '$patron') return [R.patron];
@@ -334,7 +346,11 @@ const Game = {
     }
     if (S.era === '1930') {
       const avg = list => { const v = list.filter(c => S.rel[c] !== undefined).map(c => S.rel[c]); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
-      const g = [['Друг демократий', avg(['uk', 'france', 'usa'])], ['Друг Берлина и Рима', avg(['germany', 'italy', 'japan'])], ['Друг Москвы', avg(['ussr'])]].sort((a, b) => b[1] - a[1]);
+      const R0 = REGIONS[S.region].countries, inB = b => R0.filter(c => Game.blocOf(c) === b);
+      const axis = inB('axis');
+      const g = [['Друг демократий', avg(inB('west'))], ['Друг Москвы', avg(['ussr'])]];
+      if (axis.length) g.push([Game.axisFormed() ? 'Друг «Оси»' : 'Друг Берлина', avg(axis)]);
+      g.sort((a, b) => b[1] - a[1]);
       return g[0][1] - g[1][1] > 15 ? g[0][0] : 'Нейтралитет';
     }
     const w = S.rel.usa, e = S.rel.ussr;

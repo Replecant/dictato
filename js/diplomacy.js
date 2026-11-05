@@ -199,7 +199,7 @@ Game.quarterHooks.push(rep => {
 Object.assign(UI, {
   tab_world() {
     const R = REGIONS[S.region];
-    const blocName = S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
+    const blocName = S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: Game.axisFormed() ? 'Ось' : 'реваншисты', neutral: 'вне блоков' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
     const tchip = { trade: '📜 Торговый договор', friend: '🤝 Дружба', alliance: '⚔️ Военный союз' };
     const B = Game.budgetCalc();
     const ti = Game.treatyIncome();
@@ -207,7 +207,7 @@ Object.assign(UI, {
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c], T = Game.treaties(c), dm = Game.demandOf(c), bl = Game.blocOf(c);
         return `<article class="card country">
-          <header>${flagSvg(c)}<div><h3>${C.name}</h3><span class="muted small">${Game.leaderAt(c)}</span></div><span class="chip ${bl}">${blocName[bl]}</span></header>
+          <header>${flagSvg(c)}<div><h3>${Game.cName(c)}</h3><span class="muted small">${Game.leaderAt(c)}</span></div><span class="chip ${bl}">${blocName[bl]}</span></header>
           ${UI.meter('Отношения', v, v < 25 ? 'bad' : v < 50 ? 'warn' : 'good')}
           <div class="rel-line"><span class="muted small">Отношения ${Game.relLevel(v)}</span>${Object.keys(tchip).filter(k => T[k]).map(k => `<span class="chip treaty">${tchip[k]}${k === 'trade' ? ` +${T.trade.income}` : ''}</span>`).join('')}</div>
           ${dm ? `<div class="demand"><div class="demand-h"><span class="dec-tag">Просьба · ещё ${Math.max(0, dm.until - S.turn)} кв.</span><b>${esc(dm.label)}</b></div><div class="dec-row">${UI.fxChips(Game.previewFx(dm.fxv))}</div>${UI.actBtn('dem:' + c, { name: 'Выполнить', cost: '1 приказ', ok: true })}</div>` : ''}

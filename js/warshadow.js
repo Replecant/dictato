@@ -123,11 +123,12 @@ Game.endingHooks.push((type, E, verdicts) => {
 });
 
 // Германский флаг меняется после 1933 года (исторически: с сентября 1935-го единственный государственный)
+FLAGS.germanyW = `<rect width="30" height="6.7" fill="#000"/><rect y="6.7" width="30" height="6.7" fill="#dd0000"/><rect y="13.3" width="30" height="6.7" fill="#ffce00"/>`;
 FLAGS.germany33 = `<rect width="30" height="20" fill="#d00"/><circle cx="15" cy="10" r="6" fill="#fff"/><g transform="rotate(45 15 10)" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M15 6.2 V13.8 M11.2 10 H18.8"/><path d="M15 6.2 H18.1 M18.8 10 V13.1 M15 13.8 H11.9 M11.2 10 V6.9"/></g>`;
 const _flagSvg = flagSvg;
 // eslint-disable-next-line no-global-assign
 flagSvg = function (key, custom) {
-  if (key === 'germany' && S && S.era === '1930' && S.year + (S.q - 1) / 4 >= 1933.25) key = 'germany33';
+  if (key === 'germany' && S && S.era === '1930') { const t = S.year + (S.q - 1) / 4; key = t < 1933.25 ? 'germanyW' : t < 1935.75 ? 'germany' : 'germany33'; }
   return _flagSvg(key, custom);
 };
 
