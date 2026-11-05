@@ -319,7 +319,7 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .np-ad { margin-top: 12px; border: 1px dashed rgba(42, 32, 23, 0.5); padding: 6px 10px; font: 13px var(--f-mono); text-align: center; }
 .np .fx { background: rgba(42, 32, 23, 0.1); }
 .np .fx.up b { color: #2e7a2a; } .np .fx.down b { color: #a82a1c; } .np .fx.neutral b { color: #7a5a10; }
-body[data-era="1930"] .np { background: #e6dbbd; }
+body[data-era="1930"] .np { background: #dccfac; }
 body[data-era="1930"] .np-name { font-family: "PT Serif", Georgia, serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 /* 2000-е: новостной портал */
 .np-site { background: #f5f7fa; color: #18202a; font-family: Arial, Helvetica, sans-serif; border-top: 10px solid #1f5fae; }
@@ -553,10 +553,10 @@ body[data-era="2000"] .club-list li.me { background: rgba(63, 176, 232, 0.16); }
 
 /* ===== Облик 1930-х: газетная полоса — бумага, типографская краска, красные заголовки ===== */
 body[data-era="1930"] {
-  --bg: #e7ddc4; --wood: #d9ccab; --panel: #f2ead6; --panel-2: #f9f3e3;
+  --bg: #d3c5a2; --wood: #c6b690; --panel: #ddd0ae; --panel-2: #e5d9b9;
   --fg: #1d1812; --muted: #5f5443; --brass: #1d1812; --brass-dim: rgba(29, 24, 18, 0.28);
   --red: #a3291c; --green: #3f6b2a; --amber: #a8701a;
-  --paper: #f7f0dc; --paper-2: #e2d5b2; --ink: #1d1812; --ink-muted: #5f5443; --news: #f1e8d0;
+  --paper: #e2d6b5; --paper-2: #cbbc96; --ink: #1d1812; --ink-muted: #5f5443; --news: #e0d3b1;
   --c-support: #a8780f; --c-army: #4b7a2c; --c-economy: #2b6a8a; --c-fear: #a3291c;
   --f-display: "Oswald", "Arial Narrow", "Franklin Gothic Medium", sans-serif;
   --f-body: "Old Standard TT", "PT Serif", Georgia, serif;
@@ -564,7 +564,7 @@ body[data-era="1930"] {
   color-scheme: light;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 250, 235, 0.55), transparent 60%),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 245, 220, 0.16), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(60, 40, 15, 0.18), transparent 60%),
     repeating-linear-gradient(0deg, rgba(29, 24, 18, 0.018) 0 1px, transparent 1px 4px),
     repeating-linear-gradient(90deg, rgba(29, 24, 18, 0.012) 0 1px, transparent 1px 5px);
 }
@@ -627,7 +627,7 @@ body[data-era="1930"] .toast { border: 1px solid var(--fg); border-left: 6px sol
 body[data-era="1930"] .proj-item.absurd { border-left-color: #6a4a96; }
 body[data-era="1930"] .modal { background: rgba(29, 24, 18, 0.72); }
 /* новелла: фото в газете и вырезка с текстом */
-body[data-era="1930"] .vn-bg svg { filter: sepia(0.6) saturate(0.55) contrast(1.08) brightness(1.02); }
+body[data-era="1930"] .vn-bg svg { filter: sepia(0.6) saturate(0.55) contrast(1.05) brightness(0.88); }
 body[data-era="1930"] .vn-bg::after { background: radial-gradient(rgba(29, 24, 18, 0.16) 0.9px, transparent 1.3px) 0 0 / 4px 4px, radial-gradient(ellipse at center, transparent 55%, rgba(40, 28, 14, 0.45) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 30%, rgba(0, 0, 0, 0.35)); }
 body[data-era="1930"] .actor { filter: sepia(0.35) saturate(0.8) drop-shadow(0 10px 18px rgba(29, 24, 18, 0.5)); }
 body[data-era="1930"] .vn-title { display: inline-block; right: auto; background: var(--panel-2); color: var(--fg); font: 700 clamp(18px, 2.8vw, 28px)/1.1 var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 14px 6px; border-top: 4px double var(--fg); border-bottom: 4px double var(--fg); text-shadow: none; box-shadow: 4px 4px 0 rgba(29, 24, 18, 0.3); }
@@ -638,7 +638,7 @@ body[data-era="1930"] .vn-name b { font-weight: 700; text-transform: uppercase; 
 body[data-era="1930"] .vn-text { font-size: clamp(17px, 2vw, 20px); }
 body[data-era="1930"] .vn-text.narr { color: var(--muted); }
 body[data-era="1930"] .choice { background: var(--panel); border: 1px solid rgba(29, 24, 18, 0.4); }
-body[data-era="1930"] .choice:hover:not(:disabled), body[data-era="1930"] .choice:focus-visible { background: #fffaf0; border-color: var(--fg); box-shadow: 3px 3px 0 rgba(29, 24, 18, 0.2); }
+body[data-era="1930"] .choice:hover:not(:disabled), body[data-era="1930"] .choice:focus-visible { background: #ebe0c3; border-color: var(--fg); box-shadow: 3px 3px 0 rgba(29, 24, 18, 0.2); }
 
 /* ===== Облик 1960-х: ламповый телевизор — ореховый корпус, горчица и бирюза, экран с развёрткой ===== */
 body[data-era="1960"] {
