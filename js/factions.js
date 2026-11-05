@@ -103,6 +103,13 @@ Object.assign(Game, {
     else if (f === 'oligarchs') look = { ...base, hair: pick(['slick', 'bald', 'combover']), hat: pick(['top', 'fedora', 'none']), hatColor: '#222', mustache: pick(['walrus', 'handlebar', 'pencil']), glasses: pick(['monocle', 'none']), outfit: 'suit', outfitColor: '#1d1d22', tie: '#d6a63a', cigar: Math.random() < 0.5, blush: true };
     else look = { ...base, hair: pick(['slick', 'long', 'curly']), mustache: pick(['thick', 'none']), outfit: S.era === '1930' ? 'military' : 'hoodie', outfitColor: S.era === '1930' ? '#3f6b2e' : '#3a3a4a', glasses: S.era === '2000' ? 'square' : 'none' };
     if (f === 'faith') look = { ...look, brows: base.brows, mouth: base.mouth };
+    if (S.era === '2000' && f !== 'faith') {
+      const m = { hawks: { glasses: 'sport', bluetooth: Math.random() < 0.4 }, liberals: { outfit: pick(['suit2000', 'hoodie', 'polo']), shirt: '#dfe9f3', tie: 'none', glasses: pick(['rimless', 'square']), hair: pick(['gelled', 'short', 'buzz']) },
+        oligarchs: { outfit: 'suit2000', shirt: pick(['#f4f1ea', '#1d1d22']), tie: pick(['none', '#d6a63a']), hat: 'none', glasses: pick(['rimless', 'sport', 'none']), bluetooth: true, hair: pick(['slick', 'bald', 'gelled']) },
+        left: { outfit: pick(['hoodie', 'tracksuit']), outfitColor: pick(['#3a3a4a', '#556b2f', '#7a1f1f']), hat: pick(['none', 'baseball']), hatColor: '#1a1a1a', cigar: false },
+        new: { outfit: 'hoodie', glasses: pick(['square', 'rimless']), hair: pick(['gelled', 'long', 'buzz']), bluetooth: Math.random() < 0.5 } }[f] || {};
+      look = { ...look, ...m };
+    }
     return { name: `${title} ${first} ${last}`, last: base0, trait, look, since: S.turn };
   },
   leader(f) { const st = Game.facState(f); if (!st.leader) st.leader = Game.makeLeader(f); return st.leader; },

@@ -576,3 +576,52 @@ const DICTATOR_CLUB = [
   { score: 350, name: 'Полковник Аркадий Неудачников', land: 'Республика Почти', note: 'Пытался устроить переворот одиннадцать раз. Однажды получилось, но он проспал.' },
 ];
 const PLAYER_LEVELS = [[300, 'Стажёр путча'], [600, 'Банановый лейтенант'], [900, 'Провинциальный каудильо'], [1200, 'Опытный узурпатор'], [1500, 'Мастер вертикали'], [1900, 'Гроссмейстер диктатуры'], [1e9, 'Легенда клуба']];
+
+// ===== Облик 2000-х: костюмы без галстуков, спортивные костюмы, гарнитуры, очки без оправы =====
+(() => {
+  const A = (r, role, patch) => Object.assign(REGIONS[r].advisors[role].look, patch);
+  A('africa00', 'defense', { glasses: 'sport', bluetooth: true, outfitColor: '#4a5a3a', hatColor: '#4a5a3a' });
+  A('africa00', 'economy', { outfit: 'suit2000', outfitColor: '#24364f', shirt: '#f4f1ea', tie: 'none', glasses: 'rimless', bluetooth: true });
+  A('africa00', 'police', { outfit: 'suit2000', outfitColor: '#121418', shirt: '#2a2a2a', tie: 'none', glasses: 'sport', earpiece: true, hair: 'buzz' });
+  A('africa00', 'foreign', { outfit: 'suit2000', outfitColor: '#5a5f66', shirt: '#dfe9f3', tie: '#c1272d', glasses: 'rimless' });
+  A('mideast00', 'defense', { glasses: 'sport' });
+  A('mideast00', 'economy', { outfit: 'suit2000', outfitColor: '#44484f', shirt: '#dfe9f3', tie: '#1e7a3c', glasses: 'rimless', bluetooth: true, hair: 'short' });
+  A('mideast00', 'police', { outfit: 'suit2000', outfitColor: '#111317', shirt: '#1f2329', tie: 'none', glasses: 'sport', earpiece: true });
+  A('mideast00', 'propaganda', { outfit: 'suit2000', outfitColor: '#7a1f3d', shirt: '#f4f1ea', tie: 'none' });
+  A('centralasia00', 'economy', { outfit: 'suit2000', outfitColor: '#3a3f47', shirt: '#dfe9f3', tie: '#1fa3a3', glasses: 'rimless' });
+  A('centralasia00', 'police', { outfit: 'suit2000', outfitColor: '#16181d', shirt: '#dfe9f3', tie: '#5a1a1a', glasses: 'rimless', earpiece: true });
+  A('centralasia00', 'foreign', { outfit: 'suit2000', outfitColor: '#232838', shirt: '#f4f1ea', tie: '#d6a63a', hair: 'gelled', bluetooth: true });
+})();
+const RELATIVE_LOOK_00 = {
+  defense: { face: 'round', hair: 'buzz', hairColor: '#2b2118', hat: 'baseball', hatColor: '#3d4a2a', mustache: 'thick', brows: 'normal', mouth: 'grin', outfit: 'tracksuit', outfitColor: '#3d4a2a', glasses: 'sport' },
+  economy: { face: 'round', hair: 'gelled', hairColor: '#3a2a1a', mustache: 'none', brows: 'worried', mouth: 'smile', glasses: 'rimless', outfit: 'polo', outfitColor: '#d27a2a', bluetooth: true },
+  police: { face: 'round', hair: 'bun', hairColor: '#9a9a9a', mustache: 'none', brows: 'angry', mouth: 'smirk', glasses: 'rimless', outfit: 'suit2000', outfitColor: '#4a2a5a', shirt: '#f4f1ea', tie: 'none', earring: true },
+  propaganda: { face: 'oval', hair: 'gelled', hairColor: '#2b1b10', mustache: 'none', brows: 'normal', mouth: 'grin', glasses: 'sport', outfit: 'tracksuit', outfitColor: '#c1272d', bluetooth: true },
+  foreign: { face: 'long', hair: 'slick', hairColor: '#111', mustache: 'pencil', brows: 'normal', mouth: 'smirk', outfit: 'suit2000', outfitColor: '#d8c27a', shirt: '#111', tie: 'none', glasses: 'sport' },
+};
+const _npc00 = npc00;
+// eslint-disable-next-line no-global-assign
+npc00 = function (key, region, base, r) {
+  const own = _npc00(key, region, base, r);
+  const S2 = { skin: SKIN.light };
+  const M = {
+    usa_amb: { outfit: 'suit2000', outfitColor: '#1f2a44', shirt: '#dfe9f3', tie: '#b22234', hat: 'none' },
+    china_amb: { outfit: 'suit2000', outfitColor: '#2a2a2a', shirt: '#f4f1ea', tie: '#c1272d', glasses: 'rimless' },
+    russia_amb: { outfit: 'suit2000', outfitColor: '#2a2d36', shirt: '#dfe9f3', tie: '#0039a6' },
+    eu_amb: { outfit: 'suit2000', outfitColor: '#003399', shirt: '#f4f1ea', tie: 'none', glasses: 'rimless' },
+    techboss: { outfit: 'hoodie', glasses: 'rimless' },
+    worker: { outfit: 'polo', outfitColor: '#5a6a7a', hat: 'baseball', hatColor: '#c1272d' },
+    blogger: { hair: 'gelled', bluetooth: true },
+  };
+  const later = {
+    banker: { name: 'Герр Цвингли, частный банк в Цюрихе', look: { ...S2, face: 'long', hair: 'slick', hairColor: '#ddd', mustache: 'none', brows: 'normal', mouth: 'smirk', glasses: 'rimless', outfit: 'suit2000', outfitColor: '#2a2a2a', shirt: '#f4f1ea', tie: '#777' } },
+    nephew: { name: `Племянник ${REGIONS[region].nephew}`, look: { ...base, face: 'round', hair: 'gelled', hairColor: '#2b1b10', mustache: 'none', brows: 'normal', mouth: 'grin', glasses: 'sport', outfit: 'tracksuit', outfitColor: '#d6a63a', blush: true, bluetooth: true } },
+    mafia: { name: 'Мистер Сальваторе, «инвестор из Лас-Вегаса»', look: { ...S2, face: 'square', hair: 'gelled', hairColor: '#111', mustache: 'none', brows: 'angry', mouth: 'smirk', glasses: 'sport', outfit: 'suit2000', outfitColor: '#111', shirt: '#2a2a2a', tie: 'none' } },
+    spy: { name: 'Таинственный перебежчик', look: { ...S2, face: 'long', hair: 'buzz', hairColor: '#777', mustache: 'none', brows: 'worried', mouth: 'flat', glasses: 'rimless', outfit: 'suit2000', outfitColor: '#4a4033', shirt: '#dfe9f3', tie: '#333', sweat: true } },
+    professor: { name: 'Профессор Хиггинботтом из Гарварда', look: { ...S2, face: 'long', hair: 'combover', hairColor: '#ddd', mustache: 'none', brows: 'bushy', browColor: '#ddd', mouth: 'flat', glasses: 'rimless', outfit: 'suit2000', outfitColor: '#5a4a3a', shirt: '#dfe9f3', tie: '#1f4e8c' } },
+    journalist: { name: 'Мисс Дороти Хейл, Си-эн-эн', look: { ...S2, face: 'oval', hair: 'long', hairColor: '#b5651d', mustache: 'none', brows: 'normal', mouth: 'smile', glasses: 'rimless', outfit: 'suit2000', outfitColor: '#7d9c8c', shirt: '#f4f1ea', tie: 'none', earring: true, bluetooth: true } },
+    first_lady: { name: 'Первая леди', look: { ...base, face: 'oval', hair: 'long', hairColor: '#1a1210', mustache: 'none', brows: 'normal', mouth: 'smirk', glasses: 'sport', outfit: 'suit2000', outfitColor: '#c2185b', shirt: '#f4f1ea', tie: 'none', earring: true, blush: true } },
+  };
+  if (own) { if (M[key]) own.look = { ...own.look, ...M[key] }; return own; }
+  return later[key] || null;
+};

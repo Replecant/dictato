@@ -31,6 +31,22 @@ const Portrait = (() => {
         s += [66, 78, 122, 134].map(x => `<line x1="${x}" y1="200" x2="${x - 2}" y2="240" stroke="${d}" stroke-width="1.6"/>`).join('');
         s += `<path d="M84 189 L100 214 L90 222 L74 196 Z" fill="${shade(c, -12)}"/><path d="M116 189 L100 214 L110 222 L126 196 Z" fill="${shade(c, -12)}"/>`;
         break;
+      case 'suit2000': {
+        const sh = p.shirt || '#cfe0f0';
+        s += `<path d="M86 189 L100 226 L114 189 Z" fill="${sh}"/><path d="M88 189 L100 204 L112 189" fill="none" stroke="${shade(sh, -40)}" stroke-width="1.5"/>`;
+        if (p.tie && p.tie !== 'none') s += `<path d="M97.5 198 L102.5 198 L104 228 L100 234 L96 228 Z" fill="${p.tie}"/>`;
+        s += `<path d="M86 189 L100 226 L76 240 L66 198 Z" fill="${d}"/><path d="M114 189 L100 226 L124 240 L134 198 Z" fill="${d}"/>`;
+        s += `<path d="M30 240 Q40 214 60 200" stroke="${shade(c, 15)}" stroke-width="2" fill="none" opacity="0.6"/><path d="M170 240 Q160 214 140 200" stroke="${shade(c, 15)}" stroke-width="2" fill="none" opacity="0.6"/>`;
+        break;
+      }
+      case 'tracksuit':
+        s += `<path d="M82 186 Q100 198 118 186 L120 198 Q100 208 80 198 Z" fill="${shade(c, -20)}"/><line x1="100" y1="200" x2="100" y2="240" stroke="#ddd" stroke-width="2"/>`;
+        s += [0, 7, 14].map(o => `<path d="M${30 + o} 240 L${52 + o} 200" stroke="#f4f4f4" stroke-width="3"/><path d="M${170 - o} 240 L${148 - o} 200" stroke="#f4f4f4" stroke-width="3"/>`).join('');
+        break;
+      case 'polo':
+        s += `<path d="M84 188 L100 200 L116 188 L120 196 L100 206 L80 196 Z" fill="${shade(c, 25)}"/><line x1="100" y1="200" x2="100" y2="222" stroke="${shade(c, -30)}" stroke-width="2"/>` + [208, 216].map(y => `<circle cx="100" cy="${y}" r="1.8" fill="#f4f1ea"/>`).join('');
+        s += `<rect x="122" y="208" width="10" height="7" rx="1" fill="${shade(c, 40)}" opacity="0.8"/>`;
+        break;
       case 'hoodie':
         s += `<path d="M60 196 Q100 176 140 196 Q128 214 100 214 Q72 214 60 196 Z" fill="${d}"/>`;
         s += `<line x1="92" y1="206" x2="90" y2="232" stroke="#f4f1ea" stroke-width="2"/><line x1="108" y1="206" x2="110" y2="232" stroke="#f4f1ea" stroke-width="2"/>`;
@@ -106,6 +122,12 @@ const Portrait = (() => {
     if (p.beard === 'goatee') s += `<path d="M90 152 Q100 172 110 152 Q100 158 90 152 Z" fill="${hc}"/>`;
     // очки
     switch (p.glasses) {
+      case 'rimless':
+        s += `<rect x="72" y="99" width="22" height="14" rx="5" fill="#fff" fill-opacity="0.12" stroke="#9fb3c4" stroke-width="1.2"/><rect x="106" y="99" width="22" height="14" rx="5" fill="#fff" fill-opacity="0.12" stroke="#9fb3c4" stroke-width="1.2"/><line x1="94" y1="104" x2="106" y2="104" stroke="#9fb3c4" stroke-width="1.6"/>`;
+        break;
+      case 'sport':
+        s += `<path d="M64 100 Q100 92 136 100 L134 112 Q118 120 102 112 L98 112 Q82 120 66 112 Z" fill="#1a2430" opacity="0.94"/><path d="M70 102 Q100 96 130 102" stroke="#7fd4ff" stroke-width="2" fill="none" opacity="0.7"/>`;
+        break;
       case 'aviator':
         s += `<path d="M68 99 L97 99 Q99 117 86 120 Q71 120 68 104 Z" fill="#1b1b1b" opacity="0.92" stroke="#c9a640" stroke-width="1.6"/>`;
         s += `<path d="M132 99 L103 99 Q101 117 114 120 Q129 120 132 104 Z" fill="#1b1b1b" opacity="0.92" stroke="#c9a640" stroke-width="1.6"/>`;
@@ -129,6 +151,8 @@ const Portrait = (() => {
       case 'bald': s += `<path d="M52 108 Q48 88 60 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M148 108 Q152 88 140 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><ellipse cx="88" cy="68" rx="14" ry="6" fill="#fff" opacity="0.25"/>`; break;
       case 'combover': s += `<path d="M52 104 Q50 86 60 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M148 104 Q150 86 140 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/>` + [62, 68, 74].map(y => `<path d="M60 ${y + 14} Q100 ${y - 10} 142 ${y + 10}" stroke="${hc}" stroke-width="3" fill="none"/>`).join(''); break;
       case 'afro': if (p.hat && p.hat !== 'none') s += `<path d="M50 104 Q44 70 70 58 L130 58 Q156 70 150 104 Q146 80 100 74 Q54 80 50 104 Z" fill="${hc}"/>`; break;
+      case 'buzz': s += `<path d="M55 96 Q53 58 100 56 Q147 58 145 96 Q140 76 100 74 Q60 76 55 96 Z" fill="${hc}" opacity="0.75"/>`; break;
+      case 'gelled': s += `<path d="M53 98 Q50 60 70 56 L76 42 L84 56 L92 38 L100 54 L110 38 L116 55 L126 42 L130 58 Q150 62 147 98 Q140 74 100 72 Q60 74 53 98 Z" fill="${hc}"/>`; break;
       case 'bun': s += `<path d="M53 100 Q50 56 100 52 Q150 56 147 100 Q141 72 100 70 Q59 72 53 100 Z" fill="${hc}"/><circle cx="100" cy="44" r="16" fill="${hc}"/>`; break;
       case 'long': s += `<path d="M50 160 Q40 60 100 50 Q160 60 150 160 Q146 100 138 84 Q100 70 62 84 Q54 100 50 160 Z" fill="${hc}"/>`; break;
     }
@@ -155,6 +179,7 @@ const Portrait = (() => {
         [70, 90, 110, 130].map(x => `<path d="M${x} 40 L${x - 4} 66" stroke="#c1272d" stroke-width="1.4" opacity="0.6"/>`).join('');
       case 'tubeteika': return `<path d="M58 66 Q60 40 100 38 Q140 40 142 66 Z" fill="${c}"/><rect x="58" y="60" width="84" height="8" fill="${shade(c, -30)}"/>` +
         [72, 88, 104, 120].map(x => `<path d="M${x} 46 q4 6 0 12 q-4 -6 0 -12" fill="#f2ead6"/>`).join('');
+      case 'baseball': return `<path d="M52 72 Q50 34 100 32 Q150 34 148 72 Z" fill="${c}"/><path d="M52 72 Q40 78 30 84 Q60 90 100 80 Z" fill="${d}"/><circle cx="100" cy="34" r="4" fill="${d}"/><path d="M84 52 h32" stroke="#f4f1ea" stroke-width="4" opacity="0.8"/>`;
       case 'bowler': return `<ellipse cx="100" cy="64" rx="62" ry="9" fill="${d}"/><path d="M62 64 Q60 22 100 22 Q140 22 138 64 Z" fill="${c}"/><rect x="62" y="54" width="76" height="8" fill="${shade(c, 25)}"/>`;
       case 'kamilavka': return `<path d="M60 70 L62 20 L138 20 L140 70 Z" fill="${c}"/><ellipse cx="100" cy="20" rx="40" ry="6" fill="${shade(c, 25)}"/><path d="M58 70 L58 96 Q50 120 44 150 L56 150 Q62 116 66 86 Z M142 70 L142 96 Q150 120 156 150 L144 150 Q138 116 134 86 Z" fill="${c}"/>`;
       case 'flatcap': return `<path d="M50 74 Q46 38 100 36 Q154 38 158 70 Q120 66 50 74 Z" fill="${c}"/><path d="M48 74 Q120 64 164 72 Q150 82 108 82 Z" fill="${d}"/>`;
@@ -167,6 +192,8 @@ const Portrait = (() => {
     if (p.cigar) s += `<g transform="rotate(12 120 146)"><rect x="112" y="142" width="38" height="8" rx="3" fill="#6b3e1e"/><rect x="118" y="142" width="6" height="8" fill="#c0392b"/><circle cx="151" cy="146" r="4" fill="#ff6a00"/></g><path d="M160 136 Q168 124 160 114 Q152 104 162 92" stroke="#bbb" stroke-width="2.5" fill="none" opacity="0.7"/>`;
     if (p.sweat) s += `<path d="M150 74 Q156 86 150 92 Q144 86 150 74 Z" fill="#8fd3ff" stroke="#3a8ec2" stroke-width="1"/>`;
     if (p.earring) s += `<circle cx="51" cy="128" r="4" fill="#e2b33c"/><circle cx="149" cy="128" r="4" fill="#e2b33c"/>`;
+    if (p.bluetooth) s += `<rect x="146" y="104" width="9" height="18" rx="4" fill="#2a2f36" stroke="#7fd4ff" stroke-width="1"/><path d="M150 122 Q146 134 132 138" stroke="#2a2f36" stroke-width="2.5" fill="none"/><circle cx="151" cy="108" r="1.6" fill="#39e"/>`;
+    if (p.earpiece) s += `<circle cx="149" cy="114" r="3.5" fill="#d8d8d8"/><path d="M149 118 Q156 150 140 186" stroke="#d8d8d8" stroke-width="1.4" fill="none"/>`;
     if (p.pipe) s += `<path d="M110 146 L134 156 L134 170 Q146 174 148 160 L146 150 L136 152 L112 142 Z" fill="#5a3a1a"/>`;
     return s;
   }

@@ -674,7 +674,7 @@ const Game = {
     if (role === 'police') fx = { fear: -5 };
     if (role === 'propaganda') fx = { support: -2 };
     const relName = (RELATIVES_BY_STYLE[REGIONS[S.region].style] || RELATIVES_BY_STYLE.latam)[role];
-    S.adv[role] = { name: relName, bio: rel.bio, look: { ...RELATIVE_LOOK[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true };
+    S.adv[role] = { name: relName, bio: rel.bio, look: { ...(S.era === '2000' ? RELATIVE_LOOK_00 : RELATIVE_LOOK)[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true };
     if (A.relative) S.adv[role].name = relName + ' (снова)';
     const changes = Game.apply(fx);
     const text = `${old} отправлен в отставку. Новый ${ROLES[role].title.toLowerCase()} — ${relName}. Семья — это надёжно.`;

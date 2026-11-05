@@ -3,6 +3,17 @@ const $ = (sel, el = document) => el.querySelector(sel);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const sign = d => (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(Math.round(d));
 
+const REGIME_LOOKS = {
+  junta: { outfit: 'military', outfitColor: '#4b5320', medals: 12, hat: 'cap', hatColor: '#4b5320', glasses: 'none', bluetooth: false },
+  revolution: { outfit: 'military', outfitColor: '#556b2f', medals: 1, hat: 'beret', hatColor: '#1a1a1a', glasses: 'none', bluetooth: false },
+  western: { outfit: 'suit', outfitColor: '#2a2d36', medals: 0, hat: 'none', sash: '#c1272d', glasses: 'none', bluetooth: false },
+  putsch: { outfit: 'military', outfitColor: '#5a5f3a', medals: 14, hat: 'kepi', hatColor: '#5a5f3a', glasses: 'none', bluetooth: false },
+  estado: { outfit: 'suit', outfitColor: '#1d1d22', medals: 0, hat: 'top', hatColor: '#1a1a1a', sash: '#1f4e8c', glasses: 'monocle', bluetooth: false },
+  front: { outfit: 'suit', outfitColor: '#5a4a3a', medals: 0, hat: 'flatcap', hatColor: '#4a3a2a', sash: '#c1272d', glasses: 'none', bluetooth: false },
+  heir: { outfit: 'suit2000', outfitColor: '#1c2230', shirt: '#dfe9f3', tie: '#7a1f3d', medals: 0, hat: 'none', sash: '#d6a63a', glasses: 'rimless', mustache: 'none', hair: 'slick', bluetooth: false },
+  reformer: { outfit: 'suit2000', outfitColor: '#2a3550', shirt: '#f4f1ea', tie: 'none', medals: 0, hat: 'none', sash: '', glasses: 'none', mustache: 'none', hair: 'short', bluetooth: true },
+  strongman: { outfit: 'suit2000', outfitColor: '#111317', shirt: '#dfe9f3', tie: '#1d1d22', medals: 0, hat: 'none', sash: '', glasses: 'sport', mustache: 'none', hair: 'buzz', bluetooth: false },
+};
 const UI = {
   tab: 'cabinet',
   setup: null,
@@ -56,7 +67,15 @@ const UI = {
     $('#setup-title').innerHTML = (REGION_TITLES[st.region] || E.titles).map(t => `<option ${t === st.title ? 'selected' : ''}>${t}</option>`).join('');
     $('#setup-name').value = st.name;
     $('#setup-country').value = st.country;
-    const opts = {
+    const opts = st.era === '2000' ? {
+      skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
+      hat: [['Без убора', 'none'], ['Фуражка', 'cap'], ['Бейсболка', 'baseball'], ['Тюбетейка', 'tubeteika'], ['Куфия', 'keffiyeh']],
+      mustache: [['Нет', 'none'], ['Пышные', 'thick'], ['Ниточка', 'pencil']],
+      glasses: [['Нет', 'none'], ['Без оправы', 'rimless'], ['Спортивные', 'sport'], ['Авиаторы', 'aviator']],
+      outfit: [['Костюм', 'suit2000'], ['Мундир', 'military'], ['Спортивный', 'tracksuit'], ['Поло', 'polo']],
+      hair: [['Короткие', 'short'], ['Ёжик', 'buzz'], ['Гель', 'gelled'], ['Зачёс', 'slick'], ['Лысина', 'bald']],
+      bluetooth: [['Нет', ''], ['Bluetooth-гарнитура', '1']],
+    } : {
       skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
       hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Кепи', 'kepi'], ['Шляпа', 'fedora'], ['Котелок', 'bowler'], ['Цилиндр', 'top'], ['Без убора', 'none']],
       mustache: [['Пышные', 'thick'], ['Моржовые', 'walrus'], ['Ниточка', 'pencil'], ['Руль', 'handlebar'], ['Нет', 'none']],
@@ -64,9 +83,9 @@ const UI = {
       outfit: [['Мундир', 'military'], ['Костюм', 'suit'], ['Френч', 'mao'], ['Гуаябера', 'guayabera']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Афро', 'afro'], ['Лысина', 'bald']],
     };
-    const labels = { skin: 'Кожа', hat: 'Головной убор', mustache: 'Усы', glasses: 'Очки', outfit: 'Одежда', hair: 'Волосы' };
+    const labels = { skin: 'Кожа', hat: 'Головной убор', mustache: 'Усы', glasses: 'Очки', outfit: 'Одежда', hair: 'Волосы', bluetooth: 'Гаджет' };
     $('#setup-look').innerHTML = Object.entries(opts).map(([k, list]) => `
-      <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${st.look[k] === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
+      <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${(k === 'bluetooth' ? (st.look.bluetooth ? '1' : '') : st.look[k]) === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
     UI.renderSetupPortrait();
     for (const b of document.querySelectorAll('[data-diff]')) b.onclick = () => { st.diff = b.dataset.diff; UI.renderSetup(); };
     for (const b of document.querySelectorAll('[data-era]')) b.onclick = () => {
@@ -76,30 +95,23 @@ const UI = {
       st.region = E2.regions[0]; st.regime = E2.regimes[0]; st.title = REGION_TITLES[st.region][0];
       st.country = REGIONS[st.region].country; st.name = E2.defaultNames[st.region];
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
+      Object.assign(st.look, REGIME_LOOKS[st.regime]);
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-region]')) b.onclick = () => {
       st.region = b.dataset.region; st.country = REGIONS[st.region].country; st.name = defaults[st.region]; st.title = REGION_TITLES[st.region][0];
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
-      st.look.hat = st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
+      st.look.hat = st.era === '2000' ? 'none' : st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-regime]')) b.onclick = () => {
       st.regime = b.dataset.regime;
-      const looks = {
-        junta: { outfit: 'military', outfitColor: '#4b5320', medals: 12, hat: 'cap', hatColor: '#4b5320' },
-        revolution: { outfit: 'military', outfitColor: '#556b2f', medals: 1, hat: 'beret', hatColor: '#1a1a1a' },
-        western: { outfit: 'suit', outfitColor: '#2a2d36', medals: 0, hat: 'none', sash: '#c1272d' },
-        putsch: { outfit: 'military', outfitColor: '#5a5f3a', medals: 14, hat: 'kepi', hatColor: '#5a5f3a' },
-        estado: { outfit: 'suit', outfitColor: '#1d1d22', medals: 0, hat: 'top', hatColor: '#1a1a1a', sash: '#1f4e8c' },
-        front: { outfit: 'suit', outfitColor: '#5a4a3a', medals: 0, hat: 'flatcap', hatColor: '#4a3a2a', sash: '#c1272d' },
-      };
-      Object.assign(st.look, looks[st.regime]);
+      Object.assign(st.look, REGIME_LOOKS[st.regime]);
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-look]')) b.onclick = () => {
-      st.look[b.dataset.look] = b.dataset.val;
-      if (b.dataset.look === 'outfit') st.look.outfitColor = { military: '#4b5320', suit: '#2a2d36', mao: '#56604a', guayabera: '#f1e4c3' }[b.dataset.val];
+      st.look[b.dataset.look] = b.dataset.look === 'bluetooth' ? b.dataset.val === '1' : b.dataset.val;
+      if (b.dataset.look === 'outfit') st.look.outfitColor = { military: '#4b5320', suit: '#2a2d36', mao: '#56604a', guayabera: '#f1e4c3', suit2000: '#1c2230', tracksuit: '#1f3f8a', polo: '#2a6a4a' }[b.dataset.val];
       UI.renderSetup();
     };
   },

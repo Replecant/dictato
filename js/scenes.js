@@ -165,9 +165,86 @@ const Scenes = (() => {
     },
   };
 
+  // Декорации 2000-х: стекло, плазмы, машины, джипы и реактивные лайнеры
+  function skyline(p, y, n = 9) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      const x = i * (W / n) + ((i * 37) % 23), w = 50 + (i * 29) % 40, h = 120 + (i * 53) % 160;
+      s += `<rect x="${x}" y="${y - h}" width="${w}" height="${h}" fill="${i % 3 ? '#5a7a96' : '#7c9cb8'}" opacity="0.9"/>` +
+        Array.from({ length: Math.floor(h / 22) }, (_, j) => `<rect x="${x + 4}" y="${y - h + 6 + j * 22}" width="${w - 8}" height="3" fill="#cfe6f7" opacity="0.5"/>`).join('');
+      if (i % 4 === 1) s += `<path d="M${x + w / 2} ${y - h} V${y - h - 30}" stroke="#7c9cb8" stroke-width="3"/>`;
+    }
+    return s;
+  }
+  function car(x, y, c, k = 1) {
+    return `<g transform="translate(${x} ${y}) scale(${k})"><path d="M0 -14 L14 -30 L70 -30 L88 -14 L100 -14 L100 0 L0 0 Z" fill="${c}"/><path d="M20 -27 L34 -27 L34 -16 L12 -16 Z M40 -27 L66 -27 L80 -16 L40 -16 Z" fill="#9ec6e0" opacity="0.8"/><circle cx="22" cy="0" r="9" fill="#151515"/><circle cx="78" cy="0" r="9" fill="#151515"/></g>`;
+  }
+  function suv(x, y, k = 1) {
+    return `<g transform="translate(${x} ${y}) scale(${k})"><rect x="0" y="-44" width="120" height="34" rx="6" fill="#0b0c0f"/><rect x="10" y="-40" width="40" height="16" fill="#2a3440"/><rect x="56" y="-40" width="40" height="16" fill="#2a3440"/><rect x="-4" y="-12" width="128" height="12" rx="4" fill="#0b0c0f"/><circle cx="24" cy="0" r="11" fill="#1a1a1a"/><circle cx="96" cy="0" r="11" fill="#1a1a1a"/><rect x="110" y="-28" width="10" height="6" fill="#fff6c8"/></g>`;
+  }
+  function apc(x, y, k = 1) {
+    return `<g transform="translate(${x} ${y}) scale(${k})"><path d="M0 -10 L10 -40 L140 -40 L160 -10 Z" fill="#1e2318"/><rect x="60" y="-56" width="40" height="16" fill="#1e2318"/><rect x="96" y="-52" width="50" height="5" fill="#1e2318"/>` + [20, 55, 95, 130].map(cx => `<circle cx="${cx}" cy="-4" r="11" fill="#0d0f0a"/>`).join('') + '</g>';
+  }
+  function tv(x, y, w, h) {
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#0d0f13"/><rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - 12}" fill="#163a66"/>` +
+      `<rect x="${x + 6}" y="${y + h - 30}" width="${w - 12}" height="16" fill="#c1272d"/><rect x="${x + 6}" y="${y + h - 14}" width="${w - 12}" height="8" fill="#f4f4f4"/>` +
+      `<circle cx="${x + w / 2}" cy="${y + h / 2 - 12}" r="${h / 6}" fill="#e0b080" opacity="0.8"/><rect x="${x + 14}" y="${y + 14}" width="34" height="12" fill="#c1272d"/><text x="${x + 31}" y="${y + 24}" text-anchor="middle" font-size="10" fill="#fff" font-family="Arial">LIVE</text>`;
+  }
+  const modern = {
+    office(p, r) {
+      return `<rect width="${W}" height="${H}" fill="#2a3038"/><rect width="${W}" height="${H}" fill="url(#ofg)"/>` +
+        `<defs><linearGradient id="ofg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a424c"/><stop offset="1" stop-color="#22272e"/></linearGradient></defs>` +
+        `<rect x="420" y="30" width="340" height="250" fill="#1a1f25"/><g><svg x="428" y="38" width="324" height="234" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${sky(p, 'os2')}${skyline(p, 450, 10)}</svg></g>` +
+        [536, 644].map(x => `<rect x="${x}" y="30" width="6" height="250" fill="#1a1f25"/>`).join('') +
+        tv(90, 70, 220, 140) +
+        `<line x1="350" y1="60" x2="350" y2="330" stroke="#b9c2cc" stroke-width="4"/><g transform="translate(353 70)"><svg width="80" height="54" viewBox="0 0 30 20">${REGIONS[r].flag}</svg></g>` +
+        `<rect x="0" y="360" width="${W}" height="90" fill="#15191e"/><rect x="60" y="338" width="680" height="24" rx="3" fill="#4a3428"/>` +
+        `<path d="M296 338 H424 L430 344 H290 Z" fill="#a9b2bc"/><path d="M308 338 L316 282 L404 282 L412 338 Z" fill="#8f99a3"/><path d="M314 334 L321 287 L399 287 L406 334 Z" fill="#2b5c8a"/><circle cx="360" cy="310" r="8" fill="#e8eef5" opacity="0.6"/><rect x="520" y="322" width="40" height="16" rx="3" fill="#111"/><rect x="580" y="326" width="22" height="12" rx="2" fill="#2a2f36"/>`;
+    },
+    street(p, r) {
+      return sky(p, 'ss2') + skyline(p, 260, 8) +
+        Array.from({ length: 7 }, (_, i) => { const x = i * 120 - 20, h = 130 + (i * 47) % 70; return `<rect x="${x}" y="${330 - h}" width="110" height="${h}" fill="${i % 2 ? p.wall : '#c9b896'}"/>` + Array.from({ length: 4 }, (_, j) => `<rect x="${x + 14 + (j % 2) * 50}" y="${330 - h + 20 + Math.floor(j / 2) * 46}" width="28" height="30" fill="#33404c"/>`).join('') + `<ellipse cx="${x + 80}" cy="${330 - h - 6}" rx="12" ry="7" fill="#e8e8e8" transform="rotate(-20 ${x + 80} ${330 - h - 6})"/>`; }).join('') +
+        `<rect x="520" y="110" width="200" height="80" fill="#f4f4f4" stroke="#333" stroke-width="3"/><rect x="530" y="120" width="80" height="60" fill="#c1272d"/><rect x="620" y="130" width="90" height="10" fill="#333"/><rect x="620" y="150" width="70" height="8" fill="#777"/><path d="M560 190 V250 M680 190 V250" stroke="#444" stroke-width="5"/>` +
+        `<path d="M0 240 Q200 230 400 244 T800 236" stroke="#222" stroke-width="1.5" fill="none"/>` +
+        `<rect y="330" width="${W}" height="120" fill="#5a5e64"/>` + car(40, 372, '#c1272d', 0.9) + car(620, 376, '#e8e8e8', 0.9) + crowd('#1f2328', 450, 44);
+    },
+    square(p, r) {
+      return sky(p, 'sq2') + skyline(p, 300, 9) + `<rect y="300" width="${W}" height="150" fill="#a8a094"/>` +
+        `<rect x="250" y="120" width="300" height="180" fill="${p.wall}"/><rect x="290" y="140" width="220" height="110" fill="#0d0f13"/><rect x="296" y="146" width="208" height="98" fill="#163a66"/><circle cx="400" cy="185" r="26" fill="#e0b080" opacity="0.85"/><rect x="296" y="226" width="208" height="18" fill="#c1272d"/>` +
+        `<g transform="translate(374 96)"><svg width="52" height="35" viewBox="0 0 30 20">${REGIONS[r].flag}</svg></g>` + crowd('#2a2a30', 450, 52);
+    },
+    airport(p, r) {
+      return sky(p, 'sa2') + `<rect y="300" width="${W}" height="150" fill="#6e7276"/><rect y="350" width="${W}" height="40" fill="#3e4246"/>` +
+        Array.from({ length: 10 }, (_, i) => `<rect x="${i * 90}" y="368" width="50" height="4" fill="#f2ead6"/>`).join('') +
+        `<path d="M20 300 L20 200 Q140 170 260 200 L260 300 Z" fill="#9fb8cc"/><path d="M20 200 Q140 170 260 200" stroke="#5a7a96" stroke-width="4" fill="none"/>` + Array.from({ length: 8 }, (_, i) => `<line x1="${40 + i * 28}" y1="200" x2="${40 + i * 28}" y2="300" stroke="#5a7a96" stroke-width="2"/>`).join('') +
+        `<rect x="150" y="120" width="30" height="80" fill="#cfd8e0"/><rect x="138" y="104" width="54" height="22" fill="#2a3a4a"/>` +
+        `<g transform="translate(330 270)"><path d="M0 20 Q10 -4 60 -6 L380 -8 Q420 -6 440 14 Q420 30 380 30 L60 30 Q10 30 0 20 Z" fill="#f2f4f6"/><path d="M380 -8 L420 -60 L440 -60 L420 0 Z" fill="#1f5fae"/><path d="M180 10 L120 70 L170 70 L260 10 Z" fill="#d8dde2"/>` +
+        Array.from({ length: 14 }, (_, i) => `<rect x="${80 + i * 20}" y="2" width="8" height="8" rx="2" fill="#2a3a4a"/>`).join('') + `<path d="M8 12 Q20 4 40 6 L40 14 Z" fill="#2a3a4a"/><rect x="150" y="38" width="44" height="14" rx="7" fill="#9aa4ae"/><rect x="60" y="28" width="380" height="3" fill="#1f5fae"/></g>`;
+    },
+    night(p, r) {
+      return sky(p, 'sn2', true) + skyline(p, 300, 10).replace(/#5a7a96|#7c9cb8/g, '#1b2233').replace(/#cfe6f7/g, '#f2c14e') +
+        `<path d="M150 450 L150 250 L650 250 L650 450 Z" fill="#181a26"/>` + Array.from({ length: 12 }, (_, i) => `<rect x="${180 + (i % 6) * 75}" y="${270 + Math.floor(i / 6) * 60}" width="22" height="26" fill="${i % 3 ? '#f2c14e' : '#2a2840'}" opacity="0.85"/>`).join('') +
+        `<path d="M90 450 L240 0 L280 0 Z" fill="#fff8d0" opacity="0.08"/><path d="M710 450 L520 0 L560 0 Z" fill="#fff8d0" opacity="0.08"/>` +
+        `<g transform="translate(560 90)"><ellipse cx="0" cy="0" rx="46" ry="14" fill="#0b0c10"/><path d="M-60 -16 H60" stroke="#0b0c10" stroke-width="3"/><path d="M40 0 L90 -4" stroke="#0b0c10" stroke-width="5"/><circle cx="-30" cy="4" r="3" fill="#ff4040"/></g>` +
+        `<rect y="400" width="${W}" height="50" fill="#0c0b16"/>` + apc(20, 440, 1) + suv(470, 446, 0.9) + suv(620, 448, 0.9);
+    },
+    palace(p, r) {
+      return `<defs><linearGradient id="mrb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9e6df"/><stop offset="1" stop-color="#b9b4aa"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#mrb)"/>` +
+        `<path d="M0 0 H800 V40 Q400 90 0 40 Z" fill="#cfd8e0" opacity="0.8"/>` + Array.from({ length: 9 }, (_, i) => `<path d="M${i * 100} 0 L${400} 70" stroke="#9fb3c4" stroke-width="2" opacity="0.6"/>`).join('') +
+        [60, 200, 600, 740].map(x => `<rect x="${x - 22}" y="60" width="44" height="${H - 100}" fill="#f4f1ea"/><rect x="${x - 28}" y="60" width="56" height="14" fill="#d6a63a"/><rect x="${x - 28}" y="${H - 54}" width="56" height="14" fill="#d6a63a"/>`).join('') +
+        `<rect x="270" y="80" width="260" height="170" fill="#0d0f13"/><rect x="278" y="88" width="244" height="154" fill="#1d3350"/><circle cx="400" cy="150" r="40" fill="#e0b080" opacity="0.85"/><rect x="340" y="190" width="120" height="50" rx="20" fill="#2a2d36"/><rect x="278" y="226" width="244" height="16" fill="#d6a63a"/>` +
+        `<path d="M300 ${H} L360 300 L440 300 L500 ${H} Z" fill="#a82424"/><rect x="0" y="390" width="${W}" height="60" fill="#8f897e" opacity="0.5"/>` +
+        [120, 680].map(x => `<rect x="${x - 16}" y="330" width="32" height="40" fill="#5a4a3a"/>` + [-40, -15, 10, 35].map(a2 => `<path d="M${x} 330 q${a2} -40 ${a2 * 1.6} -70" stroke="${p.plant}" stroke-width="7" fill="none" stroke-linecap="round"/>`).join('')).join('');
+    },
+    stadium(p, r) {
+      return builders.stadium(p, r) + `<rect x="300" y="20" width="200" height="90" fill="#0d0f13"/><rect x="306" y="26" width="188" height="78" fill="#163a66"/><text x="400" y="78" text-anchor="middle" font-size="34" fill="#fff" font-family="Arial" font-weight="bold">2 : 1</text>`;
+    },
+  };
+  let ERA = '1960';
   function svg(bg, region) {
     const p = PAL[region] || PAL.latam;
-    const b = builders[bg] || builders.office;
+    ERA = (typeof S !== 'undefined' && S && S.era) || '1960';
+    const b = (ERA === '2000' && modern[bg]) || builders[bg] || builders.office;
     STYLE = (REGIONS[region] && REGIONS[region].style) || 'latam';
     return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${b(p, region)}</svg>`;
   }

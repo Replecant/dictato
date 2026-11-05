@@ -389,6 +389,48 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .end .rep-stat { background: var(--panel); }
 
 /* ---------- адаптив ---------- */
+/* ===== Облик 2000-х: графит, синее стекло, глянцевые кнопки, плашки теленовостей ===== */
+body[data-era="2000"] {
+  --bg: #0c1118; --wood: #151c26; --panel: #18212d; --panel-2: #202c3b;
+  --fg: #e6edf5; --muted: #93a3b8; --brass: #3fb0e8; --brass-dim: rgba(63, 176, 232, 0.28);
+  --red: #e0443a; --green: #3fbf6a; --amber: #f0a830;
+  --paper: #eef2f6; --paper-2: #d6dfea; --ink: #14202c; --ink-muted: #4b5b6e;
+  --f-display: "Exo 2", "Trebuchet MS", Arial, sans-serif; --f-body: "PT Sans", "Segoe UI", Arial, sans-serif;
+  --r: 8px;
+  background-image: linear-gradient(rgba(63, 176, 232, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(63, 176, 232, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+body[data-era="2000"] h1, body[data-era="2000"] h2, body[data-era="2000"] h3, body[data-era="2000"] .pick-name, body[data-era="2000"] .hdr-id b { letter-spacing: 0.01em; font-weight: 800; text-transform: uppercase; }
+body[data-era="2000"] .logo { text-shadow: 0 0 24px rgba(63, 176, 232, 0.5), 3px 3px 0 #0b3f5e; }
+body[data-era="2000"] .btn { background: linear-gradient(180deg, #6cd0ff 0%, #2b98d6 52%, #1f7fbb 53%, #2a8fcb 100%); color: #fff; box-shadow: 0 2px 0 #145a85, inset 0 1px 0 rgba(255, 255, 255, 0.5); text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3); border-radius: 6px; }
+body[data-era="2000"] .btn.ghost { background: rgba(255, 255, 255, 0.04); color: var(--fg); box-shadow: inset 0 0 0 1px var(--brass-dim); text-shadow: none; }
+body[data-era="2000"] .btn.danger { background: linear-gradient(180deg, #ff7a6e, #d9362c 52%, #c22a21 53%, #d03a30); box-shadow: 0 2px 0 #7a1a14, inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+body[data-era="2000"] .btn.danger-o { color: #ff9a8e; }
+body[data-era="2000"] .card, body[data-era="2000"] .stat, body[data-era="2000"] .pick, body[data-era="2000"] .proj-item { background: linear-gradient(180deg, #1d2836, #161e29); border: 1px solid rgba(120, 180, 230, 0.12); border-radius: 8px; }
+body[data-era="2000"] .pick.on { background: linear-gradient(180deg, #213650, #1a2a3e); box-shadow: inset 0 0 0 1px var(--brass), 0 0 16px rgba(63, 176, 232, 0.2); }
+body[data-era="2000"] .tabs { border-bottom-color: var(--brass); }
+body[data-era="2000"] .tabs button { border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #1f2a38, #151c26); }
+body[data-era="2000"] .tabs button.on { background: linear-gradient(180deg, #6cd0ff, #2b98d6); color: #fff; }
+body[data-era="2000"] .seg button.on, body[data-era="2000"] .dtabs button.on, body[data-era="2000"] .chip.gold { background: var(--brass); color: #06121c; }
+body[data-era="2000"] .leader-portrait, body[data-era="2000"] .setup-portrait, body[data-era="2000"] .end-portrait { background: radial-gradient(circle at 50% 35%, #2a4a6e, #0d1724 75%); border-color: #9fb8cc; box-shadow: 0 0 0 1px #2b98d6, 0 16px 30px rgba(0, 0, 0, 0.5); }
+body[data-era="2000"] .adv-portrait { background: radial-gradient(circle at 50% 35%, #2a3e56, #0f1722 75%); }
+body[data-era="2000"] .plate { background: linear-gradient(180deg, #6cd0ff, #2b98d6); color: #fff; }
+body[data-era="2000"] .tip-card { background: var(--paper); }
+body[data-era="2000"] .hdr-leader { background: #1c3150; border-color: var(--brass); }
+body[data-era="2000"] .pip { border-color: var(--brass); }
+body[data-era="2000"] .pip.on { background: var(--brass); box-shadow: 0 0 10px rgba(63, 176, 232, 0.8); }
+/* диалоги как плашка теленовостей */
+body[data-era="2000"] .vn-box { background: linear-gradient(180deg, rgba(14, 30, 52, 0.95), rgba(8, 16, 28, 0.96)); border: 1px solid rgba(120, 180, 230, 0.4); border-left: 6px solid var(--red); border-radius: 4px; }
+body[data-era="2000"] .vn-name { background: var(--red); color: #fff; border-radius: 2px; }
+body[data-era="2000"] .vn-name span { color: rgba(255, 255, 255, 0.85); }
+body[data-era="2000"] .vn-title { font-family: var(--f-display); text-transform: uppercase; background: var(--red); color: #fff; display: inline-block; padding: 4px 12px; right: auto; text-shadow: none; }
+body[data-era="2000"] .choice { border-radius: 6px; background: linear-gradient(180deg, #1d2a3a, #162130); }
+/* доклад как распечатка из принтера, всплывашки как уведомления */
+body[data-era="2000"] .dossier { border-top: 18px solid #2b98d6; border-radius: 2px; }
+body[data-era="2000"] .dossier h2 { font-family: var(--f-display); text-transform: uppercase; }
+body[data-era="2000"] .toast { border-left-color: var(--brass); border-radius: 10px; }
+body[data-era="2000"] .club-list li.me { background: rgba(63, 176, 232, 0.16); }
+
 @media (max-width: 900px) {
   .stats, .stats.seven { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cab, .eco, .budget { grid-template-columns: minmax(0, 1fr); }
