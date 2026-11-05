@@ -277,7 +277,27 @@ body[data-era="1930"] .leader-portrait, body[data-era="1930"] .adv-portrait { fi
 .np li span { color: var(--ink-muted); }
 .np-eco p { font-size: 14px; margin: 0 0 4px; }
 .np-bottom { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 12px; padding-top: 10px; border-top: 3px double var(--ink); }
-.np-foreign li { font-style: italic; }
+.np-interview, .np-letters { min-width: 0; }
+.np-iv-head { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px; align-items: center; margin-bottom: 6px; }
+.np-iv-pic { width: 54px; height: 64px; overflow: hidden; filter: grayscale(1) contrast(1.1); border: 1px solid rgba(42, 32, 23, 0.4); background: #ccc; }
+.np-iv-pic svg { width: 100%; display: block; }
+.np-iv-head b { display: block; font: 700 15px "PT Serif", Georgia, serif; }
+.np-iv-head span { font: 12px var(--f-mono); color: var(--ink-muted); }
+.np-q { margin: 6px 0 0; font: 700 14px/1.4 "PT Serif", Georgia, serif; }
+.np-a { margin: 2px 0 0; font: 14px/1.45 "PT Serif", Georgia, serif; }
+.np-by { margin: 8px 0 0; font: italic 12px "PT Serif", Georgia, serif; color: var(--ink-muted); }
+.np-letter { margin: 0 0 10px; font: italic 14px/1.45 "PT Serif", Georgia, serif; }
+.np-letter span { display: block; font-style: normal; font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+.np-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(42, 32, 23, 0.4); }
+.np-strip p { margin: 0; font: 13px/1.4 "PT Serif", Georgia, serif; }
+.np-classified { margin-top: 12px; padding-top: 8px; border-top: 3px double var(--ink); }
+.np-ads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.np-ads p { margin: 0; border: 1px solid rgba(42, 32, 23, 0.45); padding: 6px 8px; font: 12.5px/1.35 "PT Serif", Georgia, serif; }
+.np-ads .np-bigad { font: 700 13px/1.35 var(--f-mono); background: rgba(42, 32, 23, 0.08); }
+.np-site .np-strip, .np-site .np-classified { border-color: #1f5fae; }
+.np-site .np-ads p { border-color: #c9d3dc; font-family: Arial, Helvetica, sans-serif; }
+.np-site .np-ads .np-bigad { background: #fff8d8; }
+.np-site .np-q, .np-site .np-a, .np-site .np-letter, .np-site .np-strip p, .np-site .np-iv-head b { font-family: Arial, Helvetica, sans-serif; }
 .np-opp { background: rgba(42, 32, 23, 0.07); padding: 8px 10px; }
 .np-opp.muted-box p { margin: 0; font: italic 14px "PT Serif", Georgia, serif; color: var(--ink-muted); }
 .np-comments { margin-top: 12px; border-top: 1px solid #c9d3dc; padding-top: 8px; }
