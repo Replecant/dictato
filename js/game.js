@@ -195,16 +195,17 @@ const Game = {
   previewFx(fxIn) {
     const fx = Game.resolveFx(fxIn);
     const out = [];
-    for (const k of ['treasury', 'swiss', 'economy', 'support', 'army', 'fear', 'net']) if (fx[k] && (k !== 'net' || S.era === '2000')) out.push({ icon: STAT_ICONS[k], d: fx[k], label: STAT_NAMES[k] });
+    for (const k of ['treasury', 'swiss', 'economy', 'support', 'army', 'fear', 'net']) if (fx[k] && (k !== 'net' || S.era === '2000')) out.push({ k, icon: STAT_ICONS[k], d: fx[k], label: STAT_NAMES[k] });
     if (fx.fac) for (const [f, e] of Object.entries(fx.fac)) {
       const F = REGIONS[S.region].factions[f];
       if (e.a) out.push({ icon: F.icon, d: e.a, label: `${F.name}: одобрение`, text: `${F.short} ${sign(e.a)}` });
       if (e.s) out.push({ icon: F.icon, d: e.s, label: `${F.name}: сила`, text: `${F.short}: сила ${sign(e.s)}`, inv: true });
     }
-    if (fx.rel) for (const [key, d] of Object.entries(fx.rel)) for (const c of Game.relTargets(key)) out.push({ flag: c, d, label: COUNTRIES[c].name });
+    if (fx.rel) for (const [key, d] of Object.entries(fx.rel)) if (d) for (const c of Game.relTargets(key)) out.push({ flag: c, d, label: COUNTRIES[c].name });
+    if (fx.loy) for (const [r, d] of Object.entries(fx.loy)) if (d && S.adv[r]) out.push({ icon: ROLES[r].icon, d, label: `${ROLES[r].title}: лояльность`, text: `${{ defense: 'Минобороны', economy: 'Минэкономики', police: 'Шеф полиции', propaganda: 'Минпропаганды', foreign: 'МИД' }[r]}: лояльность ${sign(d)}` });
     if (fx.price) out.push({ icon: '📦', d: fx.price * 100, label: 'Мировая цена на экспорт', text: `цена ${sign(fx.price * 100)}%` });
-    if (fx.schedule) out.push({ icon: '⏳', d: 0, label: 'Отложенный эффект', text: 'потом' });
-    if (fx.loan) out.push({ icon: '🧾', d: -fx.loan.per, label: `Кредит: ${fx.loan.turns} выплат` });
+    if (fx.schedule) for (const sc of fx.schedule) for (const it of Game.previewFx(sc.fx)) out.push({ ...it, later: sc.in });
+    if (fx.loan) out.push({ icon: '🧾', d: -fx.loan.per, label: `Кредит: ${fx.loan.turns} выплат`, text: `потом ${fx.loan.turns} выплат по ${fx.loan.per} млн` });
     return out;
   },
 
@@ -529,6 +530,21 @@ const Game = {
       return { ...d, used, cost: used ? 'уже издан' : [d.cost, eff].filter(Boolean).join(' · '), ok: !used && d.ok(S) };
     });
   },
+  // Предпросмотр указа: прогоняем на копии состояния, ничего не меняя
+  decreePreview(cat, id) {
+    const d = DECREES[cat].find(x => x.id === id);
+    const m = d.repeat ? Game.dealInfo('dec:' + id).mult : 1;
+    if (d.odds) return { odds: d.odds, win: Game.previewFx(d.win.fx), lose: Game.previewFx(d.lose.fx) };
+    const saved = S;
+    let out;
+    S = JSON.parse(JSON.stringify(saved));
+    try { out = d.run(S, m); } finally { S = saved; }
+    return { now: Game.previewFx(out.fx) };
+  },
+  economyPreview(id) {
+    const { fx, risk } = Game.economyFx(id);
+    return { now: Game.previewFx(fx), risk: risk ? { p: risk.p, fx: Game.previewFx(risk.fx) } : null };
+  },
   decree(cat, id) {
     const d = DECREES[cat].find(x => x.id === id);
     if (!d || (d.once && S.used.includes('dec:' + id)) || !d.ok(S)) return null;
@@ -536,7 +552,7 @@ const Game = {
     const m = d.repeat ? Game.dealInfo('dec:' + id).mult : 1;
     if (d.repeat) Game.noteDeal('dec:' + id);
     if (d.once) S.used.push('dec:' + id);
-    const out = d.run(S, m);
+    const out = d.odds ? (Math.random() < d.odds ? d.win : d.lose) : d.run(S, m);
     const changes = Game.apply(out.fx);
     const text = `Указ «${d.name}». ${out.text}`;
     Game.log(text);
@@ -563,10 +579,10 @@ const Game = {
     if (!S.flags.landReform) acts.push({ id: 'land', name: 'Земельная реформа', desc: 'Народ и левые довольны, крупные собственники — в бешенстве. Позже экономика +6.', cost: '', ok: true, danger: true });
     return acts;
   },
-  economyAction(id) {
-    if (!Game.spend()) return null;
+  // Эффекты проекта без применения (для предпросмотра и для самого указа)
+  economyFx(id) {
     const R = REGIONS[S.region];
-    let fx = {}, text = '';
+    let fx = {}, text = '', risk = null;
     switch (id) {
       case 'highway':
         fx = { treasury: -30, support: 1, schedule: [{ in: 3, fx: { economy: 6, swiss: 4 }, text: `Открыто шоссе имени ${Game.titleGen()}! Шурин-подрядчик прислал благодарность.` }] };
@@ -588,12 +604,19 @@ const Game = {
         fx = { treasury: 50, rel: { ussr: 5, usa: -3 }, loan: { per: 7, turns: 8 } };
         text = 'Госбанк СССР выдал кредит. В придачу — делегация экономистов с пятилетним планом.'; break;
       case 'transfer':
-        fx = Math.random() < 0.2 ? { treasury: -15, swiss: 15, support: -6 } : { treasury: -15, swiss: 15 };
-        text = fx.support ? 'Перевод в Цюрих раскрыт газетой оппозиции. Неловко.' : 'Перевод в Цюрих прошёл тихо. Как и положено.'; break;
+        fx = { treasury: -15, swiss: 15 };
+        risk = { p: 0.2, fx: { support: -6 }, text: 'Перевод в Цюрих раскрыт газетой оппозиции. Неловко.' };
+        text = 'Перевод в Цюрих прошёл тихо. Как и положено.'; break;
       case 'land':
         fx = { support: 10, economy: -4, flag: { landReform: true }, fac: { oligarchs: { s: -10, a: -30 }, left: { a: 20, s: -5 } }, rel: { usa: -8, ussr: 6 }, schedule: [{ in: 4, fx: { economy: 6 }, text: 'Земельная реформа приносит плоды: урожай вырос на треть.' }] };
         text = 'Земельная реформа объявлена! Крестьяне пляшут, латифундисты пьют валерьянку.'; break;
     }
+    return { fx, text, risk };
+  },
+  economyAction(id) {
+    if (!Game.spend()) return null;
+    let { fx, text, risk } = Game.economyFx(id);
+    if (risk && Math.random() < risk.p) { fx = { ...fx, ...risk.fx }; text = risk.text; }
     const changes = Game.apply(fx);
     Game.log(text);
     return { text, changes };

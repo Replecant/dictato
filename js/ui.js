@@ -382,7 +382,29 @@ const UI = {
     if (cat === 'economy') items = [...Game.economyActions().map(a => ({ act: 'eco:' + a.id, ...a })), ...items];
     return `<div class="dtabs" role="tablist">${Object.entries(DECREE_TABS).map(([k, n]) => `<button class="${k === cat ? 'on' : ''}" data-dtab="${k}" role="tab" aria-selected="${k === cat}">${n}</button>`).join('')}</div>
       <p class="lede">Каждый указ стоит один приказ. Осталось приказов: <b>${S.ap}</b>. Повторяемые указы слабеют, если издавать их слишком часто.</p>
-      <div class="proj">${items.map(a => `<div class="proj-item ${a.used ? 'used' : ''} ${cat === 'absurd' ? 'absurd' : ''}"><div><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p></div>${UI.actBtn(a.act, { ok: a.ok, danger: a.danger, name: a.used ? 'Издан' : 'Подписать', cost: a.cost })}</div>`).join('')}</div>`;
+      <div class="proj dec-grid">${items.map(a => `<div class="proj-item dec ${a.used ? 'used' : ''} ${cat === 'absurd' ? 'absurd' : ''}">
+        <div class="dec-main"><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p>${a.used ? '' : UI.decreeEffects(a.act)}</div>
+        ${UI.actBtn(a.act, { ok: a.ok, danger: a.danger, name: a.used ? 'Издан' : 'Подписать', cost: a.cost })}</div>`).join('')}</div>`;
+  },
+  fxChips(list) {
+    return list.map(f => `<span class="hint ${f.inv || f.k === 'fear' ? 'neutral' : f.d > 0 ? 'up' : f.d < 0 ? 'down' : 'neutral'}" title="${esc(f.label)}">${f.flag ? flagSvg(f.flag) : (f.icon || '')}${esc(f.text || `${f.label} ${sign(f.d)}`)}</span>`).join('');
+  },
+  decreeEffects(act) {
+    const [kind, a, b] = act.split(':');
+    const P = kind === 'eco' ? Game.economyPreview(a) : Game.decreePreview(a, b);
+    const rows = [];
+    if (P.odds) {
+      rows.push(`<div class="dec-row"><span class="dec-tag">Шанс ${Math.round(P.odds * 100)}%</span>${UI.fxChips(P.win)}</div>`);
+      rows.push(`<div class="dec-row"><span class="dec-tag">Иначе</span>${UI.fxChips(P.lose)}</div>`);
+    } else {
+      const now = P.now.filter(f => !f.later), later = P.now.filter(f => f.later);
+      if (now.length) rows.push(`<div class="dec-row"><span class="dec-tag">Сразу</span>${UI.fxChips(now)}</div>`);
+      const groups = {};
+      for (const f of later) (groups[f.later] = groups[f.later] || []).push(f);
+      for (const [n, list] of Object.entries(groups)) rows.push(`<div class="dec-row"><span class="dec-tag">Через ${n} кв.</span>${UI.fxChips(list)}</div>`);
+      if (P.risk) rows.push(`<div class="dec-row"><span class="dec-tag risk">Риск ${Math.round(P.risk.p * 100)}%</span>${UI.fxChips(P.risk.fx)}</div>`);
+    }
+    return rows.length ? `<div class="dec-fx">${rows.join('')}</div>` : '';
   },
 
   tab_world() {
