@@ -536,14 +536,20 @@ const UI = {
   },
 
   clubTable(score) {
-    const me = { score, name: `${S.leader.title} ${S.leader.name}`, land: S.country, note: `Это вы. Сложность: ${Game.diff().name}.`, me: true };
-    const list = [...DICTATOR_CLUB, me].sort((a, b) => b.score - a.score);
+    const yrs = Math.round(S.turn / 4 * 10) / 10;
+    const start = ERAS[S.era].start;
+    const me = { name: `${S.leader.title} ${S.leader.name}`, land: S.country, span: `${start}–${S.year}`, years: yrs, note: `Это вы. Сложность: ${Game.diff().name}.`, me: true };
+    const real = DICTATOR_CLUB[S.era] || DICTATOR_CLUB['1960'];
+    const list = [...real, me].sort((a, b) => b.years - a.years || (a.me ? 1 : -1));
     const rank = list.indexOf(me) + 1;
+    const above = list[rank - 2], below = list[rank];
     const level = PLAYER_LEVELS.find(([t]) => score < t)[1];
-    return `<section class="club"><div class="eyebrow">Международный клуб диктаторов</div>
-      <p class="club-verdict">Ваше звание: <b>${level}</b>. Место в клубе: <b>${rank} из ${list.length}</b>.</p>
-      <ol class="club-list">${list.map((d, i) => `<li class="${d.me ? 'me' : ''}"><span class="club-n">${i + 1}</span><span class="club-who"><b>${esc(d.name)}</b><span class="muted small">${esc(d.land)} · ${esc(d.note)}</span></span><span class="club-score">${d.score}</span></li>`).join('')}</ol>
-      <p class="muted small">Очки: кварталы у власти, швейцарский счёт, любовь народа и экономика, плюс бонус за то, что дожили до конца десятилетия. Множитель сложности: ×${Game.diff().score}.</p></section>`;
+    const yWord = n => { const k = Math.floor(n); return Number.isInteger(n) ? (k % 10 === 1 && k % 100 !== 11 ? 'год' : [2, 3, 4].includes(k % 10) && ![12, 13, 14].includes(k % 100) ? 'года' : 'лет') : 'года'; };
+    const cmp = below ? `дольше, чем ${below.name}${above ? `, но меньше, чем ${above.name}` : ''}` : `меньше всех в клубе. Даже ${above.name} продержался ${above.years} ${yWord(above.years)}`;
+    return `<section class="club"><div class="eyebrow">Клуб диктаторов эпохи</div>
+      <p class="club-verdict">Ваше звание: <b>${level}</b> (${score} ${score % 10 === 1 && score % 100 !== 11 ? 'очко' : [2, 3, 4].includes(score % 10) && ![12, 13, 14].includes(score % 100) ? 'очка' : 'очков'}). У власти — <b>${String(yrs).replace('.', ',')} ${yWord(yrs)}</b>: ${esc(cmp)}. Место по сроку правления: <b>${rank} из ${list.length}</b>.</p>
+      <ol class="club-list">${list.map((d, i) => `<li class="${d.me ? 'me' : ''}"><span class="club-n">${i + 1}</span><span class="club-who"><b>${esc(d.name)}</b><span class="muted small">${esc(d.land)}, ${esc(d.span)}. ${esc(d.note)}</span></span><span class="club-score">${String(d.years).replace('.', ',')} ${yWord(d.years)}</span></li>`).join('')}</ol>
+      <p class="muted small">Сроки — годы фактической власти по общепринятым датам. Партия длится не больше десяти лет, поэтому догнать долгожителей нельзя: это справка о том, чем на деле кончали правители вашей эпохи. Звание считается по очкам: кварталы у власти, швейцарский счёт, любовь народа и экономика, плюс бонус за то, что дожили до конца десятилетия. Множитель сложности: ×${Game.diff().score}.</p></section>`;
   },
   showEnding() {
     const F = S.final || Game.ending(S.over || 'survived');
