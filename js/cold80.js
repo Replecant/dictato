@@ -294,6 +294,14 @@ Object.assign(Game, {
 });
 
 Game.newGameHooks.push(() => { if (S.era === '1980') Game.c80(); });
+// Соцлагерь: церковь под надзором слабее, при военном положении профсоюз запрещён, опора вождя — номенклатура
+Game.newGameHooks.push(() => {
+  if (S.region !== 'east80') return;
+  const rp = (REGION_PILLARS_80[S.region] || {})[S.regime];
+  if (rp) S.pillars = [...rp];
+  S.fac.faith.s = Math.min(S.fac.faith.s, 22); S.fac.faith.a = Math.min(S.fac.faith.a, 45);
+  if (S.regime === 'junta80') S.fac.left.st = 'banned';
+});
 Game.applyHooks.push(fx => {
   if (S.era !== '1980') return;
   const C = Game.c80();
@@ -393,13 +401,16 @@ Object.assign(UI, {
     const fallen = P === 'usa'
       ? [[1986.1, 'Бэби Док'], [1986.15, 'Маркос'], [1987.5, 'Чон Ду Хван'], [1988.75, 'Пиночет'], [1989.1, 'Стресснер'], [1989.97, 'Норьега']]
       : [[1988.4, 'Кадар'], [1989.8, 'Хонеккер'], [1989.86, 'Живков'], [1989.9, 'Гусак'], [1989.98, 'Чаушеску']];
+    const fallenNote = P === 'usa'
+      ? 'Бэби Док (Гаити, февраль 1986), Маркос (Филиппины, февраль 1986), Чон Ду Хван (Южная Корея, 1987), Пиночет (Чили, проиграл плебисцит в 1988), Стресснер (Парагвай, февраль 1989), Норьега (Панама, декабрь 1989)'
+      : 'Кадар (Венгрия, снят партией в мае 1988), Хонеккер (ГДР, октябрь 1989), Живков (Болгария, ноябрь 1989), Гусак (Чехословакия, декабрь 1989), Чаушеску (Румыния, декабрь 1989)';
     const bands = [[1980, 1985.25, 'горячая война', 'rgba(255,77,90,0.10)'], [1985.25, 1987, 'разговоры', 'rgba(255,194,61,0.08)'], [1987, 1989, 'разрядка', 'rgba(45,182,230,0.08)'], [1989, 1990, 'конец', 'rgba(62,240,160,0.08)']];
     const chart = `<svg class="c80-map" viewBox="0 0 600 300" role="img" aria-label="Барометр покровителя">
       ${bands.map(([a, b, name, col]) => `<rect x="${X(a)}" y="30" width="${X(b) - X(a)}" height="220" fill="${col}"/><text x="${(X(a) + X(b)) / 2}" y="44" text-anchor="middle" class="c80-s">${name}</text>`).join('')}
       ${[0, 25, 50, 75, 100].map(v => `<line x1="46" y1="${Y(v)}" x2="566" y2="${Y(v)}" class="c80-grid"/><text x="40" y="${Y(v) + 4}" text-anchor="end" class="c80-s">${v}</text>`).join('')}
       ${[1980, 1982, 1984, 1986, 1988, 1990].map(y => `<text x="${X(y)}" y="268" text-anchor="middle" class="c80-s">${y}</text>`).join('')}
       <line x1="46" y1="${Y(30)}" x2="566" y2="${Y(30)}" class="c80-danger"/><text x="564" y="${Y(30) - 5}" text-anchor="end" class="c80-s warn">ниже 30 — покровитель вас бросит</text>
-      ${fallen.map(([y, name], i) => `<g class="c80-fall"><line x1="${X(y)}" y1="56" x2="${X(y)}" y2="250"/><text x="${X(y) - 3}" y="${62 + (i % 3) * 13}" text-anchor="end" class="c80-s">${name}</text></g>`).join('')}
+      ${fallen.map(([y, name], i) => `<g class="c80-fall"><line x1="${X(y)}" y1="56" x2="${X(y)}" y2="250"/><text x="${X(y) - 3}" y="${62 + i * 13}" text-anchor="end" class="c80-s">${name}</text></g>`).join('')}
       <polyline points="${proj.join(' ')}" class="c80-proj"/>
       <polyline points="${pts}" class="c80-line"/>
       <circle cx="${X(t)}" cy="${Y(C.need)}" r="6" class="c80-now"/>
@@ -412,7 +423,8 @@ Object.assign(UI, {
     return `<p class="lede">Главный сюжет десятилетия — холодная война, которая кончается. Пока она горячая, покровитель (${esc(COUNTRIES[P].name)}) платит за верность и защищает от переворотов. С 1985 года вы нужны ему всё меньше: на барометре отмечены коллеги, которых бросили. Когда улица выйдет на площадь, исход решит армия — держите генералов при себе. А долги 1970-х дорожают: за столом с кредиторами каждый хочет своего.</p>
       <div class="cr">
         <section class="card cr-map-card"><div class="eyebrow">Барометр покровителя: ${esc(COUNTRIES[P].name)}</div>${chart}
-          <div class="legend"><span><i style="background:#ff3fa4"></i>нужность вам</span><span><i style="background:rgba(45,226,230,0.6)"></i>если ничего не делать</span><span><i style="background:rgba(255,194,61,0.7)"></i>кого бросили</span></div></section>
+          <div class="legend"><span><i style="background:#ff3fa4"></i>нужность вам</span><span><i style="background:rgba(45,226,230,0.6)"></i>если ничего не делать</span><span><i style="background:rgba(255,194,61,0.7)"></i>кого бросили</span></div>
+          <p class="muted small">Жёлтые отметки — настоящие союзники ${esc(COUNTRIES[P].name)}, которые потеряли власть, когда покровитель перестал за них держаться: ${fallenNote}. Ваша линия идёт по тому же графику.</p></section>
         <section class="card cr-side">
           ${UI.meter('Нужность покровителю', C.need, C.need >= 55 ? 'good' : C.need >= 30 ? 'warn' : 'bad')}
           ${UI.meter('Внешний долг', C.debt, C.debt >= 68 ? 'bad' : C.debt >= 45 ? 'warn' : 'good')}

@@ -127,6 +127,17 @@ Object.assign(Game, {
     else if (f === 'oligarchs') look = { ...base, hair: pick(['slick', 'bald', 'combover']), hat: pick(['top', 'fedora', 'none']), hatColor: '#222', mustache: pick(['walrus', 'handlebar', 'pencil']), glasses: pick(['monocle', 'none']), outfit: 'suit', outfitColor: '#1d1d22', tie: '#d6a63a', cigar: Math.random() < 0.5, blush: true };
     else look = { ...base, hair: pick(['slick', 'long', 'curly']), mustache: pick(['thick', 'none']), outfit: S.era === '1930' ? 'military' : 'hoodie', outfitColor: S.era === '1930' ? '#3f6b2e' : '#3a3a4a', glasses: S.era === '2000' ? 'square' : 'none' };
     if (f === 'faith') look = { ...look, brows: base.brows, mouth: base.mouth };
+    // Профсоюзник и номенклатура в соцлагере, крестьяне и горожане XIX века — без военной формы и цилиндров
+    if (f === 'left') {
+      const civ = { east80: { outfit: 'suit', outfitColor: pick(['#4a4a44', '#3a4048', '#5a4a3a']), tie: 'none', hat: 'none', beard: 'none', mustache: female ? 'none' : 'thick', cigar: false },
+        balkan05: { outfit: 'blouse', outfitColor: '#e8e0cc', hat: female ? 'none' : 'flatcap', cigar: false },
+        himal05: { outfit: 'robe', outfitColor: '#7a3a2a', trim: '#d6a63a', hat: 'none', cigar: false },
+        gulf05: { outfit: 'robe', outfitColor: '#e8e0cc', trim: '#8a6a3a', hat: female ? 'hijab' : 'keffiyeh', beard: female ? 'none' : 'full', cigar: false },
+        german48: { outfit: 'blouse', outfitColor: '#3a4a6a', hat: female ? 'none' : 'flatcap', cigar: false },
+        italy48: { outfit: 'blouse', outfitColor: '#5a3a2a', hat: female ? 'none' : 'flatcap', cigar: false } }[S.region];
+      if (civ) look = { ...look, ...civ };
+    }
+    if (f === 'oligarchs' && S.region === 'east80') look = { ...look, hat: 'none', glasses: pick(['square', 'none']), mustache: pick(['none', 'thick']), outfitColor: pick(['#3a3a3a', '#2a3040']), tie: pick(['#7a2a2a', '#3a3a5a']), cigar: false };
     if (S.era === '2000' && f !== 'faith') {
       const m = { hawks: { glasses: 'sport', bluetooth: Math.random() < 0.4 }, liberals: { outfit: pick(['suit2000', 'hoodie', 'polo']), shirt: '#dfe9f3', tie: 'none', glasses: pick(['rimless', 'square']), hair: pick(['gelled', 'short', 'buzz']) },
         oligarchs: { outfit: 'suit2000', shirt: pick(['#f4f1ea', '#1d1d22']), tie: pick(['none', '#d6a63a']), hat: 'none', glasses: pick(['rimless', 'sport', 'none']), bluetooth: true, hair: pick(['slick', 'bald', 'gelled']) },
