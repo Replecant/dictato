@@ -75,7 +75,7 @@ Object.assign(Game, {
 const _pDecree = Game.decree, _pEco = Game.economyAction, _pFac = Game.factionAction, _pCountry = Game.countryAction, _pFire = Game.fireAdvisor;
 Game.decree = (cat, id) => { const d = DECREES[cat].find(x => x.id === id); const r = _pDecree(cat, id); if (r && d) Game.pressAdd({ kind: 'decree', cat, id, name: decreePressName(id, d.name) }); return r; };
 Game.economyAction = id => { const a = Game.economyActions().find(x => x.id === id); const r = _pEco(id); if (r && a) Game.pressAdd({ kind: 'decree', cat: 'economy', id, name: a.name }); return r; };
-Game.factionAction = (f, act) => { const L = Game.leader(f).name; const r = _pFac(f, act); if (r && ['ban', 'legalize', 'arrest', 'coopt'].includes(act)) Game.pressAdd({ kind: 'faction', act, f, leader: L }); return r; };
+Game.factionAction = (f, act) => { const LL = Game.leader(f), L = LL.name, fem = isFemale(LL); const r = _pFac(f, act); if (r && ['ban', 'legalize', 'arrest', 'coopt'].includes(act)) Game.pressAdd({ kind: 'faction', act, f, leader: L, female: fem }); return r; };
 Game.countryAction = (c, act) => { const r = _pCountry(c, act); if (r && ['visit', 'friend', 'alliance', 'break', 'denounce', 'arms'].includes(act)) Game.pressAdd({ kind: 'diplo', act, c, text: r.text }); return r; };
 Game.fireAdvisor = role => { const old = S.adv[role].name; const r = _pFire(role); Game.pressAdd({ kind: 'cabinet', role, old, now: S.adv[role].name }); return r; };
 Game.applyHooks.push(fx => { if (fx.treaty) Game.pressAdd({ kind: 'diplo', act: 'treaty', c: fx.treaty.c }); });
@@ -98,7 +98,7 @@ Object.assign(UI, {
       } else if (it.kind === 'faction') {
         const nm = R.factions[it.f] ? R.factions[it.f].name : 'движение';
         if (it.act === 'ban') { off.push({ head: `Пресечена деятельность экстремистов: запрещено движение «${nm}»`, text: 'Граждане вздохнули с облегчением.' }); crit.push({ head: `Новый удар по свободе: запрещено движение «${nm}»`, text: 'Сторонники движения ушли в подполье и обещают вернуться.' }); foreign.push(`Власти запретили движение «${nm}». Правозащитники выражают тревогу.`); }
-        if (it.act === 'arrest') { off.push({ head: `Задержан опасный подстрекатель: ${it.leader}`, text: 'Следствие располагает неопровержимыми доказательствами.' }); crit.push({ head: `Арест лидера оппозиции (${it.leader}): политическая расправа?`, text: 'Адвокатов к задержанному не пускают.' }); foreign.push(`Арестован оппозиционный лидер ${it.leader}.`); }
+        if (it.act === 'arrest') { off.push({ head: it.female ? `Задержана опасная подстрекательница: ${it.leader}` : `Задержан опасный подстрекатель: ${it.leader}`, text: 'Следствие располагает неопровержимыми доказательствами.' }); crit.push({ head: `Арест лидера оппозиции (${it.leader}): политическая расправа?`, text: 'Адвокатов к задержанному не пускают.' }); foreign.push(`Арестован оппозиционный лидер ${it.leader}.`); }
         if (it.act === 'legalize') { off.push({ head: `Великодушие ${tg}: движение «${nm}» снова легально`, text: '' }); crit.push({ head: `Оттепель или ловушка? Движение «${nm}» разрешено`, text: '' }); }
         if (it.act === 'coopt') off.push({ head: `Правительство национального единства расширяется: в кабинете — представители «${nm}»`, text: '' });
       } else if (it.kind === 'diplo') {
@@ -187,13 +187,14 @@ Object.assign(UI, {
           <section class="np-vox"><h4>${site ? 'Опрос редакции' : 'Уличный опрос'}</h4><p class="np-q">${esc(VX.q)}</p>${VX.answers.map(a => `<p class="np-vox-a">${a.t[0] === '(' ? esc(a.t) : `«${esc(a.t)}»`}<span>— ${esc(a.who)}</span></p>`).join('')}</section>
           <section><h4>${site ? 'Звёзды и тусовка' : 'Светская хроника'}</h4>${PressGen.gossip(PressGen.rng(7)).map(t => `<p>${esc(t)}</p>`).join('')}
 </section>
-          <section class="np-horo"><h4>Гороскоп</h4>${PressGen.horoscope(PressGen.rng(9)).map(h => `<p><b>${h.s}.</b> ${esc(h.t)}</p>`).join('')}</section>
+          <section class="np-horo"><h4>Гороскоп</h4>${PressGen.horoscope(PressGen.rng(9)).slice(0, 3).map(h => `<p><b>${h.s}.</b> ${esc(h.t)}</p>`).join('')}${(() => { const c = PressAtmo.corner(PressGen.rng(17)); return `<h4>${c.h}</h4><p>${esc(c.t)}</p>`; })()}</section>
         </div>`;
     await Modal.open(`
       <div class="np ${site ? 'np-site' : ''}">
         <header class="np-mast">
           <div class="np-name">${esc(site ? offName + '.' + (S.region === 'mideast00' ? 'com' : 'net') : offName)}</div>
           <div class="np-line"><span>${site ? 'Государственный новостной портал' : 'Ежедневная газета · орган правительства'}</span><span>№ ${issue}</span><span>${date}</span></div>
+          <div class="np-quote">Мудрость дня: «${esc(PressAtmo.quote(PressGen.rng(18)))}» — ${esc(S.leader.title)} ${esc(S.leader.name)}</div>
         </header>
         <div class="np-grid">
           ${mainHtml}

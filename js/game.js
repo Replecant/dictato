@@ -80,7 +80,7 @@ const Game = {
     Object.assign(S.rel, R.relInit || {});
     for (const role of Object.keys(ROLES)) {
       const a = R.advisors[role];
-      S.adv[role] = { name: a.name, bio: a.bio, look: a.look, loy: Math.round(rnd(52, 72)), comp: 1, relative: false };
+      S.adv[role] = { name: a.name, bio: a.bio, look: a.look, loy: Math.round(rnd(52, 72)), comp: 1, relative: false, female: isFemale(a) };
     }
     Game.apply(T.fx); Game.apply({ fac: T.fac, rel: T.rel });
     S.treasury += DIFFICULTY[S.diff].treasury;
@@ -675,19 +675,19 @@ const Game = {
     const k = A.comp;
     if (act === 'gift') {
       fx = { treasury: -10, loy: { [role]: 15 } };
-      text = `${A.name}: в подарок — вилла у моря. Преданность заметно окрепла.`;
+      text = `${A.name} ${gnd(A, 'получил', 'получила')} в подарок виллу у моря. ${gnd(A, 'Его', 'Её')} преданность заметно окрепла.`;
     } else {
       Game.noteDeal('adv:' + role);
     }
     const kk = act === 'gift' ? k : k * [1, 1, 0.6, 0.35, 0.2][Math.min(Game.dealInfo('adv:' + role).n, 4)];
     if (act !== 'gift') switch (role) {
       case 'defense': fx = { treasury: -12, army: Math.round(8 * kk), support: 2, fac: { hawks: { a: 6 } } }; text = 'Военный парад! Танки, оркестр, вы на трибуне. Один танк заехал в фонтан, но это даже понравилось публике.'; break;
-      case 'economy': fx = { treasury: -15, economy: Math.round(4 * kk) }; text = `${A.name}: экономическая программа из 412 пунктов готова. Пункт 1: «Рынок».`; break;
+      case 'economy': fx = { treasury: -15, economy: Math.round(4 * kk) }; text = `${A.name} ${gnd(A, 'представил', 'представила')} экономическую программу из 412 пунктов. Пункт 1: «Рынок».`; break;
       case 'police': fx = { fear: 8, support: -4, fac: { left: { s: -5 * kk }, liberals: { s: -5 * kk } }, flag: { purged: S.turn } }; text = 'Ночная чистка. Утром в столице стало подозрительно тихо и вежливо.'; break;
       case 'propaganda': fx = { treasury: -8, support: Math.round((5 + S.fear / 20) * kk * (S.era === '2000' && !S.flags.trolls ? 1 - (S.net || 0) / 150 : 1)) }; text = 'Кампания «Отец Нации» запущена. Ваш портрет теперь есть даже на спичечных коробках.'; break;
       case 'foreign': {
         const rel = {}; for (const c of REGIONS[S.region].countries) rel[c] = Math.round(3 * kk);
-        fx = { treasury: -10, rel }; text = `${A.name} объехал полмира. Его фотография с каждым мировым лидером висит в вашем кабинете.`; break;
+        fx = { treasury: -10, rel }; text = `${A.name} ${gnd(A, 'объехал', 'объехала')} полмира. ${gnd(A, 'Его', 'Её')} фотография с каждым мировым лидером висит в вашем кабинете.`; break;
       }
     }
     const changes = Game.apply(fx);
@@ -703,10 +703,10 @@ const Game = {
     if (role === 'police') fx = { fear: -5 };
     if (role === 'propaganda') fx = { support: -2 };
     const relName = (RELATIVES_BY_STYLE[REGIONS[S.region].style] || RELATIVES_BY_STYLE.latam)[role];
-    S.adv[role] = { name: relName, bio: rel.bio, look: { ...(S.era === '2000' ? RELATIVE_LOOK_00 : RELATIVE_LOOK)[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true };
+    S.adv[role] = { name: relName, bio: rel.bio, look: { ...(S.era === '2000' ? RELATIVE_LOOK_00 : RELATIVE_LOOK)[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true, female: isFemale({ name: relName }) };
     if (A.relative) S.adv[role].name = relName + ' (снова)';
     const changes = Game.apply(fx);
-    const text = `${old}: отставка. Новый ${ROLES[role].title.toLowerCase()} — ${relName}. Семья — это надёжно.`;
+    const text = `${old} ${gnd(A, 'отправлен', 'отправлена')} в отставку. Новый ${ROLES[role].title.toLowerCase()} — ${relName}. Семья — это надёжно.`;
     Game.log(text);
     return { text, changes };
   },
@@ -866,10 +866,10 @@ const Game = {
   betrayalScene(role) {
     const A = S.adv[role];
     const variants = {
-      economy: { text: `${A.name}: исчезновение вместе с ключами от казначейства. Последний раз беглеца видели в аэропорту с чемоданом, на котором было написано «Рынок».`, fx: { treasury: -Math.min(25, Math.max(0, S.treasury)) } },
-      police: { text: `${A.name}: досье на вас продано иностранной разведке, а сам предатель уже за границей. Теперь где-то в мире знают, сколько у вас пар сапог.`, fx: { fear: -10, rel: { [pick(['usa', 'ussr'])]: -8 } } },
-      propaganda: { text: `${A.name}: побег в соседнюю страну и оппозиционное радио «Голос свободы».`, fx: { support: -6, fac: { liberals: { s: 6 } } } },
-      foreign: { text: `${A.name} попросил политического убежища в посольстве. Его новая книга называется «Я служил тирану (в стихах)».`, fx: { rel: { [pick(REGIONS[S.region].countries)]: -10 } } },
+      economy: { text: `${A.name} ${gnd(A, 'исчез', 'исчезла')} вместе с ключами от казначейства. Последний раз ${gnd(A, 'его', 'её')} видели в аэропорту с чемоданом, на котором было написано «Рынок».`, fx: { treasury: -Math.min(25, Math.max(0, S.treasury)) } },
+      police: { text: `${A.name} ${gnd(A, 'продал', 'продала')} досье на вас иностранной разведке и ${gnd(A, 'уехал', 'уехала')}. Теперь где-то в мире знают, сколько у вас пар сапог.`, fx: { fear: -10, rel: { [pick(['usa', 'ussr'])]: -8 } } },
+      propaganda: { text: `${A.name} ${gnd(A, 'сбежал', 'сбежала')} в соседнюю страну и ${gnd(A, 'запустил', 'запустила')} оппозиционное радио «Голос свободы».`, fx: { support: -6, fac: { liberals: { s: 6 } } } },
+      foreign: { text: `${A.name} ${gnd(A, 'попросил', 'попросила')} политического убежища в посольстве. ${gnd(A, 'Его', 'Её')} новая книга называется «Я ${gnd(A, 'служил', 'служила')} тирану (в стихах)».`, fx: { rel: { [pick(REGIONS[S.region].countries)]: -10 } } },
     }[role];
     return {
       title: 'Предательство!', bg: 'night',
