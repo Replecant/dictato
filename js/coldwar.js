@@ -84,8 +84,8 @@ Game.previewHooks.push((fx, out) => {
   if (fx.cwInt) for (const [s, d] of Object.entries(fx.cwInt)) out.push({ icon: '🎯', d, label: `Интерес: ${SIDE[s].name}`, text: `интерес ${SIDE[s].name} ${sign(d)}` });
   if (fx.cwSus) for (const [s, d] of Object.entries(fx.cwSus)) out.push({ icon: '🗂️', d: -d, label: `Досье ${SIDE[s].spy}`, text: `досье ${SIDE[s].spy} ${sign(d)}` });
 });
-Game.coupHooks.push(() => (S.era === '1960' ? Game.cw().sus.us / 100 * 0.12 : 0));
-Game.revHooks.push(() => (S.era === '1960' ? Game.cw().sus.su / 100 * 0.08 : 0));
+Game.coupHooks.push(() => (S.era === '1960' ? Math.max(0, Game.cw().sus.us - 30) / 70 * 0.18 : 0));
+Game.revHooks.push(() => (S.era === '1960' ? Math.max(0, Game.cw().sus.su - 30) / 70 * 0.12 : 0));
 Game.quarterHooks.push(rep => {
   if (S.era !== '1960') return;
   const W = Game.cw();
@@ -97,8 +97,8 @@ Game.quarterHooks.push(rep => {
   W.sus.us = clamp(W.sus.us + (lean < -15 ? 2.5 : -1.2));
   W.sus.su = clamp(W.sus.su + (lean > 15 ? 2.5 : -1.2));
   S.fac.left.s = clamp(S.fac.left.s + W.sus.su / 100 * 1.2);
-  if (W.sus.us > 60) rep.warn.push('Досье ЦРУ на вас толще телефонного справочника. В посольстве США зачастили полковники.');
-  if (W.sus.su > 60) rep.warn.push('Досье КГБ на вас растёт. У партизан в горах появились новые автоматы.');
+  if (W.sus.us > 50) rep.warn.push(`Досье ЦРУ: ${Math.round(W.sus.us)}. В посольстве США зачастили полковники.${W.sus.us >= 65 ? ' Готовится заговор.' : ''}`);
+  if (W.sus.su > 50) rep.warn.push(`Досье КГБ: ${Math.round(W.sus.su)}. У партизан в горах появились новые автоматы.${W.sus.su >= 65 ? ' Москва готова вооружить их всерьёз.' : ''}`);
   if (W.neigh.length && Math.random() < 0.18) {
     const n = pick(W.neigh), sides = ['us', 'su', 'nam'].filter(x => x !== n.side), ns = pick(sides);
     n.side = ns;
@@ -124,7 +124,8 @@ Object.assign(UI, {
     };
     const sideName = { us: 'за Вашингтон', su: 'за Москву', nam: 'неприсоединение' };
     const acts = Game.cwActions();
-    return `<p class="lede">Сверхдержавы торгуются за третий мир. Чем меньше вы склоняетесь к одной стороне, тем выше интерес обеих и тем больше они платят. Если склониться слишком сильно, разведка другой стороны начнёт готовить вам замену.</p>
+    const nd = W.nextDemarche !== undefined ? Math.max(0, W.nextDemarche - S.turn) : null;
+    return `<p class="lede"><b>Послы сверхдержав приходят сами</b> раз в 3–5 кварталов с требованием${nd !== null ? ` (следующего визита ждите ${nd <= 1 ? "уже скоро" : `примерно через ${nd} кв.`})` : ""}. Отказ злит разведку этой стороны. Досье выше 65 — это заговор ЦРУ в армии или советское оружие у партизан. Сверхдержавы торгуются за третий мир. Чем меньше вы склоняетесь к одной стороне, тем выше интерес обеих и тем больше они платят. Если склониться слишком сильно, разведка другой стороны начнёт готовить вам замену.</p>
       <div class="cw">${col('us')}${col('su')}</div>
       <section class="card"><div class="eyebrow">Соседи по региону</div><div class="cw-neigh">${W.neigh.map(n => `<span class="chip ${n.side === 'us' ? 'west' : n.side === 'su' ? 'east' : 'neutral'}">${esc(n.name)}: ${sideName[n.side]}</span>`).join('')}</div>
         <p class="muted small">Когда соседи переходят к Москве, растёт интерес Вашингтона к вам, и наоборот.</p></section>
@@ -138,4 +139,109 @@ UI.actionHandlers.push(id => {
   if (out && out.scene) { if (S.ap > 0) VN.play(out.scene).then(() => UI.render()); return true; }
   if (out) { UI.render(); UI.toast(out.text, out.changes); }
   return true;
+});
+
+// ===== Давление сверхдержав: демарши послов, отказ злит разведку, толстое досье ведёт к эскалации =====
+const CW_DEMANDS = {
+  us: [
+    { id: 'raid', text: 'Провести облаву на коммунистов', say: 'Вашингтон обеспокоен красными ячейками в ваших профсоюзах. Мы ждём решительных шагов. До конца месяца.', cond: () => S.fac.left.st !== 'banned',
+      fx: { fear: 4, fac: { left: { s: -8, a: -20 } }, rel: { usa: 10, ussr: -6 }, cwSus: { us: -15, su: 6 } } },
+    { id: 'expel', text: 'Выслать советских «атташе»', say: 'В советском посольстве сорок «атташе по культуре». Ни один не знает, где у вас театр. Вышлите хотя бы половину.',
+      fx: { rel: { usa: 8, ussr: -12 }, cwSus: { us: -12, su: 10 } } },
+    { id: 'company', text: 'Вернуть льготы американским компаниям', say: '{company} жалуется на новые налоги. Американский бизнес — лучший друг вашей страны. Не обижайте друзей.',
+      fx: { treasury: -6, economy: 2, rel: { usa: 8 }, fac: { left: { a: -5 }, oligarchs: { a: 4 } }, cwSus: { us: -12 } } },
+    { id: 'u2', text: 'Пустить разведывательные самолёты на ваш аэродром', say: 'Нашим самолётам нужна взлётная полоса. Ненадолго. Они будут летать очень высоко, вы их даже не заметите.',
+      fx: { treasury: 6, rel: { usa: 8, ussr: -10 }, cwSus: { us: -12, su: 12 } } },
+    { id: 'vote', text: 'Голосовать с США в ООН по Кубе', say: 'На Генеральной ассамблее голосуют о Кубе. Мы рассчитываем на ваш голос. Мы его, можно сказать, уже посчитали.',
+      fx: { rel: { usa: 7, ussr: -5, cuba: -8 }, cwSus: { us: -10 }, fac: { left: { a: -3 } } } },
+  ],
+  su: [
+    { id: 'advisers', text: 'Принять советских военных советников', say: 'Ваша армия воюет устаревшим оружием. Наши советники помогут. Бесплатно. Почти.',
+      fx: { army: 4, rel: { ussr: 10, usa: -6 }, cwSus: { su: -15, us: 10 }, fac: { left: { a: 4 }, hawks: { a: -3 } } } },
+    { id: 'release', text: 'Освободить арестованных коммунистов', say: 'В ваших тюрьмах сидят прогрессивные товарищи. Советская общественность возмущена. Очень возмущена.',
+      fx: { fear: -3, rel: { ussr: 8 }, fac: { left: { a: 10, s: 4 } }, cwSus: { su: -12, us: 6 } } },
+    { id: 'cuba', text: 'Открыть посольство Кубы и наладить с ней торговлю', say: 'Остров Свободы ищет друзей. Будьте другом. Сахар, сигары, революционный энтузиазм.',
+      fx: { rel: { ussr: 8, cuba: 10, usa: -8 }, cwSus: { su: -12, us: 8 } } },
+    { id: 'trawlers', text: 'Пустить советские траулеры в порт', say: 'Наши рыбаки устали. Им нужен порт, вода и немного покоя. Антенны на мачтах — для прогноза погоды.',
+      fx: { treasury: 4, rel: { ussr: 7, usa: -4 }, cwSus: { su: -12, us: 10 } } },
+    { id: 'radio', text: 'Закрыть антисоветскую радиостанцию', say: 'Из вашей страны вещает «Радио Свободная Азия» или как его там. Клевета на социализм в каждом выпуске. Закройте.',
+      fx: { rel: { ussr: 7, usa: -4 }, fac: { liberals: { a: -4 } }, cwSus: { su: -10 } } },
+  ],
+};
+const CW_OTHER = { us: 'su', su: 'us' };
+Object.assign(Game, {
+  cwDemarcheScene() {
+    const W = Game.cw();
+    const lean = (S.rel.usa || 0) - (S.rel.ussr || 0);
+    // чаще приходит та держава, от которой вы отдаляетесь
+    const pUS = clamp(50 - lean * 0.8, 20, 80) / 100;
+    const s = Math.random() < pUS ? 'us' : 'su', o = CW_OTHER[s], C = SIDE[s];
+    const list = CW_DEMANDS[s].filter(d => (!d.cond || d.cond()) && d.id !== W.lastDemand);
+    const d = pick(list);
+    W.lastDemand = d.id;
+    const amb = s === 'us' ? 'npc:usa_amb' : 'npc:ussr_amb';
+    const refuse = { rel: { [C.c]: -8 }, cwSus: { [s]: 14 }, schedule: [{ in: 2, fx: s === 'us' ? { fac: { hawks: { a: -6 } }, army: -3 } : { fac: { left: { s: 6 } } }, text: s === 'us' ? 'Американские военные атташе зачастили в офицерский клуб. Генералы стали задумчивее.' : 'У партизан в горах появились новенькие автоматы Калашникова.' }] };
+    const bargainP = clamp(0.3 + S.adv.foreign.comp * 0.2 + W.int[s] / 300, 0.2, 0.8);
+    const choices = [
+      { text: `Согласиться: ${d.text[0].toLowerCase() + d.text.slice(1)}`, fx: d.fx, res: `${C.who} доволен. Посол пожимает вам руку чуть дольше обычного. В ${o === 'us' ? 'Вашингтоне' : 'Москве'} это тоже заметили.` },
+      { text: 'Поторговаться: «Что мы получим взамен?»', adv: ['foreign'], chance: () => bargainP,
+        win: { fx: { ...d.fx, treasury: (d.fx.treasury || 0) + 8 }, res: `${C.who} уступил: просьба выполнена, а в казну пришли восемь миллионов «на развитие дружбы».` },
+        lose: { fx: { rel: { [C.c]: -5 }, cwSus: { [s]: 8 } }, res: 'Посол холодно ответил, что друзья не торгуются, и ушёл, не допив кофе.' } },
+      { text: 'Вежливо отказать', fx: refuse, res: `Посол записал ваш ответ в блокнот. Досье ${C.spy} пополнилось новой страницей.` },
+    ];
+    if (W.int[o] >= 40) choices.push({ text: `Пожаловаться ${o === 'us' ? 'Вашингтону' : 'Москве'} на давление`, fx: { rel: { [SIDE[o].c]: 5, [C.c]: -6 }, cwInt: { [o]: 6 }, cwSus: { [s]: 10, [o]: -6 } }, res: `${SIDE[o].who} выразил сочувствие и пообещал «не оставить друзей в беде». ${C.who} понял, кому вы жалуетесь.` });
+    return {
+      title: `Демарш: ${C.name}`, bg: 'office',
+      lines: [
+        ['narrator', `Без предупреждения во дворец приезжает посол ${s === 'us' ? 'США' : 'СССР'}. Охрана не решилась его задержать.`],
+        [amb, d.say],
+        ['foreign', s === 'us' ? 'Если отказать, ЦРУ начнёт присматриваться к нашим генералам. Если согласиться, Москва это запомнит.' : 'Если отказать, КГБ найдёт друзей в горах. Если согласиться, Вашингтон пересчитает нашу помощь.'],
+      ],
+      choices,
+    };
+  },
+  cwCrisisScene(s) {
+    const C = SIDE[s];
+    if (s === 'us') return {
+      title: 'Заговор в офицерском клубе', bg: 'night',
+      lines: [
+        ['police', 'Полковники собираются по ночам с человеком из американского посольства. Говорят о «спасении нации». Без вас.'],
+        ['npc:colonel', '(перехваченная записка) «Сигнал — когда Вашингтон скажет. Танки готовы, послы предупреждены».'],
+        ['defense', 'Половина штаба ждёт, кто окажется сильнее. Решайте быстро.'],
+      ],
+      choices: [
+        { text: 'Арестовать заговорщиков', adv: ['police'], chance: () => clamp(0.35 + S.adv.police.comp * 0.2 + S.fear / 300, 0.2, 0.85),
+          win: { fx: { army: -5, fear: 5, fac: { hawks: { a: -8 } }, cwSus: { us: -10 } }, res: 'Ночью полковников взяли в их же клубе. Посольство США выразило «удивление».' },
+          lose: { fx: { army: -10, support: -4, fac: { hawks: { s: 6, a: -10 } }, cwSus: { us: 8 } }, res: 'Кто-то предупредил заговорщиков. Они ушли к своим полкам. Танки пока стоят в казармах. Пока.' } },
+        { text: 'Срочно помириться с Вашингтоном', fx: { treasury: -10, rel: { usa: 12, ussr: -10 }, cwSus: { us: -30, su: 10 }, fac: { left: { a: -6 } } }, res: 'Выгодный контракт американской компании, ужин с послом — и заговорщики вдруг вспомнили о присяге.' },
+        { text: 'Попросить у Москвы охрану для дворца', fx: { army: 4, rel: { ussr: 10, usa: -12 }, cwSus: { us: 12, su: -10 }, fac: { hawks: { a: -8 }, left: { a: 6 } } }, res: 'Дворец охраняют советские «инструкторы». Генералы обижены, ЦРУ в бешенстве, но танки не выйдут, пока у ворот стоят русские.' },
+      ],
+    };
+    return {
+      title: 'Партизаны с советским оружием', bg: 'jungle',
+      lines: [
+        ['defense', 'Партизаны в горах получили новые автоматы, миномёты и инструкторов. Вчера взяли два уездных города.'],
+        ['police', 'Ящики пришли морем, через рыбацкие деревни. На ящиках — «сельхозтехника».'],
+        ['npc:usa_amb', 'Соединённые Штаты готовы помочь. Вертолёты, советники, деньги. Если вы наконец определитесь, на чьей вы стороне.'],
+      ],
+      choices: [
+        { text: 'Бросить армию в горы', adv: ['defense'], chance: () => clamp(0.3 + S.army / 200, 0.2, 0.8),
+          win: { fx: { treasury: -8, army: 3, fac: { left: { s: -12 } }, cwSus: { su: -6 } }, res: 'После трёх месяцев боёв партизаны ушли за границу. Армия празднует, крестьяне в горах хоронят погибших.' },
+          lose: { fx: { treasury: -8, army: -8, support: -4, fac: { left: { s: 4 } } }, res: 'Армия завязла в горах. Партизаны пропускают колонны и нападают на обозы.' } },
+        { text: 'Договориться с Москвой', fx: { rel: { ussr: 12, usa: -8 }, cwSus: { su: -30, us: 10 }, fac: { left: { a: 8 } } }, res: 'Советский посол пообещал, что «сельхозтехника» больше не поплывёт. Партизаны внезапно остались без патронов.' },
+        { text: 'Принять американскую помощь', fx: { army: 6, treasury: 8, rel: { usa: 12, ussr: -12 }, cwSus: { su: 12, us: -12 }, fac: { left: { a: -8 } } }, res: 'Над горами летают американские вертолёты. Партизаны называют вас «марионеткой янки», но патроны у них кончаются.' },
+      ],
+    };
+  },
+});
+Game.forcedList.push(() => {
+  if (S.era !== '1960' || S.over) return null;
+  const W = Game.cw();
+  if (W.nextDemarche === undefined) W.nextDemarche = 2 + Math.floor(Math.random() * 2);
+  W.crisisAt = W.crisisAt || { us: -99, su: -99 };
+  // эскалация при толстом досье — раньше демарша
+  for (const s of ['us', 'su']) if (W.sus[s] >= 65 && S.turn - W.crisisAt[s] >= 6 && S.turn >= 3) { W.crisisAt[s] = S.turn; return Game.cwCrisisScene(s); }
+  if (S.turn < W.nextDemarche) return null;
+  W.nextDemarche = S.turn + 3 + Math.floor(Math.random() * 3);
+  return Game.cwDemarcheScene();
 });

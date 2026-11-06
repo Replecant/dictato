@@ -706,3 +706,4 @@ body[data-era="1960"] .choice:hover:not(:disabled), body[data-era="1960"] .choic
 body[data-era="1960"] .toast { border-radius: 14px; border-left-color: var(--teal); }
 body[data-era="1960"] .tip-card { background: linear-gradient(180deg, #f6ead0, #e9d8ae); color: var(--ink); border-color: rgba(240, 166, 48, 0.4); }
 body[data-era="1960"] .tip-card .eyebrow { color: #7a5a1a; }
+.tabs button.alert::after { content: "!"; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 6px; border-radius: 50%; background: var(--red); color: #fff; font: 700 11px/1 var(--f-mono); vertical-align: 1px; }

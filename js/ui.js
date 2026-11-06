@@ -278,6 +278,8 @@ const UI = {
     const eraTabs = { coldwar: '1960', war: '1930' };
     if (eraTabs[UI.tab] && eraTabs[UI.tab] !== S.era) UI.tab = 'cabinet';
     for (const b of document.querySelectorAll('.tabs button')) { b.hidden = !!eraTabs[b.dataset.tab] && eraTabs[b.dataset.tab] !== S.era; b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
+    const cwb = document.querySelector('.tabs button[data-tab="coldwar"]');
+    if (cwb) cwb.classList.toggle('alert', S.era === '1960' && !!S.cw && Math.max(S.cw.sus.us, S.cw.sus.su) >= 50);
     $('#btn-end').disabled = S.phase !== 'hub';
     $('#btn-end').textContent = S.turn >= LAST_TURN ? `Встретить ${ERAS[S.era].start + 10} год` : 'Завершить квартал';
     const body = $('#tab-body');
