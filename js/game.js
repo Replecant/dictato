@@ -58,6 +58,7 @@ const Game = {
     return { name: 'Счёт в Швейцарии', short: 'В Швейцарии', to: 'Цюрих', at: 'в Швейцарии', acc: 'ваш счёт в Швейцарии', ins: 'счётом в Швейцарии', dat: 'швейцарскому счёту' };
   },
   // Режим с учётом региональной версии (в Латинской Америке 1840-х у режимов свои названия)
+  noFemaleMinisters() { return ['1848', '1905', '1930'].includes(S.era); },
   regimeDef(k, region) { const T = REGIME_TYPES[k], rg = region || (S && S.region); return T.byRegion && T.byRegion[rg] ? { ...T, ...T.byRegion[rg] } : T; },
   apTurn() { return Game.diff().ap; },
 
@@ -733,8 +734,20 @@ const Game = {
     if (role === 'defense') fx = { army: -5, fac: { hawks: { a: -10 } } };
     if (role === 'police') fx = { fear: -5 };
     if (role === 'propaganda') fx = { support: -2 };
-    const relName = (RELATIVES_BY_STYLE[REGIONS[S.region].style] || RELATIVES_BY_STYLE.latam)[role];
-    S.adv[role] = { name: relName, bio: rel.bio, look: { ...(S.era === '2000' ? RELATIVE_LOOK_00 : RELATIVE_LOOK)[role], skin: SKIN[REGIONS[S.region].leaderSkin] }, loy: 85, comp: rel.comp, relative: true, female: isFemale({ name: relName }) };
+    let relName = (RELATIVES_BY_STYLE[REGIONS[S.region].style] || RELATIVES_BY_STYLE.latam)[role];
+    let relLook = { ...(S.era === '2000' ? RELATIVE_LOOK_00 : RELATIVE_LOOK)[role], skin: SKIN[REGIONS[S.region].leaderSkin] };
+    // до Второй мировой женщина-министр невозможна: тётушку заменяет дядюшка
+    if (Game.noFemaleMinisters() && isFemale({ name: relName })) {
+      const pool = NAME_POOLS[S.region] || NAME_POOLS[REGIONS[S.region].style] || NAME_POOLS.latam;
+      relName = 'Дядюшка ' + pick(pool.m);
+      relLook = { ...relLook, hair: 'combover', mustache: 'thick', earring: false, hat: 'none', outfit: 'suit', tie: '#2a2a2a', glasses: 'round' };
+    }
+    const eraBio = { '1848': { defense: 'Ваш кузен. Служил в гвардии две недели, но мундир сидит отлично.', economy: 'Брат вашей жены. Однажды выиграл в лотерею и с тех пор считает себя финансистом.', propaganda: 'Пишет стихи в альбомы барышням и разбирается в лошадях. Очень громкий.' },
+      '1905': { propaganda: 'Заводит граммофон на полную громкость и разбирается в автомобилях. Очень громкий.' },
+      '1930': { propaganda: 'Поёт в кабаре и разбирается в аэропланах. Очень громкий.' } }[S.era] || {};
+    let relBio = eraBio[role] || rel.bio;
+    if (!isFemale({ name: relName })) relBio = relBio.replace('полиция ей,', 'полиция ему,');
+    S.adv[role] = { name: relName, bio: relBio, look: relLook, loy: 85, comp: rel.comp, relative: true, female: isFemale({ name: relName }) };
     if (A.relative) S.adv[role].name = relName + ' (снова)';
     const changes = Game.apply(fx);
     const text = `${old} ${gnd(A, 'отправлен', 'отправлена')} в отставку. Новый ${ROLES[role].title.toLowerCase()} — ${relName}. Семья — это надёжно.`;

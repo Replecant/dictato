@@ -172,7 +172,7 @@ Object.assign(REGION_TALK, {
   himal05: { addr: 'драгоценный владыка', sir: 'господин', lady: 'госпожа', holiday_acc: 'Лосар', holiday_dat: 'Лосару', gringo: 'эти сахибы', rebel_icon: 'знамя горных разбойников', kaiser_friends: 'всех народов Азии', haven: 'Дарджилинг', exileTo: 'Дарджилинг', canteen: 'цампу с чаем', fruit_adj: 'Ячий', locale: 'Гималаев', pay_in_kind: 'Брикетами чая.', vegas: 'игра в кости у караван-сарая', rebel: 'Вожак горных разбойников', meeting: 'в караван-сарае' },
 });
 Object.assign(RELATIVES_BY_STYLE, {
-  himal: { defense: 'Кузен Пема', economy: 'Шурин Норбу', police: 'Тётушка Долма', propaganda: 'Племянник Таши', foreign: 'Зять Ринчен', abroad: 'в Дарджилинге' },
+  himal: { defense: 'Кузен Пема', economy: 'Шурин Норбу', police: 'Дядюшка Дордже', propaganda: 'Племянник Таши', foreign: 'Зять Ринчен', abroad: 'в Дарджилинге' },
 });
 
 ERAS['1905'] = {

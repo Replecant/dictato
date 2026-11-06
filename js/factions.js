@@ -34,6 +34,8 @@ const FAC_RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: [
 const DEFAULT_PILLARS = { junta: ['hawks', 'oligarchs'], revolution: ['left', 'liberals'], western: ['oligarchs', 'hawks'], putsch: ['hawks', 'oligarchs'], estado: ['faith', 'oligarchs'], front: ['left', 'liberals'], heir: ['oligarchs', 'hawks'], reformer: ['liberals', 'oligarchs'], strongman: ['hawks', 'faith'] };
 
 // Новые движения, которые появляются по ходу десятилетия
+// Таблицы для эпох: LEADER_STYLE[регион][движение] = { title: строка | (female) => строка, look: {...} | (female) => {...} }
+const LEADER_STYLE = {};
 const NEW_FACTIONS = {
   '1930': { name: 'Зелёные рубашки', short: 'Рубашки', icon: '🟩', desc: 'Ультранационалисты в одинаковых рубашках. Маршируют, поют и считают, что вы слишком мягкий. Дружат с офицерами.', rivals: ['left', 'liberals'], risk: 'coup', appear: S => S.year >= 1933, intro: 'По столице прошёл первый марш молодчиков в зелёных рубашках. У них есть вождь, барабаны и большие планы на вашу должность.' },
   '1960': { name: 'Новые левые и хиппи', short: 'Хиппи', icon: '☮️', desc: 'Студенты с гитарами, длинными волосами и цитатами Маркузе. Против войны, против денег, против вас. Но в основном — за музыку.', rivals: ['oligarchs', 'faith', 'hawks'], risk: 'rev', appear: S => S.year >= 1966, intro: 'В кампусах появилось новое движение: длинные волосы, гитары, лозунги «Занимайтесь любовью, а не войной». Ваши генералы не понимают, что это такое.' },
@@ -152,7 +154,13 @@ Object.assign(Game, {
         new: { outfit: 'hoodie', glasses: pick(['square', 'rimless']), hair: pick(['gelled', 'long', 'buzz']), bluetooth: Math.random() < 0.5 } }[f] || {};
       look = { ...look, ...m };
     }
-    return { name: `${title} ${first} ${last}`, last: base0, trait, look, since: S.turn, female };
+    const LS = (LEADER_STYLE[S.region] || {})[f];
+    let ttl = title;
+    if (LS) {
+      if (LS.title) ttl = typeof LS.title === 'function' ? LS.title(female) : LS.title;
+      if (LS.look) look = { ...look, ...(typeof LS.look === 'function' ? LS.look(female) : LS.look) };
+    }
+    return { name: `${ttl} ${first} ${last}`, last: base0, trait, look, since: S.turn, female };
   },
   leader(f) { const st = Game.facState(f); if (!st.leader) st.leader = Game.makeLeader(f); return st.leader; },
   trait(f) { return LEADER_TRAITS[Game.leader(f).trait]; },
@@ -207,7 +215,7 @@ Object.assign(Game, {
     if (L.trait === 'vain') acts.push({ id: 'medal', name: 'Наградить орденом', cost: '−2 млн', ok: S.treasury >= 2 });
     if (L.trait === 'coward') acts.push({ id: 'scare', name: 'Припугнуть лидера', cost: 'страх ↑', ok: true });
     if (F.st === 'legal') acts.push({ id: 'coopt', name: 'Места в правительстве', cost: `одобрение ≥ ${T.coopt}`, ok: F.a >= T.coopt });
-    if (F.st !== 'banned') acts.push({ id: 'hire', name: 'Сделать лидера министром', cost: `одобрение ≥ ${T.coopt + 10}`, ok: F.a >= T.coopt + 10 });
+    if (F.st !== 'banned') acts.push(L.female && Game.noFemaleMinisters() ? { id: 'hire', name: 'Сделать лидера министром', cost: 'женщину министром не утвердят', ok: false } : { id: 'hire', name: 'Сделать лидера министром', cost: `одобрение ≥ ${T.coopt + 10}`, ok: F.a >= T.coopt + 10 });
     if (F.st !== 'banned') acts.push({ id: 'ban', name: 'Запретить', cost: 'страх ↑', ok: true, danger: true });
     else acts.push({ id: 'legalize', name: 'Легализовать', cost: '', ok: true });
     acts.push({ id: 'arrest', name: 'Арестовать лидера', cost: `мученик ${Math.round(T.martyr * 100)}%`, ok: true, danger: true });

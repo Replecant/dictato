@@ -119,7 +119,7 @@ Object.assign(REGIONS, {
       economy: { name: 'Банкир Амброджо Ротонди', bio: 'Одалживает деньги вам, вашим врагам и папе римскому. Всем под разный процент, но всегда под хороший.', look: L48({ skin: SKIN.tan, face: 'round', hair: 'baldside', hairColor: '#555', mustache: 'walrus', brows: 'worried', mouth: 'smirk', outfit: 'frock', outfitColor: '#3a2e22', vest: '#d6a63a', tie: '#111', blush: true }) },
       police: { name: 'Комиссар Нерино Сбирро', bio: 'Его осведомители переодеты монахами, торговцами каштанами и уличными певцами. Певцы, к сожалению, поют.', look: L48({ skin: SKIN.tan, face: 'long', hair: 'slick', hairColor: '#111', mustache: 'pencil', beard: 'imperial', brows: 'angry', mouth: 'smirk', hat: 'slouch', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#141416', vest: '#141416', tie: '#111' }) },
       propaganda: { name: 'Маэстро Россано Фанфарелли', bio: 'Сочиняет оперы, где тиран всегда раскаивается в третьем акте. Публика аплодирует, но почему-то громче всего — хору рабов.', look: L48({ skin: SKIN.tan, face: 'oval', hair: 'romantic', hairColor: '#2b1b10', beard: 'chinstrap', brows: 'normal', mouth: 'grin', outfit: 'frock', outfitColor: '#1f2a44', vest: '#c1272d', tie: '#f4f1ea' }) },
-      foreign: { name: 'Княгиня Клелия ди Сан-Мартелло', female: true, bio: 'Держит салон в Париже, где за одним столом обедают министры, заговорщики и поэты. Иногда это одни и те же люди.', look: L48({ skin: SKIN.light, face: 'oval', hair: 'bun', hairColor: '#1a1210', brows: 'normal', mouth: 'smile', outfit: 'gown', outfitColor: '#2a2a40', trim: '#f4f1ea', earring: true }) },
+      foreign: { name: 'Князь Клементе ди Сан-Мартелло', bio: 'Держит салон в Париже, где за одним столом обедают министры, заговорщики и поэты. Иногда это одни и те же люди.', look: L48({ skin: SKIN.light, face: 'oval', hair: 'slick', hairColor: '#1a1210', mustache: 'pencil', beard: 'sideburns', brows: 'normal', mouth: 'smile', glasses: 'pince', outfit: 'frock', outfitColor: '#2a2a40', vest: '#f4f1ea', tie: '#111' }) },
     },
   },
   latam48: {
@@ -175,8 +175,8 @@ Object.assign(FAITH_TALK, {
   protestant: { priest_open: 'Брат во Христе... Простите, {addr}.', heavens: 'небесам', faith_quip: 'Господь не голосует. Но паства читает Библию — и газеты.', sermon: 'воскресной проповеди', faith_appeal: 'Я напишу в консисторию... и скажу об этом с кафедры.', temple_loc: 'в кирхе', righteous: 'Консистория называет вас «благочестивым государем»' },
 });
 Object.assign(RELATIVES_BY_STYLE, {
-  german: { defense: 'Кузен Отто', economy: 'Шурин Бенедикт', police: 'Тётушка Августа', propaganda: 'Племянник Вилли', foreign: 'Зять Леопольд', abroad: 'в Баден-Бадене' },
-  italy: { defense: 'Кузен Томмазо', economy: 'Шурин Бенедетто', police: 'Тётушка Ассунта', propaganda: 'Племянник Нино', foreign: 'Зять Оттавио', abroad: 'в Ницце' },
+  german: { defense: 'Кузен Отто', economy: 'Шурин Бенедикт', police: 'Дядюшка Август', propaganda: 'Племянник Вилли', foreign: 'Зять Леопольд', abroad: 'в Баден-Бадене' },
+  italy: { defense: 'Кузен Томмазо', economy: 'Шурин Бенедетто', police: 'Дядюшка Ассунто', propaganda: 'Племянник Нино', foreign: 'Зять Оттавио', abroad: 'в Ницце' },
 });
 const RELATIVE_LOOK_48 = {
   defense: { face: 'round', hair: 'curly', hairColor: '#2b2118', hat: 'shako', hatColor: '#1a1a1a', plume: '#c1272d', mustache: 'waxed', brows: 'normal', mouth: 'grin', outfit: 'uniform48', outfitColor: '#2a3a6a', collar: '#d6a63a', medals: 3 },

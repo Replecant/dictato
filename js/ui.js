@@ -129,6 +129,7 @@ const UI = {
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
       st.look.beard = 'none'; if (st.look.hair === 'romantic') st.look.hair = 'short';
       Object.assign(st.look, REGIME_LOOKS[st.regime]);
+      regimeTitle();
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-region]')) b.onclick = () => {
@@ -143,6 +144,10 @@ const UI = {
     // Титул по режиму (1980-е: команданте, председатель...) и региональный облик (халат и куфия в Заливе) не сбрасываются при смене режима
     const regimeTitle = () => {
       if (st.era === '1980' && typeof REGIME_TITLE_80 !== 'undefined') st.title = (REGIME_TITLE_80[st.region] || {})[st.regime] || REGION_TITLES[st.region][0];
+      const RT = (typeof REGIME_TITLES !== 'undefined' && REGIME_TITLES[st.region]) || {};
+      if (RT[st.regime]) st.title = RT[st.regime];
+      const RL = (typeof REGIME_SETUP_LOOK !== 'undefined' && REGIME_SETUP_LOOK[st.region]) || {};
+      if (RL[st.regime]) Object.assign(st.look, RL[st.regime]);
       if (st.era === '1848' && st.region === 'latam48') st.title = { crown: 'Восстановитель Законов', charter: 'Президент', general: 'Генерал-Президент' }[st.regime] || st.title;
       // революционный команданте — в оливковой форме, председатель народной республики — во френче
       if (st.era === '1980' && st.regime === 'party80' && st.region === 'latam80') Object.assign(st.look, { outfit: 'military', outfitColor: '#556b2f', hat: 'beret', hatColor: '#2a2a2a', tie: 'none', medals: 0, glasses: 'none', beard: 'full', mustache: 'thick', hair: 'curly' });
@@ -217,6 +222,8 @@ const UI = {
       east80: { party80: 'Добро пожаловать в кабинет, {addr}. Ваш предшественник руководил партией восемнадцать лет и ушёл на пенсию «по состоянию здоровья». У нас это главная причина отставок.', junta80: 'Прежнее руководство ушло в отставку вчера вечером, {addr}. Пленум поддержал Военный совет единогласно — после того, как в зал вошли танкисты.' },
       himal05: { throne05: 'Ваше прежнее перерождение правило тридцать лет, {addr}. Монастыри надеются, что нынешнее не уступит.', officers05: 'Владыка спит, {addr}, наставники при нём, караул удвоен. Прежний регент продержался два года. Давайте побьём его рекорд.', reform05: 'Ваш отец правил тридцать лет, {addr}, и ни разу не видел телеграфа. Монастыри просят, чтобы и вы не увидели.' },
     }[S.region];
+    const W = (typeof WELCOME_LINES !== 'undefined' && WELCOME_LINES[S.region]) || {};
+    if (W[S.regime]) return W[S.regime];
     if (R && R[S.regime]) return R[S.regime];
     if (R && S.region === 'latam48') return def;
     return L[S.regime] || def;
