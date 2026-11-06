@@ -3,17 +3,38 @@ const CR_REGION = {
   africa00: {
     tab: 'Улица и выборы', square: 'площадь Независимости', squareLoc: 'площади Независимости', leaderRole: 'мэр столицы, бывший диджей', ally: 'sa', allyName: 'ЮАР и миротворцы региона',
     colors: [['Революция жёлтых шарфов', '#e0b020'], ['Революция вувузел', '#e06a20'], ['Мобильная революция', '#2a9a5a'], ['Революция красных беретов', '#c0392b']],
-    neigh: [['Северная Луэна', 470, 70], ['Республика Мбанза', 150, 80], ['Федерация Кивалу', 520, 220], ['Республика Нголо', 90, 230], ['Сахельская Республика', 300, 40]],
+    neigh: [
+      ['Кот-д’Ивуар', 110, 80, [[2000.75, 'won', 'народ на улицах сверг генерала Геи']]],
+      ['Того', 300, 40, [[2005.25, 'crushed', 'протесты после выборов подавлены']]],
+      ['Эфиопия', 490, 70, [[2005.25, 'crushed', 'протесты после выборов, тысячи арестованных']]],
+      ['Кения', 530, 220, [[2008.0, 'protest', 'кровопролитие после выборов'], [2008.25, 'crushed', 'раздел власти, оппозиция в правительстве']]],
+      ['Зимбабве', 330, 290, [[2008.25, 'crushed', 'оппозиция снялась со второго тура из-за насилия']]],
+      ['Мадагаскар', 90, 240, [[2009.0, 'protest', 'мэр столицы выводит людей на площадь'], [2009.25, 'won', 'президент свергнут при поддержке армии']]],
+    ],
   },
   mideast00: {
     tab: 'Цветные революции', square: 'площадь Освобождения', squareLoc: 'площади Освобождения', leaderRole: 'блогер и инженер', ally: 'saudi', allyName: 'силы «Щит полуострова»',
     colors: [['Финиковая революция', '#a0662a'], ['Революция фонарей', '#e0b020'], ['Жасминовая весна', '#d0d0e8'], ['Зелёная волна', '#3a9a4a']],
-    neigh: [['Королевство Аль-Джабаль', 470, 70], ['Эмират Бахр-ан-Нур', 520, 230], ['Республика Шам-эль-Ард', 140, 70], ['Султанат Рамла', 330, 290], ['Республика Ватан', 90, 230]],
+    neigh: [
+      ['Сирия', 140, 70, [[2000.5, 'protest', '«Дамасская весна»: политические салоны'], [2001.5, 'crushed', 'салоны закрыты, активисты в тюрьме']]],
+      ['Ливан', 300, 40, [[2005.0, 'protest', 'палатки на площади Мучеников'], [2005.25, 'won', '«Революция кедров»: сирийские войска ушли']]],
+      ['Иран', 490, 70, [[2009.25, 'protest', '«Зелёное движение»'], [2009.5, 'crushed', 'протесты подавлены']]],
+      ['Кувейт', 530, 230, [[2005.25, 'won', '«Голубая революция»: женщины получили право голоса']]],
+      ['Египет', 90, 230, [[2005.0, 'protest', 'движение «Кифая» — «Хватит!»'], [2005.75, 'crushed', 'выборы выиграл Мубарак, протест затих']]],
+      ['Иордания', 330, 290, []],
+    ],
   },
   centralasia00: {
     tab: 'Цветные революции', square: 'площадь Независимости', squareLoc: 'площади Независимости', leaderRole: 'бывший премьер-министр', ally: 'russia', allyName: 'ОДКБ',
     colors: [['Хлопковая революция', '#e8e8e8'], ['Абрикосовая революция', '#f0902a'], ['Революция юрт', '#c0392b'], ['Тюльпановая волна', '#e04070']],
-    neigh: [['Республика Сарыкум', 470, 70], ['Республика Ала-Тоо', 510, 230], ['Республика Памирстан', 330, 290], ['Республика Каспистан', 100, 90], ['Ханство Тенгир', 110, 240]],
+    neigh: [
+      ['Грузия', 100, 80, [[2003.75, 'won', '«Революция роз»: Шеварднадзе ушёл']]],
+      ['Украина', 300, 40, [[2004.75, 'protest', 'палатки на Майдане'], [2005.0, 'won', '«Оранжевая революция»: выборы переиграли']]],
+      ['Белоруссия', 490, 70, [[2006.0, 'crushed', '«Джинсовая революция»: палатки разогнаны']]],
+      ['Киргизия', 520, 230, [[2005.0, 'won', '«Тюльпановая революция»: Акаев улетел в Москву']]],
+      ['Узбекистан', 330, 290, [[2005.25, 'crushed', 'Андижан: протест подавлен войсками']]],
+      ['Армения', 100, 240, [[2008.0, 'protest', 'протесты после выборов'], [2008.25, 'crushed', 'митинг разогнан, введено чрезвычайное положение']]],
+    ],
   },
 };
 // Реальные события десятилетия: [год, квартал, название, страна, итог, влияние на «улицу» по регионам]
@@ -38,6 +59,8 @@ const CR_ELECTIONS = [11, 31]; // IV квартал 2002 и 2007
 
 Object.assign(Game, {
   cr() {
+    // старые сохранения с выдуманными соседями: заменить на реальных
+    if (S.cr && CR_REGION[S.region] && S.cr.neigh && S.cr.neigh[0] && S.cr.neigh[0].name !== CR_REGION[S.region].neigh[0][0]) { S.cr.neigh = CR_REGION[S.region].neigh.map(([name, x, y]) => ({ name, x, y, st: 'calm', t: 0 })); S.cr.nDone = []; }
     if (!S.cr) {
       const R = CR_REGION[S.region];
       const color = pick(R.colors);
@@ -45,7 +68,7 @@ Object.assign(Game, {
       S.cr = {
         heat: 15, rad: 5, last: -99, radAt: -99, space: false, realDone: [], log: [],
         opp: { name: `${pick(pool.m)} ${pick(pool.last)}`, role: R.leaderRole, color: color[0], hex: color[1] },
-        neigh: R.neigh.map(([name, x, y]) => ({ name, x, y, st: 'calm', t: 0 })),
+        neigh: R.neigh.map(([name, x, y]) => ({ name, x, y, st: 'calm', t: 0 })), nDone: [],
       };
     }
     return S.cr;
@@ -179,23 +202,25 @@ Game.quarterHooks.push(rep => {
   if (S.era !== '2000') return;
   const C = Game.cr(), net = S.net || 0, R = CR_REGION[S.region];
   const L = S.fac.liberals;
-  const drift = 0.6 + net / 40 + Math.max(0, 45 - S.support) / 12 + L.s / 60 + (S.economy < 35 ? 1.5 : 0) - S.fear / 80 - (S.support > 60 ? 1.5 : 0) - (S.budget.netctl || 0) * 0.6;
+  const drift = 1.8 + net / 40 + Math.max(0, 45 - S.support) / 12 + L.s / 60 + (S.economy < 35 ? 1.5 : 0) - S.fear / 80 - (S.support > 60 ? 1.5 : 0) - (S.budget.netctl || 0) * 0.6;
   C.heat = clamp(C.heat + drift);
   C.rad = clamp(C.rad - 1 + (S.budget.netctl || 0) * 0.5);
   if (C.rad >= 50) S.fac.left.s = clamp(S.fac.left.s + 0.8);
-  for (const n of C.neigh) {
-    if (n.st === 'protest') {
-      const won = Math.random() < 0.45;
-      n.st = won ? 'won' : 'crushed'; n.t = S.turn;
-      const name = n.rev;
-      C.log.unshift({ y: S.year, name: `${name}, ${n.name}`, res: won ? 'президент бежал, власть у оппозиции' : 'протест подавлен' });
-      const d = Math.round((won ? 8 : 2) * (1 + net / 100));
-      C.heat = clamp(C.heat + d);
-      if (!won) C.rad = clamp(C.rad + 2);
-      rep.lines.push(`${n.name}: ${name} ${won ? 'победила — президент бежал' : 'подавлена'}. У нас на улицах неспокойно (улица +${d}).`);
-    } else if ((n.st === 'calm' || S.turn - n.t >= 12) && Math.random() < 0.06 + net / 600 + ([2004, 2005].includes(S.year) ? 0.04 : 0)) {
-      n.st = 'protest'; n.t = S.turn; n.rev = pick(R.colors)[0];
-      rep.lines.push(`${n.name}: на главной площади палаточный лагерь — «${n.rev}».`);
+  // соседи живут по реальному календарю; если события нет в общей сводке, оно само разогревает улицу
+  const t = S.year + (S.q - 1) / 4;
+  for (const [i, n] of C.neigh.entries()) {
+    const tl = (R.neigh[i] || [])[3] || [];
+    for (const [at, st, res] of tl) {
+      const key = `${n.name}${at}`;
+      if (at > t + 0.01 || (C.nDone || []).includes(key)) continue;
+      C.nDone = [...(C.nDone || []), key];
+      n.st = st; n.t = S.turn;
+      const inReal = CR_REAL.some(r => r[3] === n.name && r[5][S.region] !== undefined);
+      const d = inReal ? 0 : Math.round((st === 'won' ? 7 : st === 'protest' ? 3 : 1) * (1 + net / 100));
+      if (d) C.heat = clamp(C.heat + d);
+      if (st === 'crushed' && !inReal) C.rad = clamp(C.rad + 2);
+      if (!inReal) C.log.unshift({ y: Math.floor(at), name: n.name, res, real: true });
+      rep.lines.push(`${n.name}: ${res}.${d ? ` У нас на улицах неспокойно (улица +${d}).` : ''}`);
     }
   }
   if (C.heat >= 55) rep.warn.push(`Улица: ${Math.round(C.heat)} из 100. ${C.heat >= 70 ? 'Площадь готова выйти в любой момент.' : 'В интернете зовут на площадь.'}`);
@@ -218,7 +243,7 @@ Object.assign(UI, {
     const map = `<svg class="cr-map" viewBox="0 0 600 330" role="img" aria-label="Карта региона">
       ${C.neigh.map(n => `<line x1="${meX}" y1="${meY}" x2="${n.x}" y2="${n.y}" stroke="${n.st === 'won' ? '#d9a33a' : 'rgba(150,180,210,0.25)'}" stroke-width="${n.st === 'won' ? 3 : 1.5}" stroke-dasharray="${n.st === 'won' ? '0' : '4 4'}"/>`).join('')}
       ${C.neigh.map(n => `<g class="${n.st === 'protest' ? 'cr-pulse' : ''}"><polygon points="${hex(n.x, n.y, 40)}" fill="${stColor(n)}" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
-        <text x="${n.x}" y="${n.y - 2}" text-anchor="middle" class="cr-t">${esc(n.name.replace(/^(Республика|Королевство|Федерация|Эмират|Султанат|Ханство) /, ''))}</text>
+        <text x="${n.x}" y="${n.y - 2}" text-anchor="middle" class="cr-t">${esc(n.name)}</text>
         <text x="${n.x}" y="${n.y + 14}" text-anchor="middle" class="cr-s">${stText[n.st]}</text></g>`).join('')}
       <g class="${C.heat >= 70 ? 'cr-pulse' : ''}"><polygon points="${hex(meX, meY, 58)}" fill="${meCol}" stroke="#fff" stroke-width="2.5"/>
         <text x="${meX}" y="${meY - 6}" text-anchor="middle" class="cr-t big">${esc(S.country.replace(/^Республика /, ''))}</text>
