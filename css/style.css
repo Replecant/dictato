@@ -707,3 +707,16 @@ body[data-era="1960"] .toast { border-radius: 14px; border-left-color: var(--tea
 body[data-era="1960"] .tip-card { background: linear-gradient(180deg, #f6ead0, #e9d8ae); color: var(--ink); border-color: rgba(240, 166, 48, 0.4); }
 body[data-era="1960"] .tip-card .eyebrow { color: #7a5a1a; }
 .tabs button.alert::after { content: "!"; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 6px; border-radius: 50%; background: var(--red); color: #fff; font: 700 11px/1 var(--f-mono); vertical-align: 1px; }
+/* цветные революции */
+.cr { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; }
+.cr-map { width: 100%; display: block; margin: 6px 0; }
+.cr-t { font: 700 13px var(--f-display); fill: #fff; }
+.cr-t.big { font-size: 15px; }
+.cr-s { font: 11px var(--f-mono); fill: rgba(255, 255, 255, 0.8); }
+.cr-pulse { animation: crpulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes crpulse { 50% { opacity: 0.7; transform: scale(1.04); } }
+.cr-opp { display: flex; gap: 10px; align-items: center; margin: 12px 0 8px; padding: 8px 10px; background: rgba(0, 0, 0, 0.2); border-radius: var(--r); }
+.cr-opp b { display: block; }
+.cr-ribbon { width: 14px; height: 34px; border-radius: 3px; flex: none; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3); }
+.cr-log { max-height: 320px; }
+.cr-log li { grid-template-columns: 60px minmax(0, 1fr); }

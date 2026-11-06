@@ -275,9 +275,11 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    const eraTabs = { coldwar: '1960', war: '1930' };
+    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000' };
     if (eraTabs[UI.tab] && eraTabs[UI.tab] !== S.era) UI.tab = 'cabinet';
     for (const b of document.querySelectorAll('.tabs button')) { b.hidden = !!eraTabs[b.dataset.tab] && eraTabs[b.dataset.tab] !== S.era; b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
+    const crb = document.querySelector('.tabs button[data-tab="colorrev"]');
+    if (crb && S.era === '2000') { crb.textContent = (CR_REGION[S.region] || {}).tab || 'Цветные революции'; crb.classList.toggle('alert', !!S.cr && (S.cr.heat >= 55 || S.cr.rad >= 50)); }
     const cwb = document.querySelector('.tabs button[data-tab="coldwar"]');
     if (cwb) cwb.classList.toggle('alert', S.era === '1960' && !!S.cw && Math.max(S.cw.sus.us, S.cw.sus.su) >= 50);
     $('#btn-end').disabled = S.phase !== 'hub';
