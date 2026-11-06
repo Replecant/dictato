@@ -105,7 +105,7 @@ Object.assign(UI, {
         const C = COUNTRIES[it.c] ? COUNTRIES[it.c].name : 'партнёр';
         const h = { visit: `Триумфальный визит: ${C}`, friend: `Подписан Договор о дружбе: ${C}`, alliance: `Военный союз (${C}): мир стал безопаснее`, break: `Разрыв договоров (${C}): мы не позволим диктовать нам условия`, denounce: `Выслан посол за недружественные действия (${C})`, arms: `Армия получает новейшее вооружение (поставщик — ${C})`, treaty: `Торговый договор (${C}) откроет новые рынки` }[it.act];
         if (h) off.push({ head: h, text: it.text && it.act === 'visit' && /не задался/.test(it.text) ? 'Визит прошёл в тёплой и дружественной обстановке.' : '' });
-        if (it.act === 'visit' && it.text && /не задался/.test(it.text)) { crit.push({ head: `Конфуз на визите: ${C}`, text: it.text.replace(/^Визит в страну [^.]*\. /, '') }); foreign.push(`Визит в страну ${C} обернулся дипломатическим конфузом.`); }
+        if (it.act === 'visit' && it.text && /не задался/.test(it.text)) { crit.push({ head: `Конфуз на визите: ${C}`, text: it.text.replace(/^Визит [^.]*\. /, '') }); foreign.push(`Визит в страну ${C} обернулся дипломатическим конфузом.`); }
         if (it.act === 'denounce') foreign.push(`Дипломатический скандал: выслан посол страны ${C}.`);
       } else if (it.kind === 'event') {
         off.push({ head: it.head, text: it.text });
@@ -221,7 +221,7 @@ Object.assign(UI, {
         </div>
         ${comments}
         <section class="np-classified"><h4>${site ? 'Реклама' : 'Объявления'}</h4><div class="np-ads"><p class="np-bigad">${esc(AD.big)}</p>${AD.local.map(a => `<p>${esc(a)}</p>`).join('')}</div></section>
-      </div>`, news.some(h => h.choice) ? 'Что скажет правительство?' : 'Перевернуть страницу', 'wide');
-    for (const h of news) if (h.choice) await VN.play({ title: h.head, bg: 'office', lines: h.choice.lines, choices: h.choice.choices });
+      </div>`, news.some(h => Game.histChoice(h)) ? 'Что скажет правительство?' : 'Перевернуть страницу', 'wide');
+    for (const h of news) if (Game.histChoice(h)) await VN.play({ title: h.head, bg: 'office', lines: h.choice.lines, choices: h.choice.choices });
   },
 });

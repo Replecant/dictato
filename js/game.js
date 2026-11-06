@@ -360,6 +360,8 @@ const Game = {
   },
 
   // ---------- события ----------
+  // выбор к исторической новости бывает только в части регионов
+  histChoice(h) { return !!h.choice && (!h.choice.regions || h.choice.regions.includes(S.region)); },
   historyFor(year, q) {
     const list = S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : HISTORY;
     return list.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));
@@ -554,10 +556,10 @@ const Game = {
       }
       case 'arms':
         fx = { treasury: -20, army: 8, rel: { [c]: 4 }, fac: { hawks: { a: 5 } } };
-        text = `Закуплено оружие (${C.name}). Генерал лично опробовал каждый пулемёт. В воздух.`; break;
+        text = `Закуплено оружие у ${cGen(c)}. Генерал лично опробовал каждый пулемёт. В воздух.`; break;
       case 'denounce':
         fx = { support: 3, rel: { [c]: -18 } }; if (opp) fx.rel[opp] = 6;
-        text = `Посол объявлен персоной нон грата (${C.name}). Митинг у посольства собрал тысячи людей и одного продавца мороженого.`; break;
+        text = `Посол ${cGen(c)} объявлен персоной нон грата. Митинг у посольства собрал тысячи людей и одного продавца мороженого.`; break;
     }
     const changes = Game.apply(fx);
     Game.log(text);

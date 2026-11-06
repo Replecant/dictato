@@ -11,7 +11,7 @@ const GAFFES = [
 
 const DEMANDS = [
   // Запад
-  { id: 'ban_left', blocs: ['west'], text: () => `Запретить движение «${REGIONS[S.region].factions.left.name}»`, cond: () => S.fac.left.st !== 'banned',
+  { id: 'ban_left', blocs: ['west'], eras: ['1930', '1960'], text: () => `Запретить движение «${REGIONS[S.region].factions.left.name}»`, cond: () => S.fac.left.st !== 'banned',
     fx: c => ({ fear: 4, rel: { [c]: 14, $east: -6 }, fac: { left: { s: -12, a: -25 } }, facStatus: { left: 'banned' } }) },
   { id: 'company', blocs: ['west'], text: () => 'Защитить наши компании от рабочих и налоговой', fx: c => ({ rel: { [c]: 12 }, support: -2, fac: { left: { a: -6 }, oligarchs: { a: 4 } } }) },
   { id: 'tariffs', blocs: ['west', 'axis'], text: () => 'Снизить пошлины на наши товары', fx: c => ({ treasury: -6, economy: -1, rel: { [c]: 12 }, fac: { oligarchs: { a: -4 } } }) },
@@ -19,7 +19,7 @@ const DEMANDS = [
   // Восток
   { id: 'comrades', blocs: ['east'], eras: ['1930', '1960'], text: () => 'Освободить арестованных товарищей-коммунистов', fx: c => ({ fear: -5, rel: { [c]: 12 }, fac: { left: { s: 4, a: 6 } } }) },
   { id: 'tractors', blocs: ['east'], text: () => 'Закупить нашу технику', fx: c => ({ treasury: -10, economy: 1, rel: { [c]: 12 } }) },
-  { id: 'customs_union', countries: ['russia'], text: () => 'Вступить в наш таможенный союз', fx: c => ({ economy: 2, rel: { russia: 15, eu: -8, usa: -5 } }) },
+  { id: 'customs_union', countries: ['russia'], regions: ['centralasia00'], text: () => 'Вступить в наш таможенный союз', fx: c => ({ economy: 2, rel: { russia: 15, eu: -8, usa: -5 } }) },
   { id: 'one_china', countries: ['china'], eras: ['2000'], text: () => 'Поддержать политику «одного Китая» и не принимать неудобных гостей', fx: c => ({ rel: { china: 10, usa: -2 }, fac: { liberals: { a: -2 } } }) },
   // «Ось» 1930-х
   { id: 'ban_press', blocs: ['axis'], text: () => 'Закрыть антифашистские газеты', fx: c => ({ fear: 3, rel: { [c]: 12, france: -4, uk: -4 }, fac: { liberals: { a: -10 } } }) },
@@ -29,8 +29,8 @@ const DEMANDS = [
   { id: 'resolution', blocs: ['neutral'], text: () => 'Поддержать нашу резолюцию', fx: c => ({ rel: { [c]: 10 }, support: 1 }) },
   { id: 'buy', blocs: ['neutral', 'west'], text: () => 'Купить нашу продукцию', fx: c => ({ treasury: -8, economy: 1, rel: { [c]: 10 } }) },
   { id: 'culture', blocs: ['neutral', 'west', 'east'], text: () => 'Открыть у вас наш культурный центр', fx: c => ({ rel: { [c]: 8 }, fac: { faith: { a: -2 }, liberals: { a: 2 } } }) },
-  { id: 'vote', blocs: ['west', 'east', 'axis'], text: () => S.era === '1930' ? 'Голосовать с нами в Лиге Наций' : 'Голосовать с нами в ООН', fx: c => ({ rel: { [c]: 10, [Game.blocOf(c) === 'west' ? (S.era === '1930' ? '$axis' : '$east') : '$west']: -5 } }) },
-  { id: 'invite', blocs: ['west', 'east', 'axis', 'neutral'], text: c => `Пригласить ${Game.leaderAt(c)} с визитом`, fx: c => ({ treasury: -6, support: 1, rel: { [c]: 10 } }) },
+  { id: 'vote', blocs: ['west', 'east', 'axis'], text: c => S.era === '1930' ? (Game.blocOf(c) === 'axis' ? 'Признать наши «новые границы»' : c === 'ussr' && Game.eraTime() < 1934.75 ? 'Признать нас дипломатически' : 'Голосовать с нами в Лиге Наций') : 'Голосовать с нами в ООН', fx: c => ({ rel: { [c]: 10, [Game.blocOf(c) === 'west' ? (S.era === '1930' ? '$axis' : '$east') : '$west']: -5 } }) },
+  { id: 'invite', blocs: ['west', 'east', 'axis', 'neutral'], text: c => `Пригласить с визитом: ${Game.leaderAt(c)}`, fx: c => ({ treasury: -6, support: 1, rel: { [c]: 10 } }) },
 ];
 
 Object.assign(Game, {
@@ -95,22 +95,22 @@ Object.assign(Game, {
         S.visits = S.visits || {}; S.visits[c] = S.turn;
         if (Math.random() < Game.visitChance(c)) {
           fx = { treasury: -5, support: 1, rel: { [c]: 8 } };
-          text = `Государственный визит: ${C.name}. ${Game.leaderAt(c)[0].toUpperCase() + Game.leaderAt(c).slice(1)} принял вас тепло. Обменялись подарками, договорились «углублять сотрудничество».`;
-        } else { fx = { treasury: -5, rel: { [c]: -3 } }; text = `Визит в страну ${C.name} не задался. ${pick(GAFFES)}`; }
+          text = `Государственный визит: ${C.name}. Хозяева приняли вас тепло. Обменялись подарками, договорились «углублять сотрудничество».`;
+        } else { fx = { treasury: -5, rel: { [c]: -3 } }; text = `Визит ${cTo(c)} не задался. ${pick(GAFFES)}`; }
         break;
       }
       case 'friend':
         T.friend = { since: S.turn };
         fx = { rel: { [c]: 10 } }; if (opp) fx.rel[opp] = -4;
-        text = `Подписан Договор о дружбе со страной ${C.name}. Отношения теперь не будут остывать, даже если вы долго не звоните.`; break;
+        text = `Подписан Договор о дружбе с ${cIns(c)}. Отношения теперь не будут остывать, даже если вы долго не звоните.`; break;
       case 'alliance':
         T.alliance = { since: S.turn };
         fx = { rel: { [c]: 10 }, fac: { hawks: { a: 5 } } }; if (opp) fx.rel[opp] = -15;
-        text = `Военный союз со страной ${C.name}! Генералы обмениваются орденами. Противоположный лагерь внёс вас в свои карты красным карандашом.`; break;
+        text = `Военный союз с ${cIns(c)}! Генералы обмениваются орденами. Противоположный лагерь внёс вас в свои карты красным карандашом.`; break;
       case 'break':
         S.treaties[c] = {};
         fx = { rel: { [c]: -20 }, support: 2 };
-        text = `Все договоры со страной ${C.name} разорваны. Толпа у посольства ликует, экономисты хватаются за головы.`; break;
+        text = `Все договоры с ${cIns(c)} разорваны. Толпа у посольства ликует, экономисты хватаются за головы.`; break;
       case 'aid': {
         const p = Game.aidChance(c);
         const da = Game.dealInfo('aid:' + c);
@@ -118,17 +118,17 @@ Object.assign(Game, {
         if (Math.random() < p) {
           const amt = Math.round((['usa', 'ussr', 'russia'].includes(c) ? 30 : BIG_POWERS.includes(c) ? 20 : 12) * (da.n ? 0.6 : 1) * (T.alliance ? 1.3 : 1));
           fx = { treasury: amt, rel: { [c]: -4 } };
-          text = `${C.name} выделили помощь: ${amt} млн. С намёком, что это не в последний раз. И не бесплатно.`;
-        } else { fx = { rel: { [c]: -6 } }; text = `${C.name} вежливо отказали. Министр иностранных дел написал об этом печальный сонет.`; }
+          text = `Помощь получена (${C.name}): ${amt} млн. С намёком, что это не в последний раз. И не бесплатно.`;
+        } else { fx = { rel: { [c]: -6 } }; text = `${C.name}: в помощи вежливо отказано. Министр иностранных дел долго смотрел в окно.`; }
         break;
       }
       case 'arms':
         fx = { treasury: -20, army: 8, rel: { [c]: 4 }, fac: { hawks: { a: 5 } } };
-        text = `Закуплено оружие у страны ${C.name}. Генерал лично опробовал каждый пулемёт. В воздух.`; break;
+        text = `Закуплено оружие у ${cGen(c)}. Генерал лично опробовал каждый пулемёт. В воздух.`; break;
       case 'denounce':
         S.treaties[c] = {};
         fx = { support: 3, rel: { [c]: -18 } }; if (opp) fx.rel[opp] = 6;
-        text = `Посол страны ${C.name} объявлен персоной нон грата. Митинг у посольства собрал тысячи людей и одного продавца мороженого.`; break;
+        text = `Посол ${cGen(c)} объявлен персоной нон грата. Митинг у посольства собрал тысячи людей и одного продавца мороженого.`; break;
     }
     const changes = Game.apply(fx);
     Game.log(text);
@@ -141,11 +141,11 @@ Object.assign(Game, {
     return {
       title: `Переговоры: ${C.name}`, bg: 'office',
       lines: [
-        ['foreign', `Делегация из страны ${C.name} готова подписать торговый договор. Вопрос в условиях. Я, разумеется, предлагаю торговаться. Красиво. В рифму.`],
+        ['foreign', `Делегация ${cGen(c)} готова подписать торговый договор. Вопрос в условиях. Я, разумеется, предлагаю торговаться. Красиво.`],
         ['economy', 'Хороший договор — это деньги каждый квартал. Плохой — тоже деньги, только их.'],
       ],
       choices: [
-        { text: 'Жёсткие условия: доход +4 млн в квартал', adv: ['economy'], chance: () => r / 130 + comp * 0.12, win: { fx: deal(4, 2), res: 'Делегация поморщилась, но подписала. Каждый квартал казна будет получать на четыре миллиона больше.' }, lose: { fx: { ap: -1, rel: { [c]: -6 } }, res: 'Делегация встала из-за стола и уехала. Министр иностранных дел вслед прочитал ей сонет. Не помогло.' } },
+        { text: 'Жёсткие условия: доход +4 млн в квартал', adv: ['economy'], chance: () => r / 130 + comp * 0.12, win: { fx: deal(4, 2), res: 'Делегация поморщилась, но подписала. Каждый квартал казна будет получать на четыре миллиона больше.' }, lose: { fx: { ap: -1, rel: { [c]: -6 } }, res: 'Делегация встала из-за стола и уехала. Министр иностранных дел произнёс ей вслед прочувствованную речь. Не помогло.' } },
         { text: 'Взаимовыгодные условия: доход +2,5 млн в квартал', adv: ['foreign'], chance: () => r / 100 + 0.25, win: { fx: deal(2.5, 6), res: 'Договор подписан. Обе стороны называют его «историческим». Так называют все договоры.' }, lose: { fx: { ap: -1, rel: { [c]: -2 } }, res: 'Стороны не сошлись в мелочах. Например, на каком языке писать слово «мелочи».' } },
         { text: 'Уступчивые условия: доход +1 млн в квартал, их компании довольны', fx: { ...deal(1, 10), fac: { oligarchs: { a: -5 } } }, res: 'Договор подписан мгновенно. Их компании получили льготы, ваши купцы — головную боль.' },
         { text: 'Отложить переговоры', fx: {}, res: 'Делегация уехала, оставив визитки. Приказ не потрачен.' },

@@ -1,9 +1,9 @@
 // Движения: лидеры-персонажи, требования, опора режима и новые движения по ходу игры.
 const LEADER_TRAITS = {
-  fanatic: { name: 'Фанатик', desc: 'Подкуп не берёт, переговоры даются тяжело. Арест сделает его мучеником.', talk: 0.5, bribe: 0, bribeCost: 1, martyr: 0.55, coopt: 55, fail: 1.5 },
+  fanatic: { name: 'Фанатик', desc: 'Подкуп не берёт, переговоры даются тяжело. Арест превратит лидера в мученика.', talk: 0.5, bribe: 0, bribeCost: 1, martyr: 0.55, coopt: 55, fail: 1.5 },
   merchant: { name: 'Торгаш', desc: 'Всё имеет цену: подкуп дешевле и действует сильнее.', talk: 0.9, bribe: 1.4, bribeCost: 0.6, martyr: 0.15, coopt: 40, fail: 1 },
-  vain: { name: 'Тщеславный', desc: 'Обожает внимание: переговоры работают лучше, а орден на грудь творит чудеса.', talk: 1.4, bribe: 1, bribeCost: 1, martyr: 0.3, coopt: 40, fail: 1 },
-  coward: { name: 'Трус', desc: 'Его можно припугнуть. Мучеником он точно не станет.', talk: 1, bribe: 1, bribeCost: 1, martyr: 0, coopt: 40, fail: 0.8 },
+  vain: { name: 'Позёр', desc: 'Обожает внимание: переговоры работают лучше, а орден на грудь творит чудеса.', talk: 1.4, bribe: 1, bribeCost: 1, martyr: 0.3, coopt: 40, fail: 1 },
+  coward: { name: 'Трус', desc: 'Можно припугнуть. Мучеников из трусов не выходит.', talk: 1, bribe: 1, bribeCost: 1, martyr: 0, coopt: 40, fail: 0.8 },
   pragmatic: { name: 'Прагматик', desc: 'Охотно идёт во власть: места в правительстве и министерский пост доступны раньше.', talk: 1.1, bribe: 1, bribeCost: 1, martyr: 0.2, coopt: 25, fail: 1 },
   firebrand: { name: 'Горлопан', desc: 'Движение под ним растёт быстрее, а сорванные требования он не прощает.', talk: 0.8, bribe: 1, bribeCost: 1, martyr: 0.35, coopt: 45, fail: 1.4, grow: 0.6 },
 };
@@ -15,16 +15,16 @@ const NAME_POOLS = {
   mideast: { m: ['Ахмед', 'Халид', 'Юсуф', 'Самир', 'Омар', 'Тарик', 'Махмуд', 'Наджиб', 'Фуад', 'Рашид'], f: ['Лейла', 'Найла', 'Рания'], last: ['аль-Масри', 'Джабер', 'Насралла', 'аль-Хашими', 'Саллам', 'Азиз', 'Бакри', 'Каббани', 'Таха', 'Мансур'] },
   steppe: { m: ['Ерлан', 'Бахтияр', 'Нурлан', 'Азамат', 'Тимур', 'Рустам', 'Данияр', 'Ильхом', 'Фарход', 'Шавкат'], f: ['Гульнара', 'Динара', 'Айгерим'], last: ['Оспанов', 'Каримов', 'Юсупов', 'Абдуллаев', 'Сейткали', 'Рахимов', 'Есенов', 'Турсунов', 'Назаров', 'Мамедов'] },
 };
-const FAITH_TITLE = { catholic: 'Архиепископ', orthodox: 'Митрополит', buddhist: 'Настоятель', chief: 'Вождь', islam: 'Шейх', evangelical: 'Пастор' };
+const FAITH_TITLE = { catholic: 'Архиепископ', orthodox: 'Митрополит', buddhist: 'Настоятель', chief: 'Вождь', islam: 'Муфтий', evangelical: 'Пастор' };
 const RICH_TITLE = { latam: 'Дон', europe: 'Граф', asia: 'Принц', africa: 'Месье', mideast: 'Шейх', steppe: 'Бай' };
 const FAC_RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: ['left'], oligarchs: ['left'], hawks: ['liberals', 'left'], new: [] };
 const DEFAULT_PILLARS = { junta: ['hawks', 'oligarchs'], revolution: ['left', 'liberals'], western: ['oligarchs', 'hawks'], putsch: ['hawks', 'oligarchs'], estado: ['faith', 'oligarchs'], front: ['left', 'liberals'], heir: ['oligarchs', 'hawks'], reformer: ['liberals', 'oligarchs'], strongman: ['hawks', 'faith'] };
 
 // Новые движения, которые появляются по ходу десятилетия
 const NEW_FACTIONS = {
-  '1930': { name: '«Зелёные рубашки»', short: 'Рубашки', icon: '🟩', desc: 'Ультранационалисты в одинаковых рубашках. Маршируют, поют и считают, что вы слишком мягкий. Дружат с офицерами.', rivals: ['left', 'liberals'], risk: 'coup', appear: S => S.year >= 1933, intro: 'По столице прошёл первый марш молодчиков в зелёных рубашках. У них есть вождь, барабаны и большие планы на вашу должность.' },
+  '1930': { name: 'Зелёные рубашки', short: 'Рубашки', icon: '🟩', desc: 'Ультранационалисты в одинаковых рубашках. Маршируют, поют и считают, что вы слишком мягкий. Дружат с офицерами.', rivals: ['left', 'liberals'], risk: 'coup', appear: S => S.year >= 1933, intro: 'По столице прошёл первый марш молодчиков в зелёных рубашках. У них есть вождь, барабаны и большие планы на вашу должность.' },
   '1960': { name: 'Новые левые и хиппи', short: 'Хиппи', icon: '☮️', desc: 'Студенты с гитарами, длинными волосами и цитатами Маркузе. Против войны, против денег, против вас. Но в основном — за музыку.', rivals: ['oligarchs', 'faith', 'hawks'], risk: 'rev', appear: S => S.year >= 1966, intro: 'В кампусах появилось новое движение: длинные волосы, гитары, лозунги «Занимайтесь любовью, а не войной». Ваши генералы не понимают, что это такое.' },
-  '2000': { name: 'Сетевая оппозиция', short: 'Сеть', icon: '🌐', desc: 'Блогеры-эмигранты, анонимные каналы и хакеры. У них нет офиса, но есть миллион подписчиков.', rivals: ['hawks'], risk: 'rev', appear: S => (S.net || 0) >= 15 || S.year >= 2005, intro: 'Анонимный блог «Правда о дворце» собрал миллион читателей за месяц. Вокруг него выросло целое движение, у которого нет ни офиса, ни устава. Только Wi-Fi.' },
+  '2000': { name: 'Сетевые активисты', short: 'Сеть', icon: '🌐', desc: 'Блогеры-эмигранты, анонимные каналы и хакеры. У них нет офиса, но есть миллион подписчиков.', rivals: ['hawks'], risk: 'rev', appear: S => (S.net || 0) >= 15 || S.year >= 2005, intro: 'Анонимный блог «Правда о дворце» собрал миллион читателей за месяц. Вокруг него выросло целое движение, у которого нет ни офиса, ни устава. Только Wi-Fi.' },
 };
 
 // Требования движений. kind: budget (ползунок), act (указ или действие), flag (состояние), pay (выполнить сразу, 1 приказ)
@@ -46,7 +46,7 @@ const FAC_DEMANDS = {
     { id: 'b_pol', kind: 'budget', k: 'police', op: '<=', v: 40, text: 'Урезать тайную полицию до 40% и ниже', except: ['europe30'] },
     { id: 'b_media', kind: 'budget', k: 'media', op: '<=', v: 35, text: 'Урезать пропаганду до 35% и ниже', except: ['europe30'] },
     { id: 'p_tax', kind: 'budget', k: 'popTax', op: '<=', v: 40, text: 'Снизить налоги с крестьян (налоги с населения до 40% и ниже)', only: ['europe30'] },
-    { id: 'p_roads', kind: 'budget', k: 'infra', op: '>=', v: 60, text: 'Провести дороги к деревням (дороги и порты от 60%)', only: ['europe30'] },
+    { id: 'p_roads', kind: 'budget', k: 'infra', op: '>=', v: 60, text: 'Провести дороги к деревням (дороги и порты до 60% и выше)', only: ['europe30'] },
     { id: 'p_land', kind: 'flag', test: S => S.flags.landReform, text: 'Раздать крестьянам помещичью землю (указ «Земельная реформа»)', only: ['europe30'] },
     { id: 'b_edu', kind: 'budget', k: 'edu', op: '>=', v: 65, text: 'Поднять образование до 65% и выше' },
     { id: 'b_amn', kind: 'act', acts: ['dec:amnesty'], text: 'Объявить амнистию политзаключённых' },
@@ -80,7 +80,8 @@ const FAC_DEMANDS = {
     { id: 'n_fest', kind: 'pay', text: 'Разрешить рок-фестиваль', fx: { fac: { faith: { a: -6 }, hawks: { a: -3 } } }, eras: ['1960'] },
     { id: 'n_edu', kind: 'budget', k: 'edu', op: '>=', v: 65, text: 'Поднять образование до 65% и выше', eras: ['1960'] },
     { id: 'n_free', kind: 'budget', k: 'netctl', op: '<=', v: 0, text: 'Снять фильтры с интернета', eras: ['2000'] },
-    { id: 'n_amn', kind: 'act', acts: ['dec:amnesty'], text: 'Освободить арестованных блогеров (амнистия)', eras: ['2000', '1960'] },
+    { id: 'n_amn', kind: 'act', acts: ['dec:amnesty'], text: 'Освободить арестованных блогеров (амнистия)', eras: ['2000'] },
+    { id: 'n_amn60', kind: 'act', acts: ['dec:amnesty'], text: 'Освободить арестованных студентов (амнистия)', eras: ['1960'] },
   ],
 };
 
@@ -160,7 +161,7 @@ Object.assign(Game, {
     if (!d || d.kind !== 'pay' || !Game.spend()) return null;
     Game.apply(d.fx);
     const changes = Game.resolveDemand(f, true);
-    const text = `${Game.facDef(f).name}: «${d.text}» — сделано. ${Game.leader(f).name} доволен.`;
+    const text = `${Game.facDef(f).name}: «${d.text}» — сделано. ${Game.leader(f).name} благодарит.`;
     return { text, changes };
   },
 
@@ -196,25 +197,25 @@ Object.assign(Game, {
         const d = Game.dealInfo(f);
         fx = { treasury: -d.talkCost, fac: { [f]: { a: Math.round(12 * d.mult * T.talk * pil) } } };
         for (const r of FAC_RIVALS[f] || []) if (S.fac[r]) rivals[r] = { a: -4 };
-        text = L.trait === 'fanatic' ? `${L.name} выслушал вас с каменным лицом. «Мы не торгуемся с тиранами». Но кое-что, кажется, запомнил.`
-          : L.trait === 'vain' ? `${L.name} пришёл в восторг от того, что его позвали во дворец. Сфотографировался на фоне трона.`
-            : d.n ? `Снова переговоры с движением «${nm}». ${L.name} вежливо кивает, но уже без прежнего восторга.` : `Переговоры с движением «${nm}» прошли в тёплой обстановке. ${L.name} пил ваш коньяк и улыбался.`;
+        text = L.trait === 'fanatic' ? `${L.name} слушает вас с каменным лицом. «Мы не торгуемся с тиранами». Но кое-что, кажется, запоминает.`
+          : L.trait === 'vain' ? `${L.name} в восторге от приглашения во дворец. Фотографируется на фоне трона.`
+            : d.n ? `Снова переговоры с движением «${nm}». ${L.name} вежливо кивает, но уже без прежнего восторга.` : `Переговоры с движением «${nm}» прошли в тёплой обстановке. ${L.name} пьёт ваш кофе и улыбается.`;
         Game.noteDeal(f); break;
       }
       case 'bribe': {
         const d = Game.dealInfo(f);
         const cost = Math.round(d.bribeCost * T.bribeCost);
         fx = { treasury: -cost, fac: { [f]: { a: Math.round(18 * d.mult * T.bribe * pil) } } };
-        text = L.trait === 'merchant' ? `${L.name} пересчитал конверт, улыбнулся и предложил «сотрудничать и дальше». Деловой человек.` : `${L.name} получил конверт. Его речи заметно смягчились.`;
+        text = L.trait === 'merchant' ? `${L.name} пересчитывает конверт, улыбается и предлагает «сотрудничать и дальше». Деловой человек.` : `${L.name} принимает конверт и заметно смягчает тон.`;
         Game.noteDeal(f); break;
       }
       case 'medal':
         fx = { treasury: -2, fac: { [f]: { a: Math.round(10 * Game.dealInfo('medal:' + f).mult) } } };
         Game.noteDeal('medal:' + f);
-        text = `${L.name} получил орден «За заслуги перед Отечеством» и неделю не снимал его даже в бане.`; break;
+        text = `${L.name} теперь кавалер ордена «За заслуги перед Отечеством». Орден не снимается даже в бане.`; break;
       case 'scare':
         fx = { fear: 3, fac: { [f]: { s: -6, a: -4 } } };
-        text = `К ${L.name} домой зашли двое в плащах. Просто поговорить. Наутро он отменил все митинги.`; break;
+        text = `К лидеру движения «${nm}» домой зашли двое в плащах. Просто поговорить. Наутро все митинги отменены.`; break;
       case 'coopt':
         fx = { fac: { [f]: { a: 20, s: 5 } } };
         for (const r of FAC_RIVALS[f] || []) if (S.fac[r]) rivals[r] = { a: -10 };
@@ -226,24 +227,24 @@ Object.assign(Game, {
         fx = { fear: 6, fac: { [f]: { s: -15, a: -35 } } };
         const extra = { left: { rel: Game.leftBanRel() }, liberals: { rel: { $west: -6 }, support: -3 }, faith: { support: -8 }, oligarchs: { economy: -8, rel: { usa: -8, $patron: -6 } }, hawks: { army: -12 }, new: { support: -2 } }[f] || {};
         Object.assign(fx, extra, { fac: fx.fac });
-        if (Math.random() < 0.5) { st.leader = Game.makeLeader(f, 'radical'); text = `Движение «${nm}» запрещено. В подполье им теперь руководит ${st.leader.name}. Он радикальнее прежнего.`; }
+        if (Math.random() < 0.5) { st.leader = Game.makeLeader(f, 'radical'); text = `Движение «${nm}» запрещено. В подполье им теперь руководит ${st.leader.name}. Новый лидер радикальнее прежнего.`; }
         else text = `Движение «${nm}» запрещено указом №${Math.floor(rnd(100, 999))}. Его лидеры ушли в подполье.`;
         break;
       }
       case 'legalize':
         F.st = 'legal';
         fx = { fear: -3, fac: { [f]: { a: 15 } } };
-        text = `Движение «${nm}» снова легально. ${L.name} вышел из подполья, щурясь на солнце.`; break;
+        text = `Движение «${nm}» снова легально. ${L.name} выходит из подполья, щурясь на солнце.`; break;
       case 'arrest': {
         const old = L.name;
         if (Math.random() < T.martyr) {
           fx = { fear: 4, support: -2, fac: { [f]: { s: 8, a: -15 } } };
           st.leader = Game.makeLeader(f, 'radical');
-          text = `Арест сделал из ${old} мученика. Его портреты на каждом заборе, а движение возглавил ${st.leader.name}. ${LEADER_TRAITS[st.leader.trait].name}.`;
+          text = `Арест обернулся против вас: портреты арестованного лидера (${old}) на каждом заборе, а во главе движения теперь ${st.leader.name}. ${LEADER_TRAITS[st.leader.trait].name}.`;
         } else {
           fx = { fear: 4, fac: { [f]: { s: -8 * S.adv.police.comp, a: -12 } } };
           st.leader = Game.makeLeader(f, Math.random() < 0.5 ? 'moderate' : null);
-          text = `${old} арестован на рассвете. Движение возглавил ${st.leader.name}: ${LEADER_TRAITS[st.leader.trait].name.toLowerCase()}.`;
+          text = `${old} — под арестом с рассвета. Во главе движения теперь ${st.leader.name}: ${LEADER_TRAITS[st.leader.trait].name.toLowerCase()}.`;
         }
         break;
       }
@@ -257,16 +258,16 @@ Object.assign(Game, {
     const L = Game.leader(f), D = Game.facDef(f), T = LEADER_TRAITS[L.trait];
     const roleFor = { hawks: 'defense', oligarchs: 'economy', faith: 'propaganda', liberals: 'foreign', left: 'economy', new: 'propaganda' }[f];
     const choices = Object.keys(ROLES).map(r => ({
-      text: `${ROLES[r].title} вместо: ${S.adv[r].name}${r === roleFor ? ' (подходит лучше всего)' : ''}`,
+      text: `${ROLES[r].title} (сейчас: ${S.adv[r].name})${r === roleFor ? ' (подходит лучше всего)' : ''}`,
       fx: { ap: -1, hire: { f, role: r }, fac: { [f]: { a: 25 } } },
-      res: `${L.name} принёс присягу как ${ROLES[r].title.toLowerCase()}. ${S.adv[r].name} отправлен в отставку и, кажется, не очень расстроен.`,
+      res: `${L.name} приносит присягу и занимает пост: ${ROLES[r].title.toLowerCase()}. ${S.adv[r].name} уходит в отставку и, кажется, не очень расстраивается.`,
     }));
     choices.push({ text: 'Передумать', fx: {}, res: 'Вы передумали. Приказ не потрачен.' });
     return {
       title: `Министерский пост для лидера движения`, bg: 'office',
       lines: [
-        ['npc:facleader:' + f, `${Game.fmt('{Addr}')}, я готов служить. Но только на настоящей должности, а не на пустом стуле в углу.`],
-        ['police', `${L.name}, ${T.name.toLowerCase()}. ${T.desc} Подумайте, какое министерство вы готовы ему доверить. Само движение «${D.name}» после этого будет вас любить.`],
+        ['npc:facleader:' + f, `${Game.fmt('{Addr}')}, служить вам — честь. Но только на настоящей должности, а не на пустом стуле в углу.`],
+        ['police', `${L.name}, ${T.name.toLowerCase()}. ${T.desc} Подумайте, какое министерство вы готовы доверить этому человеку. Само движение «${D.name}» после этого будет вас любить.`],
       ],
       choices,
     };
@@ -279,7 +280,7 @@ Object.assign(Game, {
     S.fac[f].st = 'coopted';
     for (const r of FAC_RIVALS[f] || []) if (S.fac[r]) S.fac[r].a = clamp(S.fac[r].a - 8);
     Game.facState(f).leader = Game.makeLeader(f, 'moderate');
-    Game.log(`${L.name} стал министром (${ROLES[role].title}). ${old.name} в отставке. Движение «${D.name}» возглавил ${Game.leader(f).name}.`);
+    Game.log(`${L.name} теперь в правительстве: ${ROLES[role].title.toLowerCase()}. ${old.name} в отставке. Во главе движения «${D.name}» теперь ${Game.leader(f).name}.`);
   },
   togglePillar(f) {
     S.pillars = S.pillars || [];
@@ -360,7 +361,7 @@ Game.forcedList.push(() => {
   S.fac.new = { s: 18, a: 40, st: 'legal' };
   Game.leader('new'); Game.facState('new').demand = { wait: S.turn + 1 };
   Game.log(`Появилось новое движение: ${nf.name}.`);
-  return { title: `Новое движение: ${nf.name}`, bg: 'square', lines: [['narrator', nf.intro], ['npc:facleader:new', 'Мы — будущее этой страны. Вы можете быть с нами или против нас. Третьего не дано.'], ['police', `Это ${Game.leader('new').name}. ${LEADER_TRAITS[Game.leader('new').trait].name}. Движение пока небольшое, но растёт. Я завёл на них папку.`]] };
+  return { title: `Новое движение: ${nf.name}`, bg: 'square', lines: [['narrator', nf.intro], ['npc:facleader:new', 'Мы — будущее этой страны. Вы можете быть с нами или против нас. Третьего не дано.'], ['police', `Это ${Game.leader('new').name}. ${LEADER_TRAITS[Game.leader('new').trait].name}. Движение пока небольшое, но растёт. На них уже заведена папка.`]] };
 });
 // портрет лидера движения в сценах
 const _speaker = VN.speakerInfo;

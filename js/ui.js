@@ -204,8 +204,8 @@ const UI = {
         <h2 class="paper-head">${esc(h.head)}</h2>
         <p class="paper-text">${esc(h.text)}</p>
         ${ch.length ? `<div class="fx-list">${UI.changes(ch)}</div>` : ''}
-      </div>`, h.choice ? 'Что скажет правительство?' : 'Перевернуть страницу');
-    if (h.choice) await VN.play({ title: h.head, bg: 'office', lines: h.choice.lines, choices: h.choice.choices });
+      </div>`, Game.histChoice(h) ? 'Что скажет правительство?' : 'Перевернуть страницу');
+    if (Game.histChoice(h)) await VN.play({ title: h.head, bg: 'office', lines: h.choice.lines, choices: h.choice.choices });
   },
   async endQuarter() {
     if (S.phase !== 'hub') return;
