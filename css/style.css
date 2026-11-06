@@ -83,6 +83,25 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .sec-h { font: 15px/1.3 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 .picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .picks-2 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+/* Выбор эпохи: лента времени из шести карточек и панель выбранной эпохи */
+.era-line { grid-template-columns: repeat(6, minmax(0, 1fr)); position: relative; }
+.era-line::before { content: ""; position: absolute; left: 4%; right: 4%; top: 50%; height: 1px; background: var(--brass-dim); z-index: 0; }
+.era-line .era-pick { position: relative; z-index: 1; gap: 4px; padding: 12px 12px 10px; min-height: 112px; }
+.era-line .pick-year { font-size: 26px; }
+.era-line .pick-name { font-size: 13.5px; min-height: 2.6em; }
+.era-diff { display: inline-flex; align-items: center; gap: 4px; font: 11px/1 var(--f-mono); color: var(--muted); margin-top: auto; }
+.era-diff i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--brass); display: inline-block; }
+.era-diff i.f { background: var(--brass); }
+.era-diff span { margin-left: 4px; }
+.era-detail { margin-top: 12px; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 24px; padding: 16px 18px; }
+.era-detail-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.era-detail-main .pick-desc { font-size: 15.5px; }
+.era-detail-diff { border-left: 1px solid var(--brass-dim); padding-left: 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.era-detail-diff p { margin: 0; font-size: 14px; }
+.reg-diff { align-self: flex-start; font: 11px/1 var(--f-mono); padding: 3px 7px; border-radius: 99px; border: 1px solid var(--brass-dim); color: var(--muted); }
+.reg-diff.easy { color: var(--green); border-color: currentColor; }
+.reg-diff.hard { color: var(--red); border-color: currentColor; }
+@media (max-width: 900px) { .era-line { grid-template-columns: repeat(3, minmax(0, 1fr)); } .era-line::before { display: none; } .era-detail { grid-template-columns: 1fr; } .era-detail-diff { border-left: 0; padding-left: 0; } }
 .stats.seven { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .stat.net .bar > span { background: var(--c-net); }
 .pick-year { font: 30px/1 var(--f-display); color: var(--fg); }

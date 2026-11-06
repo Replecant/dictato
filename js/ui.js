@@ -23,6 +23,17 @@ const REGIME_LOOKS = {
   reformer: { outfit: 'suit2000', outfitColor: '#2a3550', shirt: '#f4f1ea', tie: 'none', medals: 0, hat: 'none', sash: '', glasses: 'none', mustache: 'none', hair: 'short', bluetooth: true },
   strongman: { outfit: 'suit2000', outfitColor: '#111317', shirt: '#dfe9f3', tie: '#1d1d22', medals: 0, hat: 'none', sash: '', glasses: 'sport', mustache: 'none', hair: 'buzz', bluetooth: false },
 };
+// Подсказка по сложности эпох — по тестовым партиям ботов (360 партий на всех уровнях сложности)
+const ERA_DIFF_WORD = { 1: 'умеренная', 2: 'высокая', 3: 'очень высокая' };
+const ERA_DIFF = {
+  '1848': { lvl: 1, of10: 7, easy: 'latam48', hard: 'italy48', text: 'В Германии и Италии всё решает 1848 год: переживёте баррикады — дальше легче. В Латинской Америке спокойнее, там почти все правители дотянули до конца.' },
+  '1905': { lvl: 2, of10: 6, easy: 'balkan05', hard: 'himal05', text: 'Державы покупают страну по кускам, а к 1914 году их соперничество взрывается. Легче всего на Балканах, тяжелее всего в Гималаях — между Британией и Китаем.' },
+  '1930': { lvl: 3, of10: 5, easy: 'latam30', hard: 'asia30', text: 'Самая трудная эпоха: Великая депрессия, путчи и большая война на горизонте. Легче всего в Латинской Америке, тяжелее всего в Азии, где рядом Япония.' },
+  '1960': { lvl: 1, of10: 7, easy: 'asia', hard: 'africa', text: 'Хорошая эпоха для первой партии: обе сверхдержавы платят за дружбу. Проще всего в Азии и Латинской Америке, тяжелее — в Африке.' },
+  '1980': { lvl: 3, of10: 6, text: 'Покровитель платит, пока вы ему нужны, а к 1989 году бросает. Регионы примерно равны по сложности: к концу десятилетия готовьтесь заранее.' },
+  '2000': { lvl: 1, of10: 7, hard: 'africa00', text: 'Интернет растёт сам и сплачивает оппозицию, но времени на подготовку много. Тяжелее всего в Африке.' },
+};
+
 const UI = {
   tab: 'cabinet',
   setup: null,
@@ -53,16 +64,19 @@ const UI = {
     const E = ERAS[st.era];
     const defaults = E.defaultNames;
     document.body.dataset.era = st.era;
+    const pips = lvl => `<span class="era-diff" title="Сложность: ${ERA_DIFF_WORD[lvl]}">${[1, 2, 3].map(i => `<i class="${i <= lvl ? 'f' : ''}"></i>`).join('')}<span>${ERA_DIFF_WORD[lvl]}</span></span>`;
     $('#setup-eras').innerHTML = Object.entries(ERAS).sort((a, b) => a[1].start - b[1].start).map(([k, e]) => `
       <button class="pick era-pick ${st.era === k ? 'on' : ''}" data-era="${k}" aria-pressed="${st.era === k}">
-        <span class="pick-year">${e.name}</span><span class="pick-name">${e.label}</span><span class="pick-desc">${e.blurb}</span>
-        <span class="pick-meta">${e.regions.map(r => REGIONS[r].name).join(' · ')}</span>
+        <span class="pick-year">${e.name}</span><span class="pick-name">${e.label}</span>${ERA_DIFF[k] ? pips(ERA_DIFF[k].lvl) : ''}
       </button>`).join('');
+    const ED = ERA_DIFF[st.era];
+    $('#setup-era-detail').innerHTML = `<div class="era-detail-main"><div class="eyebrow">${E.name} · ${E.label}</div><p class="pick-desc">${E.blurb}</p><p class="pick-meta">${E.regions.map(r => REGIONS[r].name).join(' · ')}</p></div>
+      ${ED ? `<div class="era-detail-diff"><div class="eyebrow">Сложность</div>${pips(ED.lvl)}<p>${ED.text}</p><p class="pick-meta">В тестовых партиях до конца десятилетия у власти продержались ${ED.of10} правителей из 10.</p></div>` : ''}`;
     $('#setup-regions').innerHTML = E.regions.map(k => [k, REGIONS[k]]).map(([k, r]) => `
       <button class="pick ${st.region === k ? 'on' : ''}" data-region="${k}" aria-pressed="${st.region === k}">
         <svg viewBox="0 0 30 20" class="pick-flag">${r.flag}</svg>
         <span class="pick-name">${r.name}</span><span class="pick-desc">${r.blurb}</span>
-        <span class="pick-meta">${r.country} · экспорт: ${r.exports}</span>
+        <span class="pick-meta">${r.country} · экспорт: ${r.exports}</span>${ED && ED.easy === k ? '<span class="reg-diff easy">легче других</span>' : ED && ED.hard === k ? '<span class="reg-diff hard">тяжелее других</span>' : ''}
       </button>`).join('');
     $('#setup-regimes').innerHTML = E.regimes.map(k => [k, Game.regimeDef(k, st.region)]).map(([k, t]) => `
       <button class="pick ${st.regime === k ? 'on' : ''}" data-regime="${k}" aria-pressed="${st.regime === k}">
