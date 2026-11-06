@@ -794,3 +794,12 @@ const PROJECTS48 = {
   foreign: [{ id: 'festival', name: 'Большой бал для всех дворов Европы', q: 3, cost: 5, payoff: { relAll: 6, support: 2 }, pitch: 'Как на Венском конгрессе: посланники, вальсы и фейерверк. Европа полюбит нас. Ну, хотя бы её танцоры.' },
     { id: 'lobby', name: 'Свои люди при дворе покровителя', q: 3, cost: 6, payoff: { rel: { $patron: 12 } }, pitch: 'Наши люди в приёмных покровителя. Улыбки, обеды, нужные подписи.' }],
 };
+
+// Флаг Сардинии меняется в марте 1848 года
+const _flagSvg48 = flagSvg;
+// eslint-disable-next-line no-global-assign
+flagSvg = function (key, custom) {
+  if (key === 'sardinia' && S && S.era === '1848' && S.year + (S.q - 1) / 4 < 1848.25) key = 'sardinia45';
+  return _flagSvg48(key, custom);
+};
+
