@@ -925,7 +925,7 @@ const Game = {
   ending(type) {
     S.over = type;
     const R = REGIONS[S.region];
-    const ex = R.exile;
+    const ex = S.era === '1980' && S.regime === 'party80' && S.region !== 'east80' ? (S.region === 'asia80' ? 'Ханое' : 'Гаване') : R.exile;
     const rich = S.swiss >= 40;
     const years = (S.turn / 4).toFixed(1).replace('.0', '');
     const T = S.leader.title;

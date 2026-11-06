@@ -137,11 +137,24 @@ const UI = {
       st.look.hat = st.era === '2000' ? 'none' : st.era === '1980' || st.era === '1905' ? REGIME_LOOKS[st.regime].hat : st.era === '1848' ? (st.region === 'latam48' && st.regime === 'crown' ? 'gaucho' : REGIME_LOOKS[st.regime].hat) : st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
       if (st.era === '1905') Object.assign(st.look, st.region === 'gulf05' ? { outfit: 'robe', outfitColor: '#e8dcc0', trim: '#c9a24a', hat: 'keffiyeh', hatColor: '#f4f1ea', beard: 'full' } : st.region === 'himal05' ? { outfit: 'robe', outfitColor: '#8a1a2a', trim: '#e0b020', hat: st.regime === 'throne05' ? 'lamahat' : 'furhat', hatColor: st.regime === 'throne05' ? '#e0b020' : '#5a3a1a', beard: 'none' } : { ...REGIME_LOOKS[st.regime] });
       if (st.era === '1848') Object.assign(st.look, st.region === 'latam48' && st.regime === 'crown' ? { outfit: 'poncho', outfitColor: '#9a1a1a' } : { outfit: REGIME_LOOKS[st.regime].outfit, outfitColor: REGIME_LOOKS[st.regime].outfitColor });
+      regimeTitle();
       UI.renderSetup();
+    };
+    // Титул по режиму (1980-е: команданте, председатель...) и региональный облик (халат и куфия в Заливе) не сбрасываются при смене режима
+    const regimeTitle = () => {
+      if (st.era === '1980' && typeof REGIME_TITLE_80 !== 'undefined') st.title = (REGIME_TITLE_80[st.region] || {})[st.regime] || REGION_TITLES[st.region][0];
+      if (st.era === '1848' && st.region === 'latam48') st.title = { crown: 'Восстановитель Законов', charter: 'Президент', general: 'Генерал-Президент' }[st.regime] || st.title;
+      // революционный команданте — в оливковой форме, председатель народной республики — во френче
+      if (st.era === '1980' && st.regime === 'party80' && st.region === 'latam80') Object.assign(st.look, { outfit: 'military', outfitColor: '#556b2f', hat: 'beret', hatColor: '#2a2a2a', tie: 'none', medals: 0, glasses: 'none', beard: 'full', mustache: 'thick', hair: 'curly' });
+      if (st.era === '1980' && st.regime === 'party80' && st.region === 'asia80') Object.assign(st.look, { outfit: 'mao', outfitColor: '#56604a', tie: 'none', medals: 0, hat: 'none' });
     };
     for (const b of document.querySelectorAll('[data-regime]')) b.onclick = () => {
       st.regime = b.dataset.regime;
       Object.assign(st.look, REGIME_LOOKS[st.regime]);
+      if (st.era === '1905' && st.region === 'gulf05') Object.assign(st.look, { outfit: 'robe', outfitColor: '#e8dcc0', trim: '#c9a24a', hat: 'keffiyeh', hatColor: '#f4f1ea', beard: 'full' });
+      if (st.era === '1905' && st.region === 'himal05') Object.assign(st.look, { outfit: 'robe', outfitColor: '#8a1a2a', trim: '#e0b020', hat: st.regime === 'throne05' ? 'lamahat' : 'furhat', hatColor: st.regime === 'throne05' ? '#e0b020' : '#5a3a1a', beard: 'none' });
+      if (st.era === '1848' && st.region === 'latam48' && st.regime === 'crown') Object.assign(st.look, { outfit: 'poncho', outfitColor: '#9a1a1a', hat: 'gaucho' });
+      regimeTitle();
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-look]')) b.onclick = () => {
@@ -199,6 +212,9 @@ const UI = {
     const R = {
       latam48: {},
       gulf05: { throne05: 'Ваши братья теперь в изгнании, {addr}, и пишут друг другу длинные письма. Давайте не дадим им повода вернуться.', officers05: 'Прежний эмир уплыл в Басру на британском пароходе, {addr}. Триста всадников, которые привели вас, ждут добычи. Я бы не заставлял их ждать.', reform05: 'Ваш отец правил тридцать лет, {addr}, и не открыл ни одной школы. Купцы ждут, что вы откроете хотя бы одну. Улемы — что ни одной.' },
+      latam80: { party80: 'Добро пожаловать во дворец, {addr}. Прежний хозяин улетел в Майами позавчера и забыл три чемодана. Чемоданы мы национализировали.' },
+      asia80: { party80: 'Добро пожаловать во дворец, {addr}. Прежний хозяин улетел в Гонолулу позавчера и забыл три чемодана. Чемоданы мы национализировали.' },
+      east80: { party80: 'Добро пожаловать в кабинет, {addr}. Ваш предшественник руководил партией восемнадцать лет и ушёл на пенсию «по состоянию здоровья». У нас это главная причина отставок.', junta80: 'Прежнее руководство ушло в отставку вчера вечером, {addr}. Пленум поддержал Военный совет единогласно — после того, как в зал вошли танкисты.' },
       himal05: { throne05: 'Ваше прежнее перерождение правило тридцать лет, {addr}. Монастыри надеются, что нынешнее не уступит.', officers05: 'Владыка спит, {addr}, наставники при нём, караул удвоен. Прежний регент продержался два года. Давайте побьём его рекорд.', reform05: 'Ваш отец правил тридцать лет, {addr}, и ни разу не видел телеграфа. Монастыри просят, чтобы и вы не увидели.' },
     }[S.region];
     if (R && R[S.regime]) return R[S.regime];

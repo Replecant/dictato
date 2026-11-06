@@ -9,7 +9,7 @@ Object.assign(COUNTRIES, {
   papal: { name: 'Папская область', bloc: 'neutral', flag: 'papal', leaders: [[1846.42, 'папа Григорий XVI'], [1848.9, 'папа Пий IX'], [1850.3, 'папа Пий IX (в изгнании в Гаэте)'], [9999, 'папа Пий IX']] },
   sardinia: { name: 'Сардинское королевство', bloc: 'neutral', flag: 'sardinia', leaders: [[1849.23, 'король Карл Альберт'], [1852.85, 'король Виктор Эммануил II'], [9999, 'король Виктор Эммануил II (и премьер Кавур)']] },
   naples: { name: 'Королевство Обеих Сицилий', bloc: 'neutral', flag: 'naples', leaders: [[9999, 'король Фердинанд II']] },
-  spain: { name: 'Испания', bloc: 'neutral', flag: 'spain', leaders: [[9999, 'королева Изабелла II (и генерал Нарваэс)']] },
+  spain: { name: 'Испания', bloc: 'neutral', flag: 'spain', leaders: [[1851.05, 'королева Изабелла II (и генерал Нарваэс)'], [1854.55, 'королева Изабелла II'], [9999, 'королева Изабелла II (и генерал Эспартеро)']] },
 });
 // Правители держав в 1845–1855 годах
 COUNTRIES.russia.leaders48 = [[9999, 'император Николай I']];
@@ -46,7 +46,7 @@ const REGIME_SETS_48 = {
   crown: {
     name: 'Божьей милостью', icon: '👑',
     desc: 'Ваш трон подтвердил Венский конгресс, а охраняет Священный союз. Меттерних шлёт открытки на именины, студенты — эпиграммы.',
-    byRegion: { latam48: { name: 'Восстановитель законов', icon: '🐎', desc: 'Вы навели порядок после двадцати лет гражданских войн: красная лента федералистов обязательна для всех, а «Масорка» — по ночам. Лондон недоволен, асьендадо счастливы.' } },
+    byRegion: { latam48: { name: 'Восстановитель законов', icon: '🐎', desc: 'Вы навели порядок после двадцати лет гражданских войн: красная лента федералистов обязательна для всех, а ночные всадники в красных жилетах ездят по городу до утра. Лондон недоволен, асьендадо счастливы.' } },
     fx: { fear: 12, army: 6, support: -3 }, fac: { faith: { a: 15 }, oligarchs: { a: 15 }, liberals: { a: -18 }, left: { a: -8 } }, rel: { $east: 12, uk: -4, france: -6, spain: 10 },
   },
   charter: {
@@ -71,8 +71,8 @@ Object.assign(REGIONS, {
   german48: {
     name: 'Германские земли', short: 'Германия',
     blurb: 'Сорок государств, один Таможенный союз и ни одной общей конституции. С севера смотрит Берлин, с юга — Вена, а профессора мечтают о парламенте во Франкфурте.',
-    country: 'Великое герцогство Зонненберг', capital: 'Фридрихсруэ', currency: 'зонненбергский гульден',
-    exports: 'лён и рейнское вино', exportGen: 'льна', company: '«Рейнско-Зонненбергское пароходство»', patron: 'austria',
+    country: 'Великое герцогство Зонненберг', capital: 'Зонненштадт', currency: 'зонненбергский гульден',
+    exports: 'лён и рейнское вино', exportGen: 'льна', company: '«Венская компания „Дунай и Рейн“»', patron: 'austria',
     sport: 'большой стрелковый праздник', rival: 'Княжество Шварцбах', rivalShort: 'Шварцбах',
     disputed: 'таможенный пост у Мельничного моста', faithLeader: 'Придворный проповедник', capitalSquare: 'Дворцовой площади',
     jungle: 'лесах Оденвальда', nephew: 'Фрицхен',
@@ -98,7 +98,7 @@ Object.assign(REGIONS, {
   italy48: {
     name: 'Итальянский полуостров', short: 'Италия',
     blurb: 'Шёлк, оливки и опера. На севере — австрийские белые мундиры, в Риме — папа, а в каждой кофейне — заговорщики «Молодой Италии».',
-    country: 'Королевство Беллависта', capital: 'Сан-Северо', currency: 'беллавистская лира',
+    country: 'Королевство Беллависта', capital: 'Сан-Леонцио', currency: 'беллавистская лира',
     exports: 'шёлк и оливковое масло', exportGen: 'шёлка', company: '«Ломбардо-Венецианский шёлковый банк»', patron: 'austria',
     sport: 'палио — скачки на главной площади', rival: 'Герцогство Монтеверде', rivalShort: 'Монтеверде',
     disputed: 'соляные озёра у Монтеверде', faithLeader: 'Кардинал-архиепископ', capitalSquare: 'Пьяцца-дель-Дуомо',
@@ -119,16 +119,16 @@ Object.assign(REGIONS, {
       economy: { name: 'Банкир Амброджо Ротонди', bio: 'Одалживает деньги вам, вашим врагам и папе римскому. Всем под разный процент, но всегда под хороший.', look: L48({ skin: SKIN.tan, face: 'round', hair: 'baldside', hairColor: '#555', mustache: 'walrus', brows: 'worried', mouth: 'smirk', outfit: 'frock', outfitColor: '#3a2e22', vest: '#d6a63a', tie: '#111', blush: true }) },
       police: { name: 'Комиссар Нерино Сбирро', bio: 'Его осведомители переодеты монахами, торговцами каштанами и уличными певцами. Певцы, к сожалению, поют.', look: L48({ skin: SKIN.tan, face: 'long', hair: 'slick', hairColor: '#111', mustache: 'pencil', beard: 'imperial', brows: 'angry', mouth: 'smirk', hat: 'slouch', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#141416', vest: '#141416', tie: '#111' }) },
       propaganda: { name: 'Маэстро Россано Фанфарелли', bio: 'Сочиняет оперы, где тиран всегда раскаивается в третьем акте. Публика аплодирует, но почему-то громче всего — хору рабов.', look: L48({ skin: SKIN.tan, face: 'oval', hair: 'romantic', hairColor: '#2b1b10', beard: 'chinstrap', brows: 'normal', mouth: 'grin', outfit: 'frock', outfitColor: '#1f2a44', vest: '#c1272d', tie: '#f4f1ea' }) },
-      foreign: { name: 'Княгиня Кристина ди Белладжо', female: true, bio: 'Держит салон в Париже, где за одним столом обедают министры, заговорщики и поэты. Иногда это одни и те же люди.', look: L48({ skin: SKIN.light, face: 'oval', hair: 'bun', hairColor: '#1a1210', brows: 'normal', mouth: 'smile', outfit: 'gown', outfitColor: '#2a2a40', trim: '#f4f1ea', earring: true }) },
+      foreign: { name: 'Княгиня Клелия ди Сан-Мартелло', female: true, bio: 'Держит салон в Париже, где за одним столом обедают министры, заговорщики и поэты. Иногда это одни и те же люди.', look: L48({ skin: SKIN.light, face: 'oval', hair: 'bun', hairColor: '#1a1210', brows: 'normal', mouth: 'smile', outfit: 'gown', outfitColor: '#2a2a40', trim: '#f4f1ea', earring: true }) },
     },
   },
   latam48: {
     name: 'Латинская Америка', short: 'Латинская Америка',
     blurb: 'Кошениль, красное дерево и сто двадцать генералов. На севере США воюют с Мексикой за полконтинента, а британский консул знает цену вашей кошенили в Лондоне.',
     country: 'Республика Кордильера', capital: 'Сан-Мигель-де-лас-Пальмас', currency: 'кордильерский песо',
-    exports: 'кошениль и красное дерево', exportGen: 'кошенили', company: '«Лондонский торговый дом Баркли и сыновья»', patron: 'uk',
+    exports: 'кошениль и красное дерево', exportGen: 'кошенили', company: '«Лондонский торговый дом Пенниуорт и сыновья»', patron: 'uk',
     sport: 'большие петушиные бои на ярмарке', rival: 'Республика Лас-Сьеррас', rivalShort: 'Лас-Сьеррас',
-    disputed: 'порт Сан-Хуан-дель-Сур', faithLeader: 'Архиепископ', capitalSquare: 'Пласа-Майор',
+    disputed: 'порт Санта-Каталина', faithLeader: 'Архиепископ', capitalSquare: 'Пласа-Майор',
     jungle: 'горах Сьерра-Мадре-дель-Сур', nephew: 'Панчито',
     countries: ['usa', 'uk', 'france', 'spain', 'mexico', 'brazil'],
     relInit: { usa: 45, uk: 55, france: 45, spain: 42, mexico: 52, brazil: 45 },
@@ -144,7 +144,7 @@ Object.assign(REGIONS, {
     advisors: {
       defense: { name: 'Генерал Мариано Тромпета-и-Пистола', bio: 'Проиграл двенадцать сражений и выиграл тринадцать пронунсиамьенто. Считает, что второе важнее.', look: L48({ skin: SKIN.tan, face: 'round', hair: 'curly', hairColor: '#1a1410', mustache: 'handlebar', beard: 'sideburns', brows: 'bushy', hat: 'bicorne', hatColor: '#1a1a1a', plume: '#c1272d', outfit: 'uniform48', outfitColor: '#1f2a5a', collar: '#c1272d', medals: 12, sash: '#c1272d' }) },
       economy: { name: 'Дон Фаустино Кредитос', bio: 'Лондонские банкиры называют его «наш человек в Кордильере». Он называет их так же. Кто прав, выяснится при выплате займа.', look: L48({ skin: SKIN.light, face: 'long', hair: 'combover', hairColor: '#777', glasses: 'pince', mustache: 'pencil', brows: 'worried', mouth: 'o', outfit: 'frock', outfitColor: '#2a2a2e', vest: '#e8dcc0', tie: '#111', sweat: true }) },
-      police: { name: 'Полковник Сиксто Масорка', bio: 'Командует ночными всадниками в красных жилетах. Красный цвет теперь носят все, кто хочет дожить до утра.', look: L48({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#111', mustache: 'thick', beard: 'chinstrap', brows: 'angry', mouth: 'smirk', hat: 'gaucho', hatColor: '#1a1a1a', outfit: 'poncho', outfitColor: '#9a1a1a', trim: '#1a1a1a' }) },
+      police: { name: 'Полковник Сиксто Кучильеро', bio: 'Командует ночными всадниками в красных жилетах. Красный цвет теперь носят все, кто хочет дожить до утра.', look: L48({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#111', mustache: 'thick', beard: 'chinstrap', brows: 'angry', mouth: 'smirk', hat: 'gaucho', hatColor: '#1a1a1a', outfit: 'poncho', outfitColor: '#9a1a1a', trim: '#1a1a1a' }) },
       propaganda: { name: 'Падре Эваристо Гасета', bio: 'Редактор единственной газеты страны. Печатает её на станке, конфискованном у либералов, и раздаёт после мессы.', look: L48({ skin: SKIN.tan, face: 'round', hair: 'baldside', hairColor: '#555', brows: 'normal', mouth: 'grin', hat: 'zucchetto', hatColor: '#111', outfit: 'cassock', outfitColor: '#141414', glasses: 'round', blush: true }) },
       foreign: { name: 'Дон Алехандро де Монтеверде-и-Лондрес', bio: 'Двадцать лет прожил в Лондоне и вернулся с зонтиком и привычкой пить чай в пять. Зонтик в сезон дождей очень пригодился.', look: L48({ skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#bbb', beard: 'sideburns', mustache: 'none', brows: 'normal', mouth: 'smirk', glasses: 'monocle', hat: 'top', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#1d1d22', vest: '#7a1f3d', tie: '#f4f1ea' }) },
     },
@@ -155,7 +155,7 @@ const TITLES_48 = ['Великий герцог', 'Король', 'Регент'
 Object.assign(REGION_TITLES, {
   german48: ['Великий герцог', 'Регент', 'Светлейший государь', 'Отец Отечества', 'Генерал-регент', 'Курфюрст', 'Ландграф', 'Защитник Порядка'],
   italy48: ['Король', 'Регент', 'Государь', 'Отец Отечества', 'Генерал-регент', 'Король-Гражданин', 'Защитник Веры', 'Освободитель'],
-  latam48: ['Восстановитель Законов', 'Каудильо', 'Светлейшее Высочество', 'Верховный Директор', 'Пожизненный Президент', 'Генерал-Президент', 'Защитник Отечества', 'Благодетель'],
+  latam48: ['Восстановитель Законов', 'Президент', 'Каудильо', 'Светлейшее Высочество', 'Верховный Директор', 'Пожизненный Президент', 'Генерал-Президент', 'Защитник Отечества', 'Благодетель'],
 });
 Object.assign(TITLE_FORMS, {
   'Великий герцог': ['Великого герцога', 'Великим герцогом'], 'Светлейший государь': ['Светлейшего государя', 'Светлейшим государем'],
@@ -194,7 +194,8 @@ ERAS['1848'] = {
   aid: [['austria', 60, 4], ['russia', 62, 4], ['prussia', 60, 4], ['uk', 60, 4], ['france', 62, 4], ['usa', 62, 5], ['spain', 62, 5], ['$patron', 60, 4]],
   vars: {
     blame: 'тайное общество. Или английский агент', student_meme: 'Свободу печати!', swim_ref: 'Например, переплыть пролив, как лорд Байрон. Публика до сих пор в восторге.',
-    mast: 'ПРИДВОРНЫЕ ВЕДОМОСТИ', rebel_icon: 'трёхцветную кокарду', friendly_paper: 'петербургской «Северной пчеле»',
+    // шапка экстренного выпуска: в республике и в Италии — своя газета
+    get mast() { return S && S.region === 'latam48' ? 'ЭЛЬ МОНИТОР РЕПУБЛИКАНО' : S && S.region === 'italy48' ? 'ГАДЗЕТТА ДИ БЕЛЛАВИСТА' : 'ПРИДВОРНЫЕ ВЕДОМОСТИ'; }, rebel_icon: 'трёхцветную кокарду', friendly_paper: 'петербургской «Северной пчеле»',
     friendly_res: 'В Петербурге ваш портрет напечатали рядом с высочайшим указом о борьбе с вольнодумством. Почётно.',
   },
   defaultNames: { german48: 'Леопольд Карл Август', italy48: 'Себастьяно Луиджи Маурицио', latam48: 'Мануэль Антонио де Вильясеньор' },
@@ -220,10 +221,10 @@ function npc48(key, region) {
       ? { ...base, face: 'long', hair: 'romantic', hairColor: '#ddd', beard: 'chinstrap', brows: 'bushy', browColor: '#ddd', mouth: 'flat', outfit: 'cassock', outfitColor: '#141414', glasses: 'round', bands: true }
       : { ...base, face: 'round', hair: 'baldside', hairColor: '#aaa', brows: 'bushy', browColor: '#aaa', mouth: 'flat', hat: 'zucchetto', hatColor: it ? '#b01a2a' : '#7a1a5a', outfit: 'cassock', outfitColor: it ? '#9a1a2a' : '#141414', blush: true } },
     banker: { name: 'Барон Ротшильд-младший, франкфуртский банк', look: L48({ face: 'long', hair: 'short', hairColor: '#3a2a1a', beard: 'chinstrap', mouth: 'smirk', hat: 'top', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#1d1d22', vest: '#d6a63a', tie: '#111' }) },
-    first_lady: { name: 'Её высочество супруга', look: { ...base, face: 'oval', hair: 'bun', hairColor: '#1a1210', mustache: 'none', brows: 'normal', mouth: 'smirk', outfit: 'gown', outfitColor: '#7a1f3d', trim: '#f4f1ea', earring: true } },
+    first_lady: { name: lat ? 'Сеньора супруга' : 'Её высочество супруга', look: { ...base, face: 'oval', hair: 'bun', hairColor: '#1a1210', mustache: 'none', brows: 'normal', mouth: 'smirk', outfit: 'gown', outfitColor: '#7a1f3d', trim: '#f4f1ea', earring: true } },
     nephew: { name: `Племянник ${r.nephew}`, look: { ...base, face: 'round', hair: 'romantic', hairColor: '#2b1b10', mustache: 'none', brows: 'normal', mouth: 'grin', outfit: 'uniform48', outfitColor: '#f1ede2', collar: '#d6a63a', medals: 2, blush: true } },
     professor: { name: 'Профессор Гримм-Шлегель из Гёттингена', look: L48({ face: 'long', hair: 'romantic', hairColor: '#ddd', beard: 'full', brows: 'bushy', browColor: '#ddd', mouth: 'o', glasses: 'round', outfit: 'frock', outfitColor: '#3a3a30', vest: '#5a4a2a', tie: '#111' }) },
-    exdictator: { name: 'Бывший король в изгнании', look: L48({ face: 'round', hair: 'baldside', hairColor: '#ccc', beard: 'sideburns', mouth: 'frown', brows: 'worried', hat: 'top', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#2a2a2a', vest: '#5a5a5a', tie: '#111', sweat: true }) },
+    exdictator: { name: lat ? 'Бывший президент в изгнании' : 'Бывший король в изгнании', look: L48({ face: 'round', hair: 'baldside', hairColor: '#ccc', beard: 'sideburns', mouth: 'frown', brows: 'worried', hat: 'top', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#2a2a2a', vest: '#5a5a5a', tie: '#111', sweat: true }) },
     colonel: { name: 'Полковник гвардии', look: { ...base, face: 'square', hair: 'short', hairColor: '#2a2018', mustache: 'waxed', brows: 'angry', mouth: 'flat', hat: 'shako', hatColor: '#1a1a1a', plume: '#f4f1ea', outfit: 'uniform48', outfitColor: '#2a3a5a', collar: '#c1272d', medals: 3 } },
     spy: { name: 'Таинственный незнакомец в плаще', look: L48({ face: 'long', hair: 'slick', hairColor: '#777', brows: 'worried', mouth: 'flat', hat: 'slouch', hatColor: '#1a1a1a', outfit: 'frock', outfitColor: '#111', vest: '#111', tie: '#111' }) },
   };
