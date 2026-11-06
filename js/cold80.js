@@ -113,7 +113,7 @@ Object.assign(Game, {
       const P = Game.c80Patron();
       S.c80 = {
         need: S.region === 'east80' ? 60 : 65, debt: { latam80: 45, asia80: 40, east80: 35 }[S.region] || 40, heat: 15,
-        last: -99, debtAt: -99, cityDone: [], log: [], austerity: -99, defaulted: false, concertAt: -99, basesAt: -99, startPatron: P,
+        last: -99, debtAt: -99, cityDone: [], log: [], austerity: -99, defaulted: false, concertAt: -99, basesAt: -99, startPatron: P, needHist: [],
       };
     }
     return S.c80;
@@ -130,10 +130,9 @@ Object.assign(Game, {
       ? { id: 'bases', name: 'Предложить Вашингтону базу', desc: 'Аэродром для американских самолётов или лагерь для «борцов за свободу». Пока идёт холодная война, это очень ценится.', ok: true, fx: { c80Need: hot ? 10 : 3, rel: { usa: 6, ussr: -4 }, support: -3, fac: { liberals: { a: -4 } } } }
       : { id: 'bases', name: east ? 'Учения Варшавского договора' : 'Пустить советский флот в порт', desc: east ? 'Танки братских армий на ваших полигонах. Москва помнит, кто был рядом.' : 'Стоянка для советских кораблей и база подлодок. Москва платит нефтью.', ok: true, fx: { c80Need: hot ? 9 : 3, rel: { ussr: 6, usa: -5 }, fear: 2, fac: { hawks: { a: 4 } } } });
     A.push({ id: 'speech', name: P === 'usa' ? 'Антикоммунистическая речь в ООН' : 'Антиимпериалистическая речь в ООН', desc: hot ? 'Покровитель любит громких союзников. Пока холодная война горячая.' : 'После Женевы и Рейкьявика такие речи звучат старомодно. Но немного ещё помогают.', ok: S.treasury >= 3, fx: { treasury: -3, c80Need: hot ? 5 : 1, support: 1, rel: { [P === 'usa' ? 'ussr' : 'usa']: -4 } } });
-    A.push({ id: 'imf', name: 'Программа МВФ', desc: 'Кредит на погашение старых долгов в обмен на жёсткую экономию. Год улица будет злее.', ok: (S.rel.imf || 0) >= 30 && S.turn - C.austerity >= 4, fx: { c80Debt: -15, support: -5, c80Heat: 8, rel: { imf: 10 } } });
+    A.push({ id: 'officers', name: 'Премии и квартиры офицерам', desc: 'Генералы получают новые квартиры, полковники — машины, лейтенанты — обещания. Армия запомнит, кто о ней заботился.', ok: S.treasury >= 12, fx: { treasury: -12, army: 6, fac: { hawks: { a: 8 } } } });
+    A.push({ id: 'creditors', name: 'Сесть за стол с кредиторами', desc: 'МВФ, банкиры с Уолл-стрит и посол покровителя торгуются о вашем долге. Каждый хочет своего.', ok: true, scene: true, fx: {} });
     A.push({ id: 'rollover', name: 'Перезанять у банков', desc: 'Новый кредит, чтобы заплатить проценты по старым. Банкиры охотно дают, пока верят, что вы отдадите.', ok: C.debt < 90 && !C.defaulted, fx: { treasury: 20, c80Debt: 12 } });
-    if (!C.defaulted) A.push({ id: 'default', name: 'Мораторий на выплаты', desc: 'Перестать платить проценты. Казна вздохнёт, но кредиторы и МВФ запомнят надолго.', ok: true, danger: true, fx: { c80Debt: -20, rel: { imf: -20, $west: -6 }, economy: -6 } });
-    if (east) A.push({ id: 'payall', name: 'Выплатить долг любой ценой', desc: 'Весь экспорт — за границу, в магазинах — пусто, отопление — по графику. Зато никому не должны.', ok: S.treasury >= 25, danger: true, fx: { treasury: -25, c80Debt: -20, support: -6, c80Heat: 6, economy: -2 } });
     if (S.turn - C.concertAt >= 4) A.push({ id: 'concert', name: east ? 'Разрешить рок-концерт на стадионе' : 'Бесплатный рок-концерт на стадионе', desc: 'Молодёжь выпустит пар под гитары. Церковь ворчит, а «Свободная Европа» удивлена.', ok: S.treasury >= 5, fx: { treasury: -5, c80Heat: -8, fac: { liberals: { a: 5 }, faith: { a: -4 } } } });
     A.push({ id: 'soap', name: 'Купить бразильский сериал для телевидения', desc: 'Сто серий о любви и рабстве. В часы показа улицы пустеют.', ok: S.treasury >= 6, fx: { treasury: -6, support: 3, c80Heat: -5 } });
     A.push({ id: 'dialogue', name: 'Диалог с оппозицией', desc: 'Пригласить лидеров оппозиции и церкви за один стол. Улица остывает, генералы нервничают.', ok: true, fx: { c80Heat: -12, fear: -3, fac: { liberals: { a: 10 }, hawks: { a: -6 } } } });
@@ -141,10 +140,8 @@ Object.assign(Game, {
   },
   c80Action(id) {
     const a = Game.c80Actions().find(x => x.id === id);
-    if (!a || !a.ok || !Game.spend()) return null;
+    if (!a || !a.ok || a.scene || !Game.spend()) return null;
     const C = Game.c80();
-    if (id === 'imf') C.austerity = S.turn;
-    if (id === 'default') C.defaulted = true;
     if (id === 'concert') C.concertAt = S.turn;
     if (id === 'bases') C.basesAt = S.turn;
     const changes = Game.apply(a.fx);
@@ -152,54 +149,72 @@ Object.assign(Game, {
     Game.log(text);
     return { text, changes };
   },
-
+  // Шанс, что армия останется с вами, когда улица выйдет на площадь
+  c80Loyalty() {
+    const C = Game.c80();
+    return clamp(0.15 + S.army / 220 + S.fac.hawks.a / 260 + (C.need >= 55 ? 0.1 : 0) + (S.flags.c80Immunity ? 0.08 : 0) - C.heat / 350, 0.1, 0.85);
+  },
   c80StreetScene() {
-    const C = Game.c80(), R = Game.c80Cfg(), P = Game.c80Patron(), t = Game.eraTime(), east = S.region === 'east80';
+    const C = Game.c80(), P = Game.c80Patron(), t = Game.eraTime(), east = S.region === 'east80', lat = S.region === 'latam80';
     C.last = S.turn;
-    const big = C.heat >= 85;
+    const big = C.heat >= 85, loy = Game.c80Loyalty(), PN = COUNTRIES[P].name;
+    const reform = lat ? 'командующие флотом и авиацией' : east ? 'генералы армии' : 'полковники-реформисты';
     const choices = [
-      { text: 'Ввести войска', adv: ['defense'], chance: () => clamp(0.3 + S.army / 250 + S.fear / 300 - C.heat / 400, 0.15, 0.8),
-        win: { fx: { c80Heat: -38, fear: 8, support: -8, rel: { $west: -10 }, c80Need: P === 'usa' && t >= 1986 ? -8 : 0 }, res: 'Ночью улицы очистили. Утром телевидение показывает уборщиков. Иностранные корреспонденты показывают другое.' },
-        lose: { fx: { c80Heat: 4, army: -12, support: -10 }, res: 'Солдаты отказались стрелять. Танкисты разрешили детям залезть на броню, и фотографии разошлись по всему миру.' } },
-      { text: east ? 'Круглый стол с оппозицией' : 'Переговоры с оппозицией и церковью', fx: { c80Heat: -30, fear: -5, fac: { liberals: { a: 15 }, hawks: { a: -8 } } }, res: 'Вы сели за один стол с теми, кого вчера называли врагами. Улица ждёт результатов, но уже не на баррикадах.' },
-      { text: 'Обратиться к нации по телевидению', adv: ['propaganda'], chance: () => clamp(0.25 + S.support / 150, 0.15, 0.75),
-        win: { fx: { c80Heat: -20, support: 3 }, res: 'Ваше обращение вышло удачным: усталое лицо, честные слова, ни одной бумажки. Многие решили дать вам ещё шанс.' },
-        lose: { fx: { c80Heat: 8, support: -3 }, res: 'Во время речи у вас дрожали руки, а оператор зачем-то показал их крупным планом. На следующий день людей на улице стало вдвое больше.' } },
+      { text: 'Приказать армии очистить улицы', adv: ['defense'], chance: () => Game.c80Loyalty(),
+        win: { fx: { c80Heat: -40, fear: 8, support: -8, rel: { $west: -10 }, c80Need: P === 'usa' && t >= 1986 ? -8 : 0 }, res: 'Генералы выполнили приказ. К утру улицы пусты, а телевидение показывает уборщиков. Иностранные корреспонденты показывают другое.' },
+        lose: { fx: { c80Heat: 12, army: -20, flag: { c80Defect: true } }, res: `Генералы не стали выполнять приказ. ${reform[0].toUpperCase() + reform.slice(1)} заявили по радио, что «армия с народом». Солдаты раздают толпе цветы.` } },
+      { text: 'Купить генералов: премии, дачи, звания', adv: ['economy'], req: S => S.treasury >= 15, reqText: 'нужно 15 млн', fx: { treasury: -15, army: 10, c80Heat: -8, fac: { hawks: { a: 12 } } }, res: 'Генералы получили новые звёзды и ключи от дач. Улица всё ещё шумит, но армия теперь смотрит на неё из окон дач.' },
+      { text: 'Сменить командующего на верного человека', fx: { fireRole: 'defense', army: -4, c80Heat: -5, fac: { hawks: { a: -6 } } }, res: 'Министр обороны уволен. Новый — ваш родственник: в штабе он не разбирается, зато не предаст. Наверное.' },
+      { text: 'Пообещать армии неприкосновенность', fx: { flag: { c80Immunity: true }, c80Heat: -6, fac: { hawks: { a: 12 }, liberals: { a: -10 } } }, res: 'Вы подписали указ: ни один офицер не будет судим, что бы ни случилось. Генералы облегчённо вздохнули. Матери пропавших — нет.' },
+      { text: east ? 'Круглый стол с оппозицией' : 'Переговоры с оппозицией и церковью', fx: { c80Heat: -28, fear: -5, fac: { liberals: { a: 15 }, hawks: { a: -8 } } }, res: 'Вы сели за один стол с теми, кого вчера называли врагами. Генералы смотрят на вас и решают, с вами ли они ещё.' },
     ];
-    if (Game.c80HelpOk()) choices.push(P === 'ussr'
-      ? { text: 'Попросить Москву о «братской помощи»', fx: { c80Heat: -45, support: -10, fear: 8, rel: { ussr: 4, $west: -15 }, flag: { bayonets80: true }, fac: { liberals: { a: -10 } } }, res: 'Советские танки вошли в столицу, как когда-то в Прагу. Улицы пусты. В Москве, правда, вас больше не приглашают на банкеты.' }
-      : { text: 'Попросить помощи у посла США', fx: { c80Heat: -25, support: -5, rel: { usa: 3 }, c80Need: -4 }, res: 'Посольство прислало советников по «борьбе с беспорядками» и новые водомёты. Вашингтон помог, но в последний раз — так сказал посол.' });
+    if (C.need >= 35) choices.push({ text: `Договориться о «мягкой посадке»: ${PN}`, fx: { end: 'softland' }, res: P === 'usa' ? 'Посол пообещал самолёт, охрану и неприкосновенность вашего счёта. В обмен — отставка сегодня вечером.' : 'Москва предлагает самолёт, дачу в Подмосковье и пенсию. В обмен — отставка «по состоянию здоровья».' });
     choices.push({ text: 'Улететь на вертолёте с крыши', fx: { end: 'helicopter' }, res: 'Вертолёт поднимается с крыши дворца. Внизу — толпа, впереди — граница. Охрана, кажется, машет вам вслед. Или кулаками.' });
     return {
-      title: `${R.street[0].toUpperCase() + R.street.slice(1)} ${R.streetLoc}`, bg: 'square', crisis: big,
+      title: 'Генералы решают', bg: 'night', crisis: big,
       lines: [
-        ['narrator', S.region === 'latam80' ? `${big ? 'Сотни тысяч' : 'Десятки тысяч'} человек бьют ложками в кастрюли ${R.streetLoc}. Матери пропавших держат фотографии. Студенты скандируют «Он падёт!».`
-          : east ? `${big ? 'Сотни тысяч' : 'Десятки тысяч'} человек ${R.streetLoc}. Рабочие с заводов, студенты, священники. Кто-то вырезал из флага герб — на флаге теперь дыра.`
-            : `${big ? 'Миллион' : 'Сотни тысяч'} человек ${R.streetLoc}. Монахини с чётками, студенты, бизнесмены в жёлтых рубашках. Кардинал по радио зовёт всех оставаться на улице.`],
-        ['police', big ? 'Ещё одна ночь — и они пойдут на дворец. Решайте сейчас.' : 'Пока стоят мирно. Пока.'],
-        ['foreign', Game.c80HelpOk() ? `Покровитель (${COUNTRIES[P].name}) ещё готов помочь. Но спрашивает, понимаем ли мы, сколько это будет стоить.` : `Покровитель (${COUNTRIES[P].name}) советует «проявить сдержанность». Это значит, что помогать он не будет.`],
+        ['narrator', lat ? `${big ? 'Сотни тысяч' : 'Десятки тысяч'} человек бьют ложками в кастрюли на площади Конституции. Матери пропавших держат фотографии. Но исход решит не площадь, а казармы.`
+          : east ? `${big ? 'Сотни тысяч' : 'Десятки тысяч'} человек на площади Революции. Из флага вырезали герб — на флаге теперь дыра. Но исход решит не площадь, а армия.`
+            : `${big ? 'Миллион' : 'Сотни тысяч'} человек на проспекте Свободы. Монахини с чётками стоят перед бронетранспортёрами. Но исход решит не проспект, а армия.`],
+        ['defense', loy >= 0.55 ? 'Армия пока с вами. Пока. Генералы ждут приказа — и смотрят, что скажет покровитель.' : `Не все офицеры со мной согласны. ${reform[0].toUpperCase() + reform.slice(1)} собрались в штабе и не отвечают на звонки.`],
+        ['foreign', C.need >= 55 ? `Покровитель (${PN}) ещё на вашей стороне. Генералы это знают.` : `Покровитель (${PN}) советует «проявить сдержанность». Генералы это тоже слышали.`],
+        ['narrator', `Армия выполнит приказ стрелять с вероятностью примерно ${Math.round(loy * 100)}%.`],
       ],
       choices,
-      after: (out, choice) => (choice && choice.fx && choice.fx.end ? choice.fx.end : Game.c80().heat >= 95 ? 'revolution' : null),
+      after: (out, choice) => {
+        const e = choice && choice.fx && choice.fx.end;
+        if (e === 'softland') { S.flags.c80Soft = true; S.swiss += Math.max(0, S.treasury * 0.3); return 'retired'; }
+        if (e) return e;
+        if (S.flags.c80Defect && Game.c80().heat >= 75) return 'revolution';
+        return Game.c80().heat >= 95 ? 'revolution' : null;
+      },
     };
   },
-  c80DebtScene() {
-    const C = Game.c80(), P = Game.c80Patron();
+  c80DebtScene(voluntary) {
+    const C = Game.c80(), P = Game.c80Patron(), east = S.region === 'east80';
     C.debtAt = S.turn;
     const choices = [
-      { text: 'Принять программу МВФ', adv: ['economy'], fx: { c80Debt: -20, support: -6, c80Heat: 10, rel: { imf: 12 } }, res: 'Цены на хлеб и бензин выросли за одну ночь. Эксперты МВФ поселились в министерстве финансов и пьют там свой кофе.' },
-      { text: 'Объявить дефолт', fx: { c80Debt: -30, economy: -8, rel: { imf: -25, $west: -8 } }, res: 'Вы объявили, что страна платить не будет. Банкиры в шоке, народ в восторге — до тех пор, пока не кончился импорт.' },
-      { text: 'Платить любой ценой', req: S => S.treasury >= 25, reqText: 'нужно 25 млн', fx: { treasury: -25, c80Debt: -15, support: -8, c80Heat: 6, economy: -2 }, res: 'Весь экспорт ушёл на выплаты. В магазинах пусто, в квартирах холодно, зато кредиторы вами довольны.' },
+      { text: 'Программа МВФ: кредит в обмен на экономию', adv: ['economy'], req: S => (S.rel.imf || 0) >= 30, reqText: 'нужны отношения с МВФ ≥ 30', fx: { c80Debt: -20, support: -6, c80Heat: 10, rel: { imf: 12 } }, res: 'Цены на хлеб и бензин выросли за одну ночь. Эксперты МВФ поселились в министерстве финансов и пьют там свой кофе.' },
+      { text: 'Стравить кредиторов друг с другом', adv: ['foreign'], chance: () => 0.45,
+        win: { fx: { c80Debt: -12, rel: { imf: -4 } }, res: 'Министр шепнул банкирам, что МВФ требует списать половину, а МВФ — что банки готовы. Пока они выясняли, кто кого обманул, долг немного уменьшился.' },
+        lose: { fx: { c80Debt: 6, rel: { imf: -8 } }, res: 'Банкиры и МВФ поговорили между собой. Проценты выросли, а министра больше не приглашают на завтраки.' } },
     ];
-    if (C.need >= 50) choices.push({ text: `Попросить покровителя заплатить: ${COUNTRIES[P].name}`, fx: { c80Debt: -15, c80Need: -12, rel: { [P]: -3 } }, res: P === 'usa' ? 'Вашингтон уговорил банки списать часть долга. Посол мягко напомнил, что такие услуги не бесплатны.' : 'Москва прислала нефть в кредит. Кредит, разумеется, придётся отдавать — и не только нефтью.' });
+    if (!east) choices.push({ text: 'Обменять долг на акции рудников и заводов', fx: { c80Debt: -18, support: -4, fac: { oligarchs: { a: 6 }, left: { a: -10 } } }, res: 'Банки стали хозяевами половины ваших рудников. Долг уменьшился, а над шахтами теперь висят флаги чужих банков.' });
+    else choices.push({ text: 'Выплатить любой ценой', req: S => S.treasury >= 25, reqText: 'нужно 25 млн', fx: { treasury: -25, c80Debt: -20, support: -8, c80Heat: 6, economy: -2 }, res: 'Весь экспорт ушёл на выплаты. В магазинах пусто, в квартирах холодно, зато кредиторы вами довольны.' });
+    if (!east && S.year >= 1987) choices.push({ text: 'Обменять долг на охрану лесов', fx: { c80Debt: -8, rel: { $west: 6 }, economy: -1 }, res: 'Экологический фонд выкупил часть долга, а вы пообещали не рубить лес в горах. Генералы спрашивают, где теперь строить дачи.' });
+    if (C.need >= 45) choices.push({ text: `Попросить покровителя заплатить: ${COUNTRIES[P].name}`, fx: { c80Debt: -18, c80Need: -12, rel: { [P]: -3 } }, res: P === 'usa' ? 'Вашингтон уговорил банки списать часть долга. Посол мягко напомнил, что такие услуги не бесплатны.' : 'Москва прислала нефть в кредит. Кредит, разумеется, придётся отдавать — и не только нефтью.' });
+    if (!C.defaulted) choices.push({ text: 'Объявить мораторий на выплаты', fx: { c80Debt: -25, economy: -6, rel: { imf: -20, $west: -6 }, flag: { c80Default: true } }, res: 'Вы объявили, что страна платить не будет. Банкиры в шоке, народ в восторге — до тех пор, пока не кончился импорт.' });
+    if (voluntary) choices.push({ text: 'Встать из-за стола', fx: {}, res: 'Вы вежливо поблагодарили всех и ушли. Проценты, к сожалению, остались за столом.' });
     return {
-      title: 'Кредиторы у ворот', bg: 'office',
+      title: 'Стол кредиторов', bg: 'office',
       lines: [
-        ['npc:imf_amb', `Ваш внешний долг стал опасным. Проценты съедают ${Game.c80Interest()} млн в квартал, и банки больше не хотят перезанимать. Нам нужна программа.`],
+        ['npc:imf_amb', `Ваш внешний долг — ${Math.round(C.debt)} пунктов, проценты съедают ${String(Game.c80Interest()).replace('.', ',')} млн в квартал. Мы готовы помочь. При условии, что вы урежете субсидии.`],
+        ['npc:yuppie', 'Банки не против подождать. Но за ожидание тоже надо платить. Например, рудниками. Или сахарными заводами. Мы не привередливы.'],
+        [P === 'usa' ? 'npc:usa_amb' : 'npc:ussr_amb', C.need >= 45 ? 'Мы можем замолвить за вас слово. Друзья помогают друзьям. Пока они друзья.' : 'Это ваши долги, а не наши. Времена изменились.'],
         ['economy', '{Addr}, денег в казне хватит на два квартала выплат. Или на один квартал зарплат. На то и другое — нет.'],
-        ['propaganda', 'Можно сказать народу, что во всём виноваты иностранные банкиры. Это даже правда.'],
       ],
       choices,
+      after: () => { if (S.flags.c80Default) Game.c80().defaulted = true; return null; },
     };
   },
   c80VoteScene() {
@@ -285,6 +300,7 @@ Game.applyHooks.push(fx => {
   if (fx.c80Need) C.need = clamp(C.need + fx.c80Need);
   if (fx.c80Debt) C.debt = clamp(C.debt + fx.c80Debt);
   if (fx.c80Heat) C.heat = clamp(C.heat + fx.c80Heat);
+  if (fx.flag && fx.flag.c80Default) C.defaulted = true;
 });
 Game.previewHooks.push((fx, out) => {
   if (S.era !== '1980') return;
@@ -317,7 +333,7 @@ Game.forcedList.push(() => {
   if (!S.flags.c80Doctrine && (P === 'ussr' ? t >= 1985.25 : t >= 1986.25)) return Game.c80DoctrineScene();
   if (S.region === 'east80' && !S.flags.c80Balcony && t >= 1989.75 && C.heat >= 50) return Game.c80BalconyScene();
   if (C.heat >= 70 && S.turn - C.last >= 3) return Game.c80StreetScene();
-  if (C.debt >= 70 && S.turn - C.debtAt >= 6) return Game.c80DebtScene();
+  if (C.debt >= 68 && S.turn - C.debtAt >= 6) return Game.c80DebtScene(false);
   return null;
 });
 Game.quarterHooks.push(rep => {
@@ -325,6 +341,7 @@ Game.quarterHooks.push(rep => {
   const C = Game.c80(), t = Game.eraTime(), P = Game.c80Patron(), east = S.region === 'east80';
   const phase = t < 1985.25 ? 0.4 : t < 1987 ? -1.2 : t < 1989 ? -2.2 : -3.5;
   C.need = clamp(C.need + phase + (t < 1987 ? (S.fac.left.s - 30) / 40 : 0) + ((S.rel[P] || 50) - 55) / 40);
+  C.needHist = [...(C.needHist || []), Math.round(C.need)].slice(-41);
   if (S.treasury < 0) C.debt = clamp(C.debt + 1.5);
   C.heat = clamp(C.heat + 0.3 + Math.max(0, 45 - S.support) / 14 + (S.economy < 40 ? 1 : 0) + S.fac.liberals.s / 80 + (S.turn - C.austerity < 4 ? 1 : 0)
     - S.fear / 90 - (S.support > 60 ? 1.5 : 0) + (t >= 1985.25 ? 0.4 : 0) + (t >= 1989 ? 0.8 : 0) + (east && t >= 1988.75 ? 1 : 0));
@@ -343,6 +360,12 @@ Game.endingHooks.push((type, E, verdicts) => {
         : 'Партия проиграла выборы, и вы стали президентом при парламенте оппозиции. Через год вы ушли сами. Историки до сих пор спорят, были вы последним диктатором или первым реформатором.';
     verdicts.push('Ушёл после голосования'); S.flags.scoreBonus = (S.flags.scoreBonus || 0) + 120;
   }
+  if (type === 'retired' && S.flags.c80Soft) {
+    const P = Game.c80Patron();
+    E.title = 'Мягкая посадка';
+    E.text = P === 'usa' ? `Посол сдержал слово: американский самолёт, охрана и тихий дом в ${R.exile}. Ваш счёт никто не тронул, а новое правительство решило, что судить вас дороже, чем забыть. Так когда-то улетели Маркос и Бэби Док.` : 'Москва прислала самолёт. Теперь вы живёте на даче под Москвой, гуляете с собакой и читаете газеты, в которых о вас больше не пишут. Так когда-то уехал Хонеккер.';
+    verdicts.push('Ушёл по договорённости'); S.flags.scoreBonus = (S.flags.scoreBonus || 0) + 60;
+  }
   if (type === 'helicopter' && S.region === 'east80') E.text = 'Вертолёт взлетел с крыши здания ЦК, когда толпа уже была внутри. Через час пилот посадил его в поле, «потому что кончается топливо». Дальше вы ехали на попутной машине. Это было последнее, что о вас знали точно.';
   if (type === 'revolution' && C.heat >= 70) {
     E.title = S.region === 'east80' ? 'Смела Осень народов' : S.region === 'asia80' ? 'Смела «власть народа»' : 'Смели кастрюльные марши';
@@ -354,51 +377,67 @@ Game.endingHooks.push((type, E, verdicts) => {
   if (type === 'survived') { E.title = 'Встретил 1990 год'; E.text = `31 декабря 1989 года. Берлинская стена пала, холодная война кончилась, а многие ваши соседи по клубу диктаторов уже в изгнании или в тюрьме. Вы всё ещё ${T}. ${C.need >= 40 ? 'Покровитель, как ни странно, всё ещё рядом.' : 'Правда, покровителю вы больше не нужны, и новое десятилетие придётся встречать одному.'}`; }
   if (C.debt >= 80) verdicts.push('Должник века');
   if (C.defaulted) verdicts.push('Объявил дефолт');
+  if (S.flags.c80Immunity) verdicts.push('Неприкосновенность для генералов');
   if (C.need >= 60) verdicts.push('Незаменимый союзник');
 });
 
 Object.assign(UI, {
   tab_cold80() {
     const C = Game.c80(), R = Game.c80Cfg(), P = Game.c80Patron(), t = Game.eraTime();
-    const stCol = { calm: '#3d3a5c', junta: '#7a6a2a', war: '#c0392b', barr: '#ff6a3d', demo: '#21c08a', reform: '#2d9fd6', crushed: '#6a2438', rev: '#e0359a' };
-    const stText = { calm: 'спокойно', junta: 'диктатура', war: 'война', barr: 'протесты', demo: 'демократия', reform: 'реформы', crushed: 'подавлено', rev: 'революция' };
-    const stateAt = tl => { let s = 'calm'; for (const [at, st] of tl) if (at <= t + 0.01) s = st; return s; };
-    const cities = Object.values(R.cities).map(([name, x, y, tl]) => ({ name, x, y, st: stateAt(tl) }));
-    const [mx, my] = R.me, meCol = C.heat >= 70 ? '#ff6a3d' : C.heat >= 45 ? '#b8862a' : '#5a3aa6';
-    const map = `<svg class="c80-map" viewBox="0 0 600 440" role="img" aria-label="Карта региона">
-      ${cities.map(c => `<line x1="${mx}" y1="${my}" x2="${c.x}" y2="${c.y}" class="c80-link ${['barr', 'demo', 'rev'].includes(c.st) ? 'hot' : ''}"/>`).join('')}
-      ${cities.map(c => `<g class="${c.st === 'barr' ? 'cr-pulse' : ''}"><circle cx="${c.x}" cy="${c.y}" r="14" fill="${stCol[c.st]}" class="c80-node"/><text x="${c.x}" y="${c.y - 20}" text-anchor="middle" class="c80-t">${c.name}</text><text x="${c.x}" y="${c.y + 28}" text-anchor="middle" class="c80-s">${stText[c.st]}</text></g>`).join('')}
-      <g class="${C.heat >= 70 ? 'cr-pulse' : ''}"><rect x="${mx - 56}" y="${my - 24}" width="112" height="48" rx="6" fill="${meCol}" class="c80-node me"/><text x="${mx}" y="${my - 4}" text-anchor="middle" class="c80-t big">${esc(REGIONS[S.region].capital)}</text><text x="${mx}" y="${my + 14}" text-anchor="middle" class="c80-s me">улица ${Math.round(C.heat)}</text></g>
+    const X = y => 46 + (y - 1980) * 52, Y = v => 250 - v * 2.1;
+    const hist = (C.needHist || []).length ? C.needHist : [Math.round(C.need)];
+    const pts = hist.map((v, i) => `${X(1980 + (S.turn - hist.length + 1 + i) / 4).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    // прогноз: что будет, если ничего не делать
+    let n = C.need; const proj = [`${X(t).toFixed(1)},${Y(n).toFixed(1)}`];
+    for (let q = S.turn + 1; q <= 40; q++) { const tt = 1980 + q / 4; n = clamp(n + (tt < 1985.25 ? 0.4 : tt < 1987 ? -1.2 : tt < 1989 ? -2.2 : -3.5) + ((S.rel[P] || 50) - 55) / 40); proj.push(`${X(tt).toFixed(1)},${Y(n).toFixed(1)}`); }
+    const fallen = P === 'usa'
+      ? [[1986.1, 'Бэби Док'], [1986.15, 'Маркос'], [1987.5, 'Чон Ду Хван'], [1988.75, 'Пиночет'], [1989.1, 'Стресснер'], [1989.97, 'Норьега']]
+      : [[1988.4, 'Кадар'], [1989.8, 'Хонеккер'], [1989.86, 'Живков'], [1989.9, 'Гусак'], [1989.98, 'Чаушеску']];
+    const bands = [[1980, 1985.25, 'горячая война', 'rgba(255,77,90,0.10)'], [1985.25, 1987, 'разговоры', 'rgba(255,194,61,0.08)'], [1987, 1989, 'разрядка', 'rgba(45,182,230,0.08)'], [1989, 1990, 'конец', 'rgba(62,240,160,0.08)']];
+    const chart = `<svg class="c80-map" viewBox="0 0 600 300" role="img" aria-label="Барометр покровителя">
+      ${bands.map(([a, b, name, col]) => `<rect x="${X(a)}" y="30" width="${X(b) - X(a)}" height="220" fill="${col}"/><text x="${(X(a) + X(b)) / 2}" y="44" text-anchor="middle" class="c80-s">${name}</text>`).join('')}
+      ${[0, 25, 50, 75, 100].map(v => `<line x1="46" y1="${Y(v)}" x2="566" y2="${Y(v)}" class="c80-grid"/><text x="40" y="${Y(v) + 4}" text-anchor="end" class="c80-s">${v}</text>`).join('')}
+      ${[1980, 1982, 1984, 1986, 1988, 1990].map(y => `<text x="${X(y)}" y="268" text-anchor="middle" class="c80-s">${y}</text>`).join('')}
+      <line x1="46" y1="${Y(30)}" x2="566" y2="${Y(30)}" class="c80-danger"/><text x="564" y="${Y(30) - 5}" text-anchor="end" class="c80-s warn">ниже 30 — покровитель вас бросит</text>
+      ${fallen.map(([y, name], i) => `<g class="c80-fall"><line x1="${X(y)}" y1="56" x2="${X(y)}" y2="250"/><text x="${X(y) - 3}" y="${62 + (i % 3) * 13}" text-anchor="end" class="c80-s">${name}</text></g>`).join('')}
+      <polyline points="${proj.join(' ')}" class="c80-proj"/>
+      <polyline points="${pts}" class="c80-line"/>
+      <circle cx="${X(t)}" cy="${Y(C.need)}" r="6" class="c80-now"/>
     </svg>`;
     const phase = t < 1985.25 ? 'Холодная война в разгаре: покровитель ценит союзников и платит им.' : t < 1987 ? 'Сверхдержавы начали разговаривать. Покровитель всё реже вспоминает о вас.' : t < 1989 ? 'Разрядка: договоры, саммиты, вывод войск. Союзники с плохой репутацией становятся обузой.' : 'Холодная война кончается. Покровителю вы больше не нужны.';
     const [vy, vq] = R.vote;
     const voteTxt = S.flags.c80Vote ? `${R.voteTitle} — уже позади.` : `${R.voteTitle}: ${['I', 'II', 'III', 'IV'][vq - 1]} квартал ${vy} года.`;
     const log = C.log.slice(0, 14).map(e => `<li><time>${e.y}</time><span><b>${esc(e.name)}</b> — ${esc(e.res)}</span></li>`).join('') || '<li><span class="muted">Пока в регионе тихо.</span></li>';
-    const acts = Game.c80Actions();
-    return `<p class="lede">Главный сюжет десятилетия — холодная война, которая кончается. Пока она горячая, покровитель (${esc(COUNTRIES[P].name)}) платит за верность и защищает от переворотов. С 1985 года вы нужны ему всё меньше, а к 1989 году — почти совсем не нужны. Долги 1970-х дорожают, проценты съедают казну. Улицу разогревают бедность, экономия по рецептам МВФ и перемены у соседей.</p>
+    const acts = Game.c80Actions(), loy = Game.c80Loyalty();
+    return `<p class="lede">Главный сюжет десятилетия — холодная война, которая кончается. Пока она горячая, покровитель (${esc(COUNTRIES[P].name)}) платит за верность и защищает от переворотов. С 1985 года вы нужны ему всё меньше: на барометре отмечены коллеги, которых бросили. Когда улица выйдет на площадь, исход решит армия — держите генералов при себе. А долги 1970-х дорожают: за столом с кредиторами каждый хочет своего.</p>
       <div class="cr">
-        <section class="card cr-map-card"><div class="eyebrow">Регион: диктатуры и перемены</div>${map}
-          <div class="legend">${['junta', 'war', 'barr', 'demo', 'reform', 'crushed'].map(k => `<span><i style="background:${stCol[k]}"></i>${stText[k]}</span>`).join('')}</div></section>
+        <section class="card cr-map-card"><div class="eyebrow">Барометр покровителя: ${esc(COUNTRIES[P].name)}</div>${chart}
+          <div class="legend"><span><i style="background:#ff3fa4"></i>нужность вам</span><span><i style="background:rgba(45,226,230,0.6)"></i>если ничего не делать</span><span><i style="background:rgba(255,194,61,0.7)"></i>кого бросили</span></div></section>
         <section class="card cr-side">
-          ${UI.meter(`Нужность покровителю`, C.need, C.need >= 55 ? 'good' : C.need >= 30 ? 'warn' : 'bad')}
-          ${UI.meter('Внешний долг', C.debt, C.debt >= 70 ? 'bad' : C.debt >= 45 ? 'warn' : 'good')}
+          ${UI.meter('Нужность покровителю', C.need, C.need >= 55 ? 'good' : C.need >= 30 ? 'warn' : 'bad')}
+          ${UI.meter('Внешний долг', C.debt, C.debt >= 68 ? 'bad' : C.debt >= 45 ? 'warn' : 'good')}
           ${UI.meter('Улица', C.heat, C.heat >= 70 ? 'bad' : C.heat >= 45 ? 'warn' : 'good')}
+          ${UI.meter('Верность армии', Math.round(loy * 100), loy >= 0.55 ? 'good' : loy >= 0.35 ? 'warn' : 'bad')}
           <div class="sp-facts">
             <span class="chip">${flagSvg(P)} покровитель: ${esc(COUNTRIES[P].name)}</span>
             <span class="chip ${Game.c80Aid() ? 'coopted' : ''}">помощь +${Game.c80Aid()} млн</span>
             <span class="chip ${Game.c80Interest() >= 4 ? 'banned' : ''}">проценты −${String(Game.c80Interest()).replace('.', ',')} млн</span>
-            ${C.defaulted ? '<span class="chip banned">дефолт</span>' : ''}
+            ${C.defaulted ? '<span class="chip banned">дефолт</span>' : ''}${S.flags.c80Immunity ? '<span class="chip">неприкосновенность генералам</span>' : ''}
           </div>
-          <p class="muted small">${esc(phase)} ${esc(voteTxt)} Помощь против улицы: ${Game.c80HelpOk() ? 'покровитель ещё готов помочь' : 'покровитель помогать не будет'}.</p>
+          <p class="muted small">${esc(phase)} ${esc(voteTxt)} Верность армии — шанс, что генералы выполнят приказ, когда улица выйдет на площадь.</p>
         </section>
       </div>
-      <section class="card mt"><div class="eyebrow">Сводка десятилетия</div><ul class="log cr-log">${log}</ul></section>
-      <div class="proj dec-grid mt">${acts.map(a => `<div class="proj-item dec"><div class="dec-main"><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p><div class="dec-fx"><div class="dec-row"><span class="dec-tag">Эффект</span>${UI.fxChips(Game.previewFx(a.fx))}</div></div></div>${UI.actBtn('c80:' + a.id, { name: 'Приказать', cost: a.cost, ok: a.ok, danger: a.danger })}</div>`).join('')}</div>`;
+      <section class="card mt"><div class="eyebrow">Сводка десятилетия: соседи</div><ul class="log cr-log">${log}</ul></section>
+      <div class="proj dec-grid mt">${acts.map(a => `<div class="proj-item dec"><div class="dec-main"><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p>${a.scene ? '' : `<div class="dec-fx"><div class="dec-row"><span class="dec-tag">Эффект</span>${UI.fxChips(Game.previewFx(a.fx))}</div></div>`}</div>${UI.actBtn('c80:' + a.id, { name: a.scene ? 'Начать' : 'Приказать', cost: a.cost, ok: a.ok, danger: a.danger })}</div>`).join('')}</div>`;
   },
 });
 UI.actionHandlers = UI.actionHandlers || [];
 UI.actionHandlers.push(id => {
   if (!id.startsWith('c80:')) return false;
+  if (id === 'c80:creditors') {
+    if (S.ap > 0 && S.phase === 'hub' && Game.spend()) VN.play(Game.c80DebtScene(true)).then(() => UI.render());
+    return true;
+  }
   const out = Game.c80Action(id.slice(4));
   if (out) { UI.render(); UI.toast(out.text, out.changes); }
   return true;
