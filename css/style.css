@@ -732,3 +732,12 @@ body[data-era="1960"] .tip-card .eyebrow { color: #7a5a1a; }
 .tut-list li.ok .tut-check { color: var(--green); }
 .tut-hint { animation: tuthint 1.4s ease-in-out infinite; }
 @keyframes tuthint { 50% { box-shadow: 0 0 0 3px var(--teal, var(--brass)), 0 0 18px var(--brass); } }
+/* экскурсия обучения */
+#tour { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
+.tour-spot { position: fixed; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(8, 5, 3, 0.62), 0 0 0 3px var(--brass), 0 0 24px var(--brass); transition: all 0.25s ease; pointer-events: none; }
+.tour-bubble { position: fixed; pointer-events: auto; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; padding: 14px 16px; background: var(--panel-2); color: var(--fg); border: 2px solid var(--brass); border-radius: 14px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6); transition: top 0.25s ease, left 0.25s ease; }
+.tour-pic { width: 64px; border-radius: 50% 50% 8px 8px; overflow: hidden; background: radial-gradient(circle at 50% 40%, #3f8f86, #12302d 78%); }
+.tour-pic svg { display: block; width: 100%; }
+.tour-body p { margin: 6px 0 10px; font-size: 15.5px; line-height: 1.45; }
+.tour-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tour-wait { font: 12px var(--f-mono); color: var(--brass); animation: onair 1.6s infinite; }
