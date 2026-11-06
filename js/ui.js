@@ -174,7 +174,7 @@ const UI = {
     ];
     for (const r of Object.keys(ROLES)) lines.push([r, `${ROLES[r].title}. ${S.adv[r].bio}`]);
     lines.push(['police', 'Добро пожаловать во дворец, {addr}. Предыдущий хозяин продержался четырнадцать месяцев. Давайте побьём рекорд.']);
-    lines.push(['narrator', `${ERAS[S.era].intro} Ваша задача — дожить до ${ERAS[S.era].start + 10} года у власти. Желательно — с приличным счётом в Швейцарии.`]);
+    lines.push(['narrator', `${ERAS[S.era].intro} Ваша задача — дожить до ${ERAS[S.era].start + 10} года у власти. Желательно — с приличным ${Game.bank().ins}.`]);
     return VN.play({ title: 'Первое заседание кабинета', bg: 'palace', lines });
   },
 
@@ -263,7 +263,7 @@ const UI = {
             ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}
             ${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}${(B.hookInc || []).map(h => row(h.label, h.v)).join('')}
             ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -(B.costs.health + B.costs.edu + B.costs.subsidy))}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}
-            ${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}
+            ${B.palace ? row(`Нужды дворца (→ ${Game.bank().to})`, -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}
             ${row('Итого за квартал', B.net, 'total')}
           </tbody>
         </table>
@@ -354,7 +354,7 @@ const UI = {
             <li>Каждый квартал у вас <b>${Game.apTurn()} приказа</b>: переговоры с движениями, проекты, визиты, поручения советникам.</li>
             <li>Бюджет на вкладке «Бюджет» меняется ползунками и без приказов. Проекты и указы — на вкладке «Указы».</li>
             <li>Армия ниже 45 и злые «ястребы» — к перевороту. Народ ниже 30 и сильные левые — к революции.</li>
-            <li>Деньги «нужд дворца» уходят на ваш счёт в Швейцарии. Он пригодится, если придётся бежать.</li>
+            <li>Деньги «нужд дворца» уходят на ${Game.bank().acc}. Пригодится, если придётся бежать.</li>
             ${S.era === '2000' ? '<li><b>Интернет</b> растёт сам и с каждым годом быстрее. Он ускоряет экономику, но усиливает блогеров и протесты. Фильтры и файрвол тормозят и то и другое, стоят денег и злят Запад.</li>' : ''}
           </ul>
           <button class="btn ghost small" data-act="retire">Уйти на покой…</button>
@@ -399,7 +399,7 @@ const UI = {
         ${row('Налоги с населения', B.taxPop)}${row('Налоги с компаний', B.taxCorp)}${row('Экспорт (' + R.exports + ')', B.exports)}
         ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}${B.hookInc.map(h => row(h.label, h.v)).join('')}
         ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -social)}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}
-        ${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}${B.palace ? row('Нужды дворца (→ Цюрих)', -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
+        ${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}${B.palace ? row(`Нужды дворца (→ ${Game.bank().to})`, -B.palace) : ''}${B.loans ? row('Кредиты', -B.loans) : ''}
         <tr class="total"><td>Итого</td><td class="num">${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(1)}</td></tr>
       </tbody></table>
       <div class="eyebrow mt">Что сделает бюджет за квартал</div>
@@ -588,7 +588,7 @@ const UI = {
         <div class="verdicts">${F.verdicts.map(v => `<span class="chip gold">${esc(v)}</span>`).join('')}</div>
         <div class="rep-grid">
           <div class="rep-stat"><span>⏳ У власти</span><b>${F.years} г.</b></div>
-          <div class="rep-stat"><span>🏦 В Швейцарии</span><b>${Math.round(S.swiss)} млн</b></div>
+          <div class="rep-stat"><span>🏦 ${Game.bank().short}</span><b>${Math.round(S.swiss)} млн</b></div>
           <div class="rep-stat"><span>👥 Народ</span><b>${Math.round(S.support)}</b></div>
           <div class="rep-stat"><span>🏭 Экономика</span><b>${Math.round(S.economy)}</b></div>
           <div class="rep-stat"><span>👁️ Страх</span><b>${Math.round(S.fear)}</b></div>
