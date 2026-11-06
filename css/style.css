@@ -919,3 +919,32 @@ body[data-era="1848"] .tip-card { border-top: 1px solid rgba(43, 31, 21, 0.5); }
 .sp-s { font: italic 11px "Old Standard TT", Georgia, serif; fill: #4a3a28; }
 .sp-node.me ~ .sp-s { fill: #f6eedb; }
 .sp-facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+
+/* ===== Приглушённая бумага: 1930-е — пожелтевшая газета, 1840-е — выцветшая гравюра ===== */
+body[data-era="1930"] {
+  --bg: #b9aa87; --wood: #ad9e7b; --panel: #c3b491; --panel-2: #cabc99;
+  --muted: #54493a; --paper: #c7b894; --paper-2: #b2a27d; --news: #c5b691;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 240, 205, 0.08), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(60, 40, 15, 0.22), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(29, 24, 18, 0.02) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(29, 24, 18, 0.014) 0 1px, transparent 1px 5px);
+}
+body[data-era="1930"] .np { background: #c3b48f; }
+body[data-era="1930"] .choice:hover:not(:disabled), body[data-era="1930"] .choice:focus-visible { background: #cfc19f; }
+body[data-era="1930"] .leader-portrait, body[data-era="1930"] .setup-portrait, body[data-era="1930"] .end-portrait, body[data-era="1930"] .adv-portrait, body[data-era="1930"] .hdr-leader { background: radial-gradient(circle at 50% 38%, #bfb08d, #948562 80%); }
+
+body[data-era="1848"] {
+  --bg: #c8b893; --wood: #bbaa84; --panel: #d0c19e; --panel-2: #d7c9a7;
+  --muted: #5b4a36; --paper: #d2c39f; --paper-2: #bfae88; --news: #cfc09b; --gilt: #94773a;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 244, 215, 0.12), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(80, 52, 20, 0.26), transparent 62%),
+    repeating-linear-gradient(115deg, rgba(43, 31, 21, 0.018) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(25deg, rgba(43, 31, 21, 0.013) 0 1px, transparent 1px 4px);
+}
+body[data-era="1848"] .np { background: #cdbe99; }
+body[data-era="1848"] .choice:hover:not(:disabled), body[data-era="1848"] .choice:focus-visible { background: #dacdab; }
+body[data-era="1848"] .leader-portrait, body[data-era="1848"] .end-portrait, body[data-era="1848"] .adv-portrait,
+body[data-era="1848"] .setup-portrait svg { background: radial-gradient(ellipse at 50% 38%, #d8c8a2, #a8946b 85%); }
+body[data-era="1848"] .hdr-leader { background: #bba984; }
+body[data-era="1848"] .vn { border-color: #8f7438; box-shadow: inset 0 0 0 2px #5e4719, inset 0 0 0 6px #b89f68, inset 0 0 0 7px #5e4719; }
+body[data-era="1848"] .vn-bg svg { filter: sepia(0.75) saturate(0.45) contrast(1.05) brightness(0.82); }
