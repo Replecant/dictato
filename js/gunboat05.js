@@ -140,7 +140,7 @@ Object.assign(Game, {
     if (!S.g05) {
       const R = G05_REGION[S.region] || G05_REGION.gulf05;
       S.g05 = { indep: { throne05: 82, officers05: 78, reform05: 74 }[S.regime] || 80, riv: 25, pieces: Object.fromEntries(Object.keys(R.pieces).map(k => [k, null])), offer: null, offerAt: 0, gunAt: -99, angry: {}, log: [], side: null };
-      if (S.region === 'himal05') S.g05.pieces.trade = 'brindia';
+      if (S.region === 'himal05') { S.g05.pieces.trade = 'brindia'; S.g05.riv = 35; }
     }
     return S.g05;
   },
@@ -315,9 +315,9 @@ Game.previewHooks.push((fx, out) => {
   out.unshift(...first);
 });
 Game.incomeHooks.push(() => (S.era === '1905' && Game.g05Income() ? { label: 'Доход от концессий', v: Game.g05Income() } : null));
-Game.coupHooks.push(() => (S.era === '1905' && S.g05 ? (S.g05.indep < 30 ? 0.03 : 0) + (S.g05.riv >= 70 ? 0.03 : 0) : 0));
+Game.coupHooks.push(() => (S.era === '1905' && S.g05 ? (S.g05.indep < 30 ? 0.03 : 0) + (S.g05.riv >= 75 ? 0.03 : 0) : 0));
 // «Патриоты» поднимаются против правителя, распродавшего страну
-Game.revHooks.push(() => (S.era === '1905' && S.g05 ? Math.max(0, 45 - S.g05.indep) / 45 * 0.12 : 0));
+Game.revHooks.push(() => (S.era === '1905' && S.g05 ? Math.max(0, 50 - S.g05.indep) / 50 * 0.13 : 0));
 Game.forcedList.push(() => {
   if (S.era !== '1905' || S.over) return null;
   const G = Game.g05(), t = Game.eraTime();
@@ -330,12 +330,17 @@ Game.forcedList.push(() => {
 Game.quarterHooks.push(rep => {
   if (S.era !== '1905') return;
   const G = Game.g05(), t = Game.eraTime(), n = Game.g05Owned(), R = Game.g05Cfg();
-  G.riv = clamp(G.riv + 0.8 + (t >= 1911 ? 0.8 : 0) + (t >= 1914.25 ? 2 : 0) + n * 0.15);
-  G.indep = clamp(G.indep - n * 0.1 + (G.indep < 50 ? 0.35 : 0) + (n <= 2 && S.army >= 60 ? 0.3 : 0));
+  G.riv = clamp(G.riv + 1 + (t >= 1911 ? 1 : 0) + (t >= 1914.25 ? 2 : 0) + n * 0.2);
+  G.indep = clamp(G.indep - n * 0.1 + (G.indep < 50 ? 0.2 : 0) + (n <= 2 && S.army >= 60 ? 0.3 : 0));
   if (G.indep < 30) S.support = clamp(S.support - 0.6);
   else if (G.indep >= 70) S.support = clamp(S.support + 0.2);
   if (G.offer && S.turn >= G.offer.until) { rep.lines.push(`Предложение не принято в срок: ${Game.g05Name(G.offer.power)} обижен (отношения −6).`); S.rel[G.offer.power] = clamp(S.rel[G.offer.power] - 6); if (Math.random() < 0.4) G.angry[G.offer.power] = S.turn; G.offer = null; G.offerAt = S.turn; }
   if (!G.offer && S.turn - G.offerAt >= 2 && Math.random() < 0.55) { G.offer = Game.g05MakeOffer(); if (G.offer) rep.lines.push(`${Game.g05Name(G.offer.power)} предлагает ${G.offer.sum} млн за концессию «${R.pieces[G.offer.kind][0]}». Ответ — на вкладке «${R.tab}».`); }
+  if (S.region === 'himal05') {
+    // Китай считает княжество своей провинцией: давление до падения империи и снова при Юань Шикае
+    if (t >= 1908 && t < 1912) { G.indep = clamp(G.indep - 0.4); if (Math.random() < 0.15) G.angry.china = S.turn; }
+    if (G.indep < 40) S.fac.faith.a = clamp(S.fac.faith.a - 1);
+  }
   if (G.indep <= 30) rep.warn.push(`Независимость: ${Math.round(G.indep)} из 100. Ещё немного — и страна станет чьим-то протекторатом.`);
   if (G.riv >= 60) rep.warn.push(`Соперничество держав: ${Math.round(G.riv)}. Жди канонерок и ультиматумов.`);
 });

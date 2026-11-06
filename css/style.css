@@ -1059,16 +1059,16 @@ body[data-era="1905"] .tabs button.on { background: var(--brass); color: #1c2822
 body[data-era="1905"] .seg button.on, body[data-era="1905"] .dtabs button.on, body[data-era="1905"] .chip.gold, body[data-era="1905"] .plate { background: var(--brass); color: #1c2822; }
 body[data-era="1905"] .pip { border-color: var(--brass); }
 body[data-era="1905"] .pip.on { background: var(--brass); box-shadow: 0 0 8px rgba(201, 162, 74, 0.7); }
-/* портреты — арка с золотым ореолом, как на плакатах */
+/* портреты — простая рамка с золотой каймой, без ореола */
 body[data-era="1905"] .leader-portrait, body[data-era="1905"] .end-portrait, body[data-era="1905"] .adv-portrait, body[data-era="1905"] .setup-portrait svg {
-  border-radius: 50% 50% 10px 10px / 40% 40% 10px 10px; border: 2px solid var(--brass); overflow: hidden;
-  background: radial-gradient(circle at 50% 40%, #e3d3a2 0 24%, #c9a24a 24% 25.5%, #3d5c4b 25.5% 38%, #c9a24a 38% 39%, #2c4337 39% 56%, rgba(201, 162, 74, 0.6) 56% 57%, #223429 57%);
-  box-shadow: 0 0 0 4px var(--panel), 0 0 0 5px rgba(201, 162, 74, 0.45), 0 10px 24px rgba(0, 0, 0, 0.45);
+  border-radius: 14px; border: 2px solid rgba(201, 162, 74, 0.7); overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #3a5446, #1f2f27 80%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
-body[data-era="1905"] .setup-portrait { background: var(--panel); border: 1px solid rgba(201, 162, 74, 0.45); border-radius: 26px 26px 8px 8px; box-shadow: none; }
+body[data-era="1905"] .setup-portrait { background: var(--panel); border: 1px solid rgba(201, 162, 74, 0.45); border-radius: 18px; box-shadow: none; }
 body[data-era="1905"] .plate { font-family: var(--f-display); border-radius: 10px; }
-body[data-era="1905"] .hdr-leader { border-radius: 50% 50% 8px 8px; border-color: var(--brass); background: radial-gradient(circle at 50% 40%, #e3d3a2 0 40%, #3d5c4b 41%); }
-body[data-era="1905"] .mini-portrait, body[data-era="1905"] .adv-tag { border-radius: 50% 50% 6px 6px; background: radial-gradient(circle at 50% 40%, #e3d3a2 0 40%, #3d5c4b 41%); }
+body[data-era="1905"] .hdr-leader { border-radius: 50% 50% 8px 8px; border-color: var(--brass); background: #2f463a; }
+body[data-era="1905"] .mini-portrait, body[data-era="1905"] .adv-tag { border-radius: 50% 50% 6px 6px; background: #2f463a; }
 body[data-era="1905"] .tp { filter: sepia(0.25) drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5)); }
 /* новелла — плакат в золотой раме с аркой */
 body[data-era="1905"] .vn { border: 12px solid #22302a; border-radius: 60px 60px 12px 12px; box-shadow: inset 0 0 0 2px var(--brass), inset 0 0 0 7px #22302a, inset 0 0 0 8px rgba(201, 162, 74, 0.5); background: #121a16; }
