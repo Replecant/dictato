@@ -38,6 +38,7 @@ Object.assign(Game, {
   treaties(c) { S.treaties = S.treaties || {}; return (S.treaties[c] = S.treaties[c] || {}); },
   oppBloc(c) {
     const bl = Game.blocOf(c);
+    if (S.era === '1848') return bl === 'west' ? (S.region === 'latam48' ? '$axis' : '$east') : bl === 'east' || bl === 'axis' ? '$west' : null;
     if (S.era === '1930') return bl === 'west' ? '$axis' : bl === 'axis' ? '$west' : bl === 'east' ? '$axis' : null;
     return bl === 'west' ? '$east' : bl === 'east' ? '$west' : null;
   },
@@ -234,7 +235,7 @@ Game.quarterHooks.push(rep => {
 Object.assign(UI, {
   tab_world() {
     const R = REGIONS[S.region];
-    const blocName = S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: Game.axisFormed() ? 'Ось' : 'реваншисты', neutral: 'вне блоков' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
+    const blocName = S.era === '1848' ? { west: 'либеральные державы', east: 'Священный союз', axis: 'экспансия США', neutral: 'вне союзов' } : S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: Game.axisFormed() ? 'Ось' : 'реваншисты', neutral: 'вне блоков' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
     const tchip = { trade: '📜 Торговый договор', friend: '🤝 Дружба', alliance: '⚔️ Военный союз' };
     const B = Game.budgetCalc();
     const ti = Game.treatyIncome();

@@ -113,7 +113,8 @@ Object.assign(Game, {
     const traits = Object.keys(LEADER_TRAITS);
     const trait = bias === 'radical' ? pick(['fanatic', 'firebrand', 'fanatic']) : bias === 'moderate' ? pick(['pragmatic', 'merchant', 'coward']) : pick(traits);
     const LEFT00 = { africa00: 'Генерал', mideast00: 'Устаз', centralasia00: 'Экс-министр' };
-    const title = { left: S.era === '2000' ? (LEFT00[S.region] || 'Лидер оппозиции') : st === 'latam' ? 'Команданте' : 'Товарищ', liberals: S.era === '2000' ? pick(['Блогер', 'Журналист', 'Адвокат']) : pick(['Профессор', 'Доктор', 'Адвокат']), faith: FAITH_TITLE[R.faithStyle] || 'Отец', oligarchs: RICH_TITLE[st] || 'Господин', hawks: 'Полковник', new: S.era === '2000' ? 'Блогер' : S.era === '1930' ? 'Вождь' : 'Товарищ' }[f];
+    const title48 = S.era === '1848' ? { left: st === 'latam' ? (female ? 'Касика' : 'Касик') : (female ? 'Гражданка' : 'Гражданин'), new: 'Капитан' } : {};
+    const title = title48[f] || { left: S.era === '2000' ? (LEFT00[S.region] || 'Лидер оппозиции') : st === 'latam' ? 'Команданте' : 'Товарищ', liberals: S.era === '2000' ? pick(['Блогер', 'Журналист', 'Адвокат']) : pick(['Профессор', 'Доктор', 'Адвокат']), faith: FAITH_TITLE[R.faithStyle] || 'Отец', oligarchs: RICH_TITLE[st] || 'Господин', hawks: 'Полковник', new: S.era === '2000' ? 'Блогер' : S.era === '1930' ? 'Вождь' : 'Товарищ' }[f];
     const skin = f === 'oligarchs' && (st === 'africa') && Math.random() < 0.4 ? SKIN.light : SKIN[R.leaderSkin];
     const H = ['#1a1410', '#2b1b10', '#3a2a1a', '#555', '#999'];
     const base = { skin, face: pick(['oval', 'round', 'square', 'long']), hairColor: pick(H), brows: trait === 'fanatic' || trait === 'firebrand' ? 'angry' : trait === 'coward' ? 'worried' : 'normal', mouth: trait === 'vain' ? 'grin' : trait === 'merchant' ? 'smirk' : trait === 'coward' ? 'o' : 'flat', sweat: trait === 'coward' };
@@ -446,6 +447,7 @@ UI.actionHandlers.push(id => {
 // Кто и как реагирует на запрет левых: зависит от эпохи и региона
 Game.leftBanRel = () => {
   if (S.era === '1960') return { usa: 5, ussr: -8, cuba: -5, china: -4 };
+  if (S.era === '1848') return S.region === 'latam48' ? { uk: -2, usa: 2 } : { $east: 5, $west: -4 };
   if (S.era === '1930') return { ussr: -8, uk: 2, italy: 3, japan: 2, ...(S.year >= 1933 ? { germany: 3 } : {}) };
   return {
     africa00: { usa: -3, uk: -3, france: -2, china: 2 },          // бывшие повстанцы: удар по мирному процессу

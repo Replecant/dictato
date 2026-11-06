@@ -14,11 +14,11 @@ const SLIDERS = {
   spend: [
     { k: 'army', name: 'Армия', base: 10, hint: 'Лояльность армии и генералов' },
     { k: 'police', name: 'Тайная полиция', base: 6, hint: 'Страх; урезание радует либералов' },
-    { k: 'health', name: 'Здравоохранение', base: 3, hint: 'Народ, вера и немного экономика' },
-    { k: 'edu', name: 'Образование', base: 3, hint: 'Экономика и народ, но образованных либералов больше' },
-    { k: 'subsidy', name: { '1930': 'Хлеб и пособия', '1960': 'Субсидии на хлеб', '2000': 'Субсидии на хлеб и бензин' }, base: 2, hint: 'Народ и левые; выше нормы портят экономику' },
-    { k: 'infra', name: 'Дороги и порты', base: 8, hint: 'Рост экономики' },
-    { k: 'media', name: { '1930': 'Радио и газеты', '1960': 'Радио и телевидение', '2000': 'Госканалы и пропаганда' }, base: 2, hint: 'Народ и страх; либералы злятся' },
+    { k: 'health', name: { def: 'Здравоохранение', '1848': 'Больницы и приюты' }, base: 3, hint: 'Народ, вера и немного экономика' },
+    { k: 'edu', name: { def: 'Образование', '1848': 'Школы и университеты' }, base: 3, hint: 'Экономика и народ, но образованных либералов больше' },
+    { k: 'subsidy', name: { '1848': 'Хлеб для бедных', '1930': 'Хлеб и пособия', '1960': 'Субсидии на хлеб', '2000': 'Субсидии на хлеб и бензин' }, base: 2, hint: 'Народ и левые; выше нормы портят экономику' },
+    { k: 'infra', name: { def: 'Дороги и порты', '1848': 'Дороги и каналы' }, base: 8, hint: 'Рост экономики' },
+    { k: 'media', name: { '1848': 'Газеты и оды', '1930': 'Радио и газеты', '1960': 'Радио и телевидение', '2000': 'Госканалы и пропаганда' }, base: 2, hint: 'Народ и страх; либералы злятся' },
     { k: 'palace', name: 'Нужды дворца', base: 5, hint: 'Уходит на ваш счёт в Швейцарии; народ ворчит' },
   ],
   tax: [
@@ -36,7 +36,7 @@ const BUDGET_PRESETS = {
   barracks: { name: 'Казарма', v: { army: 85, police: 80, health: 30, edu: 30, subsidy: 40, infra: 40, media: 65, palace: 50, popTax: 60, corpTax: 50, duty: 50 } },
   market: { name: 'Рынок', v: { army: 45, police: 40, health: 45, edu: 60, subsidy: 20, infra: 75, media: 40, palace: 40, popTax: 45, corpTax: 30, duty: 30 } },
 };
-function sliderName(d) { return typeof d.name === 'string' ? d.name : d.name[S.era] || Object.values(d.name)[0]; }
+function sliderName(d) { return typeof d.name === 'string' ? d.name : d.name[S && S.era] || d.name.def || Object.values(d.name)[0]; }
 const RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: ['left'], oligarchs: ['left'], hawks: ['liberals', 'left'] };
 
 let S = null;
@@ -50,18 +50,20 @@ const Game = {
   get S() { return S; },
   forcedList: [], applyHooks: [], previewHooks: [], incomeHooks: [], coupHooks: [], revHooks: [], quarterHooks: [], endingHooks: [], newGameHooks: [],
   diff() { return DIFFICULTY[(S && S.diff) || 'normal']; },
+  // Режим с учётом региональной версии (в Латинской Америке 1840-х у режимов свои названия)
+  regimeDef(k, region) { const T = REGIME_TYPES[k], rg = region || (S && S.region); return T.byRegion && T.byRegion[rg] ? { ...T, ...T.byRegion[rg] } : T; },
   apTurn() { return Game.diff().ap; },
 
   newGame(cfg) {
     const R = REGIONS[cfg.region];
-    const T = REGIME_TYPES[cfg.regime];
+    const T = Game.regimeDef(cfg.regime, cfg.region);
     const era = cfg.era || '1960';
     S = {
       v: 1, era, region: cfg.region, regime: cfg.regime,
       leader: { name: cfg.name, title: cfg.title, look: cfg.look },
       country: cfg.country || R.country,
       turn: 0, year: ERAS[era].start, q: 1, ap: DIFFICULTY[cfg.diff || 'normal'].ap, diff: cfg.diff || 'normal',
-      treasury: era === '1930' ? 110 : era === '2000' ? 90 : 80, swiss: 0, economy: 45, net: R.netStart || 0, support: 50, army: 60, fear: 25,
+      treasury: era === '1930' ? 110 : era === '2000' ? 90 : era === '1848' ? 95 : 80, swiss: 0, economy: 45, net: R.netStart || 0, support: 50, army: 60, fear: 25,
       price: 1, priceHist: [1],
       budget: { ...BUDGET_DEFAULT },
       fac: {
@@ -145,7 +147,7 @@ const Game = {
   leaderAt(cKey) {
     const t = S.year + (S.q - 1) / 4;
     const c = COUNTRIES[cKey];
-    const list = (S.era === '2000' && c.leaders00) || c.leaders;
+    const list = (S.era === '2000' && c.leaders00) || (S.era === '1848' && c.leaders48) || c.leaders;
     for (const [until, name] of list) if (t < until) return name;
     return list[list.length - 1][1];
   },
@@ -156,6 +158,7 @@ const Game = {
   // В 1930-е лагеря меняются со временем: Веймарская Германия, Италия до Эфиопии, Япония до Маньчжурии
   blocOf(c) {
     const C = COUNTRIES[c];
+    if (S.era === '1848') { const b = BLOC48[c]; if (!b) return 'neutral'; if (typeof b === 'string') return b; const t = Game.eraTime(); return b.find(([until]) => t < until)[1]; }
     if (S.era === '1930' && C.blocs30) { const t = Game.eraTime(); return C.blocs30.find(([until]) => t < until)[1]; }
     return (S.era === '1930' && C.bloc30) || C.bloc;
   },
@@ -344,6 +347,13 @@ const Game = {
       if (e - w > 15) return 'Друг Москвы и Пекина';
       return 'Многовекторность';
     }
+    if (S.era === '1848') {
+      const avg = list => { const v = list.filter(c => S.rel[c] !== undefined).map(c => S.rel[c]); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
+      const R0 = REGIONS[S.region].countries, inB = b => R0.filter(c => Game.blocOf(c) === b);
+      const g = S.region === 'latam48' ? [['Друг Лондона', avg(['uk', 'france'])], ['Друг Вашингтона', avg(['usa'])]] : [['Опора Священного союза', avg(inB('east'))], ['Друг Лондона и Парижа', avg(inB('west'))]];
+      g.sort((a, b) => b[1] - a[1]);
+      return g[0][1] - g[1][1] > 15 ? g[0][0] : 'Нейтралитет';
+    }
     if (S.era === '1930') {
       const avg = list => { const v = list.filter(c => S.rel[c] !== undefined).map(c => S.rel[c]); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
       const R0 = REGIONS[S.region].countries, inB = b => R0.filter(c => Game.blocOf(c) === b);
@@ -363,7 +373,7 @@ const Game = {
   // выбор к исторической новости бывает только в части регионов
   histChoice(h) { return !!h.choice && (!h.choice.regions || h.choice.regions.includes(S.region)); },
   historyFor(year, q) {
-    const list = S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : HISTORY;
+    const list = S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : HISTORY;
     return list.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));
   },
   drawEvent() {
@@ -376,7 +386,8 @@ const Game = {
       (!e.cond || e.cond(S)) &&
       !(S.lastEvents || []).includes(e.id) &&
       ((S.seen || {})[e.id] || 0) < 2 &&
-      (e.eras || e.regions || Game.genDeck().includes(e.id)));
+      (e.eras || e.regions || Game.genDeck().includes(e.id)) &&
+      (S.era !== '1848' || e.eras || e.regions || GEN48.includes(e.id)));
     if (!pool.length) return null;
     // уже виденные события выпадают гораздо реже, свои для эпохи и региона — чаще общих
     const seen = S.seen || {};
@@ -528,7 +539,7 @@ const Game = {
     const dc = Game.dealInfo('c:' + c);
     const C = COUNTRIES[c], R = REGIONS[S.region];
     const bl = Game.blocOf(c);
-    const opp = S.era === '1930'
+    const opp = S.era === '1848' ? Game.oppBloc(c) : S.era === '1930'
       ? (bl === 'west' ? '$axis' : bl === 'axis' ? '$west' : bl === 'east' ? '$axis' : null)
       : (bl === 'west' ? '$east' : bl === 'east' ? '$west' : null);
     let fx = {}, text = '';

@@ -77,7 +77,7 @@ const PROJECT_TROUBLES = [
 Object.assign(Game, {
   projName(p) { return Game.fmt(typeof p.name === 'string' ? p.name : p.name[S.era] || Object.values(p.name)[0]); },
   whimScene(role) {
-    const A = S.adv[role], w = pick(WHIMS[role]);
+    const A = S.adv[role], w = pick((S.era === '1848' && typeof WHIMS48 !== 'undefined' ? WHIMS48 : WHIMS)[role]);
     const mk = ([text, fx, res]) => ({ text, fx, res });
     const choices = [mk(w.yes), mk(w.no)]; if (w.alt) choices.push(mk(w.alt));
     choices[0].adv = [role];
@@ -85,7 +85,7 @@ Object.assign(Game, {
   },
   projectScene(role) {
     const used = new Set([...(S.projects || []).map(p => p.id), ...((S.projectsDone || []))]);
-    const opts = PROJECTS[role].filter(p => !used.has(p.id));
+    const opts = (S.era === '1848' && typeof PROJECTS48 !== 'undefined' ? PROJECTS48 : PROJECTS)[role].filter(p => !used.has(p.id));
     if (!opts.length || (S.projects || []).length >= 2) return null;
     const P = pick(opts), name = Game.projName(P);
     const full = { id: P.id, role, name, left: P.q, total: P.q, cost: P.cost, payoff: P.payoff, risk: 0.12 };
