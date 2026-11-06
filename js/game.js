@@ -41,6 +41,8 @@ const RIVALS = { left: ['oligarchs', 'hawks'], liberals: ['hawks'], faith: ['lef
 
 let S = null;
 
+// Баланс бюджета на поздней стадии партии
+const BAL = { aidFull: 8, aidRest: 0.4, upBase: 0.7, upDiv: 150, leakFrom: 100, leak: 0.1 };
 const DIFFICULTY = {
   easy: { name: 'Курорт', icon: '🏖️', desc: 'Три приказа в квартал, больше денег, генералы сонные. Для тех, кто хочет посмеяться.', ap: 3, treasury: 40, risk: 0.6, income: 1.1, loy: -0.3, score: 0.7 },
   normal: { name: 'Норма', icon: '⚖️', desc: 'Классическая диктатура: два приказа, обычные заговоры.', ap: 2, treasury: 0, risk: 1, income: 1, loy: -0.6, score: 1 },
@@ -295,12 +297,19 @@ const Game = {
     const taxPop = 9 * (b.popTax / 50) * ecoK, taxCorp = 4 * (b.corpTax / 50) * ecoK;
     const taxes = taxPop + taxCorp;
     const exports = 16 * S.price * (0.6 + S.economy / 125) * (S.flags.nationalized ? 1.15 : 1) * (0.5 + b.duty / 100);
-    const aid = Game.aidList();
+    // Помощь с убывающей отдачей: до 8 млн в квартал — полностью, сверх — 40% (богатым доноры не платят)
+    const aidRaw = Game.aidList(), raw = aidRaw.reduce((a, x) => a + x.v, 0);
+    const aidK = raw > BAL.aidFull ? (BAL.aidFull + (raw - BAL.aidFull) * BAL.aidRest) / raw : 1;
+    const aid = aidRaw.map(x => ({ ...x, v: Math.round(x.v * aidK * 10) / 10 }));
     const aidSum = aid.reduce((a, x) => a + x.v, 0);
     const extra = (S.flags.baseIncome || 0) + (S.flags.oilIncome || 0) + (S.flags.casinoIncome || 0);
     const hookInc = Game.incomeHooks.map(h => h()).filter(Boolean);
+    // Полная казна притягивает руки: излишек сверх 100 млн каждый квартал частично уходит на откаты
+    if (S.treasury > BAL.leakFrom) hookInc.push({ label: 'Казнокрадство и откаты', v: -Math.round((S.treasury - BAL.leakFrom) * BAL.leak * 10) / 10 });
     const costs = {};
-    for (const d of SLIDERS.spend) if (d.k !== 'palace') costs[d.k] = d.base * b[d.k] / 50;
+    // Чем богаче страна, тем дороже армия, чиновники и дороги: при экономике 45 — как раньше, при 90 — на 30% дороже
+    const upkeep = Math.max(1, BAL.upBase + S.economy / BAL.upDiv);
+    for (const d of SLIDERS.spend) if (d.k !== 'palace') costs[d.k] = d.base * b[d.k] / 50 * upkeep;
     const palace = 5 * b.palace / 50;
     if (S.era === '2000') costs.netctl = NETCTL.costs[b.netctl || 0];
     const loans = S.loans.reduce((a, l) => a + l.per, 0);
