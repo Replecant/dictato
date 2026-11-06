@@ -299,7 +299,7 @@ const UI = {
     if (S.treasury < 15) tips.push(['economy', 'Казна почти пуста. Урежьте расходы или найдите кредит. Рынок!']);
     if (S.army < 45) tips.push(['defense', 'Офицеры недовольны. Поднимите бюджет армии или устройте парад.']);
     if (S.support < 35) tips.push(['propaganda', 'Народ ворчит. Хлеб, зрелища, моё радиошоу — что-нибудь!']);
-    if (S.fac.left.s > 50) tips.push(['police', `${R.factions.left.name} набирают силу. У меня есть списки.`]);
+    if (S.fac.left.s > 50) tips.push(['police', `Движение «${R.factions.left.name}» набирает силу. У меня есть списки.`]);
     if (S.era === '2000' && S.net > 25 && S.fac.liberals.a < 40) tips.push(['police', `Интернетом пользуются уже ${Math.round(S.net)}% граждан. Блогеры собирают митинги за пятнадцать минут. Подумайте о фильтрах.`]);
     if (S.era === '2000' && S.budget.netctl === 2) tips.push(['economy', 'Файрвол душит экономику. Инвесторы не любят страны, где не открывается их почта.']);
     if (Math.max(...Object.values(S.rel)) < 40) tips.push(['foreign', 'У нас нет ни одного настоящего друга в мире. Это поэтично, но опасно.']);
@@ -338,7 +338,7 @@ const UI = {
             ${S.era === '2000' ? '<li><b>Интернет</b> растёт сам и с каждым годом быстрее. Он ускоряет экономику, но усиливает блогеров и протесты. Фильтры и файрвол тормозят и то и другое, стоят денег и злят Запад.</li>' : ''}
           </ul>
           <button class="btn ghost small" data-act="retire">Уйти на покой…</button>
-          <div class="confirm" id="retire-confirm" hidden><p>Передать власть и уехать в ${REGIONS[S.region].exile} с ${Math.round(S.swiss)} млн на счёте?</p><button class="btn danger small" data-act="retire-yes">Да, уезжаю</button> <button class="btn ghost small" data-act="retire-no">Остаюсь</button></div>
+          <div class="confirm" id="retire-confirm" hidden><p>Передать власть и доживать век в ${REGIONS[S.region].exile} с ${Math.round(S.swiss)} млн на счёте?</p><button class="btn danger small" data-act="retire-yes">Да, уезжаю</button> <button class="btn ghost small" data-act="retire-no">Остаюсь</button></div>
         </section>
       </div>`;
   },
@@ -471,7 +471,7 @@ const UI = {
               ${UI.actBtn(`adv:${r}:gift`, { name: 'Подарить виллу', cost: '−10 млн', ok: S.treasury >= 10 })}
               <button class="btn ghost small" data-fire="${r}" ${S.phase !== 'hub' ? 'disabled' : ''}>Уволить</button>
             </div>
-            <div class="confirm" id="fire-${r}" hidden><p>Уволить ${esc(A.name)}? Это не требует приказа.</p><button class="btn danger small" data-act="adv:${r}:fire" data-free="1">Уволить</button> <button class="btn ghost small" data-cancel="fire-${r}">Отмена</button></div>
+            <div class="confirm" id="fire-${r}" hidden><p>Отправить в отставку: ${esc(A.name)}? Это не требует приказа.</p><button class="btn danger small" data-act="adv:${r}:fire" data-free="1">Уволить</button> <button class="btn ghost small" data-cancel="fire-${r}">Отмена</button></div>
           </div>
         </article>`;
       }).join('')}</div>`;
