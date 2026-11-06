@@ -741,3 +741,10 @@ body[data-era="1960"] .tip-card .eyebrow { color: #7a5a1a; }
 .tour-body p { margin: 6px 0 10px; font-size: 15.5px; line-height: 1.45; }
 .tour-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .tour-wait { font: 12px var(--f-mono); color: var(--brass); animation: onair 1.6s infinite; }
+/* настроение движения */
+.fac-mood { display: flex; flex-direction: column; gap: 2px; margin: 0 0 8px; padding: 6px 10px; border-radius: var(--r); background: rgba(0, 0, 0, 0.18); border-left: 3px solid var(--muted); }
+.fac-mood b { font-size: 13.5px; }
+.fac-mood.good { border-left-color: var(--green); }
+.fac-mood.bad { border-left-color: var(--amber); }
+.fac-mood.ult { border-left-color: var(--red); background: rgba(199, 64, 47, 0.14); }
+body[data-era="1930"] .fac-mood { background: rgba(29, 24, 18, 0.06); }

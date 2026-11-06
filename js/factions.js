@@ -385,6 +385,7 @@ Object.assign(UI, {
     const stName = { legal: 'легально', banned: 'под запретом', coopted: 'в правительстве' };
     const pil = S.pillars || [];
     return `<p class="lede">Сила — сколько у движения людей и влияния, одобрение — что они думают о вас. У каждого движения есть лидер со своим характером и текущее требование. <b>Опора режима</b> (не больше двух движений): к ним вы прислушиваетесь, их одобрение растёт само, переговоры работают сильнее, а остальные ревнуют. Если опора от вас отвернётся, риск переворота или революции резко вырастет.</p>
+      <p class="lede"><b>Движения действуют сами:</b> довольные помогают (деньги, учения, молебны), недовольные вредят (саботаж приказов, бегство капитала, забастовки, проповеди), а доведённые до края — одобрение ниже 20 при силе от 45 — приходят с ультиматумом.</p>
       <p class="lede">Сейчас опора: <b>${pil.length ? pil.map(f => Game.facDef(f).name).join(' и ') : 'никто'}</b>.</p>
       <section class="card dem-summary"><div class="eyebrow">Требования движений</div>
         <p class="muted small">Одновременно действует не больше двух требований, новое появляется не чаще раза в квартал. На выполнение даётся 5–8 кварталов. Требования по бюджету засчитываются в конце квартала, если ползунок стоит где нужно, требования по указам — после подписания указа, остальные выполняются кнопкой за один приказ. Выполнили — одобрение +18. Сорвали — одобрение падает на 12 (у фанатиков и горлопанов сильнее), а движение крепнет. После этого движение пару кварталов ничего не просит.</p>
@@ -407,6 +408,7 @@ Object.assign(UI, {
           <header><span class="fac-ic" aria-hidden="true">${D.icon}</span><div><h3>${D.name}</h3><span class="chip ${F.st}">${stName[F.st]}</span>${isP ? '<span class="chip gold">опора режима</span>' : ''}${threat > 35 ? '<span class="chip danger">угроза</span>' : ''}${f === 'new' ? '<span class="chip neutral">новое</span>' : ''}</div></header>
           <p class="muted small">${D.desc}</p>
           <div class="fac-leader"><div class="mini-portrait">${Portrait.svg(L.look)}</div><div><b>${esc(L.name)}</b><span class="chip trait">${T.name}</span><p class="muted small">${T.desc}</p></div></div>
+          ${UI.facMood ? UI.facMood(f) : ''}
           ${UI.meter('Сила', F.s, 'str')}${UI.meter('Одобрение', F.a, F.a < 30 ? 'bad' : F.a < 50 ? 'warn' : 'good')}
           ${dmHtml}
           <div class="acts">${Game.factionActions(f).map(a => UI.actBtn(`fac:${f}:${a.id}`, a)).join('')}
