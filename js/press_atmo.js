@@ -184,7 +184,7 @@ const PressAtmo = (() => {
   function letters(r, P, main) {
     const out = [];
     const d = P.decrees[0];
-    if (d) { const t = pk(r, LETTER_DECREE)(d.name); out.push(S.era === '1848' || S.era === '1905' ? t.replace('Наш трудовой коллектив', S.era === '1905' ? ({ mideast: 'Наша артель ныряльщиков', himal: 'Наша деревня' })[st()] || 'Наша кафана' : 'Наш цех') : t); }
+    if (d) { const t = pk(r, LETTER_DECREE)(d.name); out.push(S.era === '1848' || S.era === '1905' ? t.replace('Наш трудовой коллектив', S.era === '1905' ? ({ mideast: 'Наша артель ныряльщиков', himal: 'Наша деревня' })[st()] || 'Наша кафана' : 'Наш цех').replace(/^(Наша [^«]*?)поддержал /, '$1поддержала ') : t); }
     const tp = main && topic(main.head);
     if (tp && r() < 0.8) out.push(pk(r, PressGen.anach((S.era === '1905' && LETTER_TOPIC_05[tp]) || ((S.era === '1848' || S.era === '1905') && LETTER_TOPIC_48[tp]) || LETTER_TOPIC[tp])));
     const mood = S.fear >= 60 ? 'fear' : S.economy < 38 ? 'poor' : S.support < 35 ? 'angry' : S.economy >= 60 ? 'rich' : null;
