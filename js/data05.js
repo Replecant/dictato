@@ -9,7 +9,7 @@ Object.assign(COUNTRIES, {
   nepal: { name: 'Непал', bloc: 'neutral', flag: 'nepal', leaders: [[9999, 'махараджа Чандра Шамшер']] },
 });
 COUNTRIES.uk.leaders05 = [[1905.95, 'премьер Бальфур'], [1908.3, 'премьер Кэмпбелл-Баннерман'], [9999, 'премьер Асквит']];
-COUNTRIES.france.leaders05 = [[1906.85, 'премьер Рувье'], [1909.55, 'премьер Клемансо'], [1913.05, 'премьер Бриан'], [9999, 'президент Пуанкаре']];
+COUNTRIES.france.leaders05 = [[1906.2, 'премьер Рувье'], [1906.8, 'премьер Сарьен'], [1909.55, 'премьер Клемансо'], [1911.15, 'премьер Бриан'], [1912.05, 'премьер Кайо'], [1913.1, 'премьер Пуанкаре'], [9999, 'президент Пуанкаре']];
 COUNTRIES.russia.leaders05 = [[9999, 'император Николай II']];
 COUNTRIES.germany.leaders05 = [[9999, 'кайзер Вильгельм II']];
 COUNTRIES.austria.leaders05 = [[9999, 'император Франц Иосиф']];
@@ -60,7 +60,7 @@ Object.assign(REGIME_TYPES, {
   },
   reform05: {
     name: 'Король-реформатор', icon: '📜',
-    desc: 'Вы обещали парламент, железные дороги и школы. Лондон и Париж аплодируют, старые бояре точат кинжалы, а банкиры уже несут займы.',
+    desc: 'Вы обещали парламент, железные дороги и школы. Лондон и Париж аплодируют, офицеры «Братства» точат кинжалы, а банкиры уже несут займы.',
     byRegion: {
       gulf05: { name: 'Меджлис купцов', icon: '📜', desc: 'Вы созвали совет купцов и обещали открыть школу и почту. Улемы морщатся, британский резидент доволен.' },
       himal05: { name: 'Реформатор с телеграфом', icon: '📡', desc: 'Вы учились в Индии и хотите школы, монету и телеграф. Великие монастыри называют это ересью.' },
@@ -87,15 +87,15 @@ Object.assign(REGIONS, {
       left: { name: 'Аграрии и социалисты', short: 'Аграрии', icon: '✊', desc: 'Крестьяне, которые хотят земли, и учителя, которые хотят социализма. Иногда это одни и те же люди.' },
       liberals: { name: 'Радикальная партия и студенты', short: 'Радикалы', icon: '📜', desc: 'Парламент, свобода печати и союз с Россией. Студенты учились в Женеве и вернулись с бородами и брошюрами.' },
       faith: { name: 'Православная церковь', short: 'Церковь', icon: '☦️', desc: 'Митрополит помнит турок, помнит прежнюю династию и рассчитывает пережить вашу.' },
-      oligarchs: { name: 'Купцы и торговцы скотом', short: 'Купцы', icon: '🎩', desc: 'Свиньи, табак и сливы — на них держится казна. Если Вена закроет границу для свиней, купцы закроют вам кредит.' },
+      oligarchs: { name: 'Купцы и торговцы скотом', short: 'Купцы', icon: '🐖', desc: 'Свиньи, табак и сливы — на них держится казна. Если Вена закроет границу для свиней, купцы закроют вам кредит.' },
       hawks: { name: 'Офицеры «Братства»', short: 'Офицеры', icon: '⚔️', desc: 'Тайное офицерское братство. Клянутся на кинжале и револьвере при свечах. Королей тоже меняли — однажды уже.' },
     },
     advisors: {
-      defense: { name: 'Полковник Драгутин Пистолевич', bio: 'Организовал два переворота и одно покушение и называет это хобби. Члены его тайного общества выбирают между объединением и смертью, чаще второе.', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#222', hat: 'kepi', hatColor: '#3a4a5a', mustache: 'handlebar', brows: 'angry', mouth: 'flat', outfit: 'military', outfitColor: '#3a4a5a', medals: 5 } },
+      defense: { name: 'Полковник Радомир Пистолевич', bio: 'Организовал два переворота и одно покушение и называет это хобби. Братья его тайного общества клянутся на кинжале, а проверяют клятву на королях.', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#222', hat: 'kepi', hatColor: '#3a4a5a', mustache: 'handlebar', brows: 'angry', mouth: 'flat', outfit: 'military', outfitColor: '#3a4a5a', medals: 5 } },
       economy: { name: 'Министр финансов Стоян Свинарич', bio: 'Отвечает за вывоз свиней в Австро-Венгрию. Когда Вена закрывает границу, он лично ищет свиньям новые рынки — от Марселя до Салоник.', look: { skin: SKIN.light, face: 'round', hair: 'baldside', hairColor: '#666', glasses: 'pince', mustache: 'walrus', brows: 'worried', mouth: 'o', outfit: 'suit', outfitColor: '#3a3a36', tie: '#7a1f1f', sweat: true } },
       police: { name: 'Префект Велько Шпионов', bio: 'Знает всех заговорщиков столицы в лицо. Половину из них сам когда-то завербовал, а вторая половина — его родственники.', look: { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#111', hat: 'bowler', hatColor: '#1a1a1a', mustache: 'waxed', brows: 'angry', mouth: 'smirk', outfit: 'suit', outfitColor: '#1d1f24', tie: '#111' } },
       propaganda: { name: 'Гусляр Драган Песнович', bio: 'Поёт эпические песни о ваших победах под гусли. Песни длинные, а побед пока мало, поэтому он поёт об одной, но медленно.', look: { skin: SKIN.light, face: 'long', hair: 'long', hairColor: '#ddd', beard: 'full', mustache: 'thick', brows: 'bushy', browColor: '#ddd', mouth: 'grin', outfit: 'robe', outfitColor: '#5a2a2a', trim: '#d6a63a' } },
-      foreign: { name: 'Князь Милан Дипломатович', bio: 'Учился в Петербурге, женат на венке, а долги у него в Париже. Идеальный дипломат для страны между тремя империями.', look: { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#999', mustache: 'waxed', beard: 'goatee', brows: 'normal', mouth: 'smirk', glasses: 'monocle', hat: 'top', hatColor: '#1a1a1a', outfit: 'suit', outfitColor: '#1d1d22', tie: '#f4f1ea' } },
+      foreign: { name: 'Министр Милан Дипломатович', bio: 'Учился в Петербурге, женат на венке, а долги у него в Париже. Идеальный дипломат для страны между тремя империями.', look: { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#999', mustache: 'waxed', beard: 'goatee', brows: 'normal', mouth: 'smirk', glasses: 'monocle', hat: 'top', hatColor: '#1a1a1a', outfit: 'suit', outfitColor: '#1d1d22', tie: '#f4f1ea' } },
     },
   },
   gulf05: {
@@ -108,13 +108,13 @@ Object.assign(REGIONS, {
     jungle: 'пустыне за оазисом', nephew: 'Салим',
     countries: ['uk', 'ottoman', 'germany', 'russia', 'persia', 'france'],
     relInit: { uk: 60, ottoman: 35, germany: 45, russia: 38, persia: 45, france: 42 },
-    flag: `<rect width="30" height="20" fill="#f4f1ea"/><path d="M0 0 H10 L14 2 L10 4 L14 6 L10 8 L14 10 L10 12 L14 14 L10 16 L14 18 L10 20 H0 Z" fill="#9a1a2a"/>`,
+    flag: `<rect width="30" height="20" fill="#2e5e4a"/><rect width="9" height="20" fill="#f4f1ea"/><path d="M21 4.5 A5.5 5.5 0 1 0 21 15.5 A4.3 4.3 0 1 1 21 4.5 Z" fill="#f4f1ea"/>`,
     leaderSkin: 'tan', era: '1905', style: 'mideast', faithStyle: 'islam', exile: 'Бомбее', critters: 'верблюдов',
     factions: {
       left: { name: 'Ныряльщики за жемчугом', short: 'Ныряльщики', icon: '🐚', desc: 'Тысячи ныряльщиков в вечных долгах у хозяев лодок. Каждое лето они уходят в море на четыре месяца, а осенью возвращаются ещё беднее.' },
       liberals: { name: 'Реформаторы и меджлис', short: 'Реформаторы', icon: '📜', desc: 'Купеческие сыновья, учившиеся в Бомбее и Каире. Хотят школу, почту и совет, который будет решать вместе с вами.' },
       faith: { name: 'Улемы', short: 'Улемы', icon: '☪️', desc: 'Кади и имамы. Школу они бы открыли, если бы в ней учили только Коран.' },
-      oligarchs: { name: 'Купцы и хозяева лодок', short: 'Купцы', icon: '🎩', desc: 'Им принадлежат жемчужные лодки, склады фиников и долги половины города. Платят за вашу гвардию — и считают её немного своей.' },
+      oligarchs: { name: 'Купцы и хозяева лодок', short: 'Купцы', icon: '⛵', desc: 'Им принадлежат жемчужные лодки, склады фиников и долги половины города. Платят за вашу гвардию — и считают её немного своей.' },
       hawks: { name: 'Бедуинские шейхи и гвардия', short: 'Бедуины', icon: '⚔️', desc: 'Всадники из пустыни. Защищают город от набегов и иногда устраивают их сами.' },
     },
     advisors: {
@@ -141,7 +141,7 @@ Object.assign(REGIONS, {
       left: { name: 'Крестьяне и погонщики караванов', short: 'Погонщики', icon: '✊', desc: 'Они платят налоги монастырям, знати и вам. Каждому — отдельно и каждый год больше.' },
       liberals: { name: 'Молодые реформаторы', short: 'Реформаторы', icon: '📜', desc: 'Офицеры и чиновники, учившиеся в Индии. Хотят школы, монету и телеграф. Носят английские ботинки под халатами.' },
       faith: { name: 'Великие монастыри', short: 'Монастыри', icon: '☸️', desc: 'Двадцать тысяч монахов в трёх великих монастырях. Им принадлежит треть земли и все пророчества.' },
-      oligarchs: { name: 'Знатные роды', short: 'Знать', icon: '🎩', desc: 'Сто семей с поместьями, крестьянами и чином. Торгуют шерстью с Индией и чаем с Китаем.' },
+      oligarchs: { name: 'Знатные роды', short: 'Знать', icon: '🏯', desc: 'Сто семей с поместьями, крестьянами и чином. Торгуют шерстью с Индией и чаем с Китаем.' },
       hawks: { name: 'Новая армия', short: 'Армия', icon: '⚔️', desc: 'Три тысячи солдат с британскими ружьями. Монастыри считают, что армия — это опасная новинка вроде телеграфа.' },
     },
     advisors: {
@@ -167,9 +167,9 @@ Object.assign(TITLE_FORMS, {
   'Драгоценный Владыка': ['Драгоценного Владыки', 'Драгоценным Владыкой'], 'Хранитель Перевалов': ['Хранителя Перевалов', 'Хранителем Перевалов'], 'Царь Гор': ['Царя Гор', 'Царём Гор'],
 });
 Object.assign(REGION_TALK, {
-  balkan05: { addr: 'ваше величество', sir: 'господин', lady: 'госпожа', holiday_acc: 'Видовдан', holiday_dat: 'Видовдану', gringo: 'эти господа из Вены', haven: 'Вену', exileTo: 'Вену', canteen: 'фасолевую похлёбку', fruit_adj: 'Сливовый', locale: 'Балкан', pay_in_kind: 'Свиньями.', vegas: 'игорный дом как в Монте-Карло', rebel: 'Вожак гайдуков', meeting: 'в кафане «У царя Лазаря»' },
-  gulf05: { addr: 'ваше высочество', sir: 'шейх', lady: 'госпожа', holiday_acc: 'Ид аль-Фитр', holiday_dat: 'Ид аль-Фитру', gringo: 'эти англичане', haven: 'Бомбей', exileTo: 'Бомбей', canteen: 'финики с рисом', fruit_adj: 'Жемчужный', locale: 'Залива', pay_in_kind: 'Мешками фиников.', vegas: 'кофейня с нардами', rebel: 'Шейх мятежного племени', meeting: 'в кофейне у порта' },
-  himal05: { addr: 'драгоценный владыка', sir: 'господин', lady: 'госпожа', holiday_acc: 'Лосар', holiday_dat: 'Лосару', gringo: 'эти сахибы', haven: 'Дарджилинг', exileTo: 'Дарджилинг', canteen: 'цампу с чаем', fruit_adj: 'Ячий', locale: 'Гималаев', pay_in_kind: 'Брикетами чая.', vegas: 'игра в кости у караван-сарая', rebel: 'Вожак горных разбойников', meeting: 'в караван-сарае' },
+  balkan05: { addr: 'ваше величество', sir: 'господин', lady: 'госпожа', holiday_acc: 'Видовдан', holiday_dat: 'Видовдану', gringo: 'эти господа из Вены', rebel_icon: 'красное знамя', kaiser_friends: 'всех малых народов Европы, особенно тех, кто не дружит с Петербургом', haven: 'Вену', exileTo: 'Вену', canteen: 'фасолевую похлёбку', fruit_adj: 'Сливовый', locale: 'Балкан', pay_in_kind: 'Свиньями.', vegas: 'игорный дом как в Монте-Карло', rebel: 'Вожак гайдуков', meeting: 'в кафане «У царя Лазаря»' },
+  gulf05: { addr: 'ваше высочество', sir: 'шейх', lady: 'госпожа', holiday_acc: 'Ид аль-Фитр', holiday_dat: 'Ид аль-Фитру', gringo: 'эти англичане', rebel_icon: 'знамя мятежного племени', kaiser_friends: 'всех мусульман мира', haven: 'Бомбей', exileTo: 'Бомбей', canteen: 'финики с рисом', fruit_adj: 'Жемчужный', locale: 'Залива', pay_in_kind: 'Мешками фиников.', vegas: 'кофейня с нардами', rebel: 'Шейх мятежного племени', meeting: 'в кофейне у порта' },
+  himal05: { addr: 'драгоценный владыка', sir: 'господин', lady: 'госпожа', holiday_acc: 'Лосар', holiday_dat: 'Лосару', gringo: 'эти сахибы', rebel_icon: 'знамя горных разбойников', kaiser_friends: 'всех народов Азии', haven: 'Дарджилинг', exileTo: 'Дарджилинг', canteen: 'цампу с чаем', fruit_adj: 'Ячий', locale: 'Гималаев', pay_in_kind: 'Брикетами чая.', vegas: 'игра в кости у караван-сарая', rebel: 'Вожак горных разбойников', meeting: 'в караван-сарае' },
 });
 Object.assign(RELATIVES_BY_STYLE, {
   himal: { defense: 'Кузен Пема', economy: 'Шурин Норбу', police: 'Тётушка Долма', propaganda: 'Племянник Таши', foreign: 'Зять Ринчен', abroad: 'в Дарджилинге' },
@@ -198,7 +198,7 @@ function npc05(key, region) {
     russia_amb: { name: 'Посланник России князь Самоварский', look: { skin: SKIN.light, face: 'round', hair: 'short', hairColor: '#999', beard: 'full', mustache: 'thick', brows: 'bushy', browColor: '#888', mouth: 'grin', outfit: 'uniform48', outfitColor: '#1a3a2a', collar: '#c1272d', medals: 5, blush: true } },
     uk_amb: { name: 'Британский резидент майор Пикклз', look: { skin: SKIN.light, face: 'long', hair: 'short', hairColor: '#b5651d', mustache: 'handlebar', brows: 'normal', mouth: 'smirk', hat: 'helmet', hatColor: '#e8dcc0', outfit: 'military', outfitColor: '#c8b88a', medals: 2 } },
     brindia_amb: { name: 'Политический агент мистер Дарджилингтон', look: { skin: SKIN.light, face: 'long', hair: 'short', hairColor: '#c9a640', mustache: 'handlebar', brows: 'normal', mouth: 'smirk', hat: 'helmet', hatColor: '#e8dcc0', outfit: 'suit', outfitColor: '#e8dcc0', tie: '#7a1f1f' } },
-    ottoman_amb: { name: 'Вали Басры Мехмед-паша', look: { skin: SKIN.tan, face: 'round', hair: 'short', hairColor: '#333', hat: 'fez', hatColor: '#c1272d', mustache: 'thick', brows: 'bushy', mouth: 'flat', outfit: 'uniform48', outfitColor: '#1d2a44', collar: '#c1272d', medals: 4 } },
+    ottoman_amb: { name: region === 'balkan05' ? 'Посол Порты Сулейман-бей' : 'Вали Басры Мехмед-паша', look: { skin: SKIN.tan, face: 'round', hair: 'short', hairColor: '#333', hat: 'fez', hatColor: '#c1272d', mustache: 'thick', brows: 'bushy', mouth: 'flat', outfit: 'uniform48', outfitColor: '#1d2a44', collar: '#c1272d', medals: 4 } },
     china_amb: { name: 'Амбань Чжао Эрфэн', look: { skin: SKIN.light, face: 'long', hair: 'short', hairColor: '#111', hat: 'fez', hatColor: '#1a1a1a', mustache: 'pencil', brows: 'angry', mouth: 'flat', outfit: 'robe', outfitColor: '#1f2a5a', trim: '#d6a63a' } },
     france_amb: { name: 'Месье Шнейдер, представитель заводов в Крезо', look: { skin: SKIN.light, face: 'oval', hair: 'slick', hairColor: '#3a2a1a', mustache: 'waxed', beard: 'goatee', brows: 'normal', mouth: 'smirk', hat: 'bowler', hatColor: '#1a1a1a', outfit: 'suit', outfitColor: '#2a2a40', tie: '#c1272d' } },
     nepal_amb: { name: 'Посланник Непала генерал Рана', look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#111', mustache: 'waxed', brows: 'normal', mouth: 'smirk', hat: 'turban', hatColor: '#f4f1ea', outfit: 'military', outfitColor: '#3a2a4a', medals: 6 } },

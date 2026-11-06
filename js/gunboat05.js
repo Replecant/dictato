@@ -31,6 +31,9 @@ const T05 = [
   ['в аэропорту с чемоданом', 'на вокзале с чемоданом'],
   ['оппозиционное радио «Голос свободы»', 'оппозиционный листок «Голос свободы»'],
   ['пишущая машинка и радиопередача', 'пишущая машинка и листовки'],
+  ['Охрана валит вас на пол лимузина', 'Охрана валит вас на пол кареты'],
+  ['Пули попали в лимузин, где ехал ваш двойник', 'Пули попали в карету, где ехал ваш двойник'],
+  ['Переплыть реку перед камерами', 'Переплыть реку перед фотографами'],
 ];
 const t05 = s => (typeof s === 'string' && S && S.era === '1905' ? T05.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _fmt05 = Game.fmt;
@@ -45,6 +48,7 @@ Game.economyActions = function () {
   if (S.era !== '1905') return acts;
   const h = S.region === 'himal05', g = S.region === 'gulf05';
   for (const a of acts) {
+    if (a.id === 'highway' && (h || g)) a.name = a.name.replace('Шоссе', h ? 'Горная дорога' : 'Караванная дорога');
     if (a.id === 'loan_w') Object.assign(a, h ? { name: 'Заём калькуттских банков', desc: 'Казна +50, затем 8 выплат по 7 млн. Под залог шерстяных пошлин.', cost: 'Британская Индия ≥ 40', ok: (S.rel.brindia || 0) >= 40 && S.loans.length < 2 }
       : g ? { name: 'Заём бомбейских банков', desc: 'Казна +50, затем 8 выплат по 7 млн. Под залог жемчужного сбора.', cost: 'Британия ≥ 40', ok: (S.rel.uk || 0) >= 40 && S.loans.length < 2 }
         : { name: 'Заём парижских банкиров', desc: 'Казна +50, затем 8 выплат по 7 млн. Французы любят давать в долг союзникам России.', cost: 'Франция ≥ 40', ok: (S.rel.france || 0) >= 40 && S.loans.length < 2 });
@@ -73,11 +77,12 @@ Game.countryActions = function (c) {
 const _pickDemand05 = Game.pickDemand;
 Game.pickDemand = function (c) {
   if (S.era !== '1905') return _pickDemand05.call(Game, c);
-  const keep = DEMANDS.filter(d => (d.eras ? d.eras.includes('1905') : ['company', 'tariffs', 'raw', 'buy', 'invite'].includes(d.id)));
+  const keep = DEMANDS.filter(d => (d.eras ? d.eras.includes('1905') : ['tariffs', 'raw', 'buy', 'invite'].includes(d.id)));
   const all = DEMANDS.splice(0, DEMANDS.length, ...keep);
   try { return _pickDemand05.call(Game, c); } finally { DEMANDS.splice(0, DEMANDS.length, ...all); }
 };
 DEMANDS.push(
+  { id: 'traders05', blocs: ['west', 'axis'], eras: ['1905'], text: () => 'Освободить наших торговцев от местных пошлин и судов', fx: c => ({ rel: { [c]: 12 }, support: -2, g05Indep: -2, fac: { oligarchs: { a: -4 } } }) },
   { id: 'rail05', blocs: ['axis'], eras: ['1905'], text: () => 'Дать нам концессию на изыскания под железную дорогу', fx: c => ({ treasury: 8, rel: { [c]: 12, $west: -4 }, g05Indep: -5, g05Riv: 4 }) },
   { id: 'coal05', blocs: ['west'], eras: ['1905'], text: () => 'Разрешить угольную станцию для нашего флота', fx: c => ({ treasury: 5, rel: { [c]: 12, $axis: -4 }, g05Indep: -4, g05Riv: 3 }) },
   { id: 'agents05', blocs: ['west', 'axis'], eras: ['1905'], text: c => (Game.blocOf(c) === 'west' ? 'Выслать германских агентов и инженеров' : 'Выслать английских агентов и миссионеров'), fx: c => ({ rel: { [c]: 10, [Game.blocOf(c) === 'west' ? '$axis' : '$west']: -6 }, g05Riv: 3 }) },
@@ -106,6 +111,10 @@ const G05_REGION = {
       mines: ['Рудники в Проклятых горах', '⛏️', 2, 8, 18, ['germany', 'france', 'austria']],
       bank: ['Государственный банк', '🏦', 2, 10, 20, ['france', 'austria', 'russia']],
     },
+    prologueBy: {
+      throne05: ['1903: ночь заговора', 'Два года назад офицеры тайного «Братства» пытались ворваться и в ваш дворец. Гвардия устояла, зачинщиков разослали по дальним гарнизонам, но «Братство» никуда не делось. Вена хмурится, Петербург улыбается, а в кафанах пьют за другого короля.'],
+      reform05: ['1903: дарованная конституция', 'Два года назад вы даровали стране конституцию, и европейские газеты впервые написали о вас без слова «дикари». Вена хмурится, Петербург присматривается, а офицеры тайного «Братства» считают парламент слабостью.'],
+    },
     prologue: ['1903: майская ночь', 'Два года назад офицеры тайного «Братства» ворвались во дворец, и прежняя династия кончилась одной ночью. Корона досталась вам. Вена хмурится, Петербург улыбается, а заговорщики ждут благодарности.'],
   },
   gulf05: {
@@ -118,6 +127,9 @@ const G05_REGION = {
       coal: ['Угольная станция для флота', '🏭', 2, 8, 15, ['uk', 'russia', 'germany', 'france']],
       customs: ['Таможня', '🛃', 2, 10, 18, ['uk', 'ottoman', 'germany']],
     },
+    prologueBy: {
+      officers05: ['1905: всадники у ворот', 'Прошлой зимой бедуинская гвардия вошла в город, и прежний эмир уплыл на британском пароходе. Вместе с дворцом вам достался его секретный договор с британским резидентом: никаких сделок с другими державами, а флот защитит от султана. Султан о бумаге догадывается, кайзер — тоже.'],
+    },
     prologue: ['1899: секретный договор', 'Шесть лет назад вы тайно подписали с британским резидентом бумагу: никаких договоров с другими державами, а британский флот защитит вас от султана. Султан о бумаге догадывается, кайзер — тоже.'],
   },
   himal05: {
@@ -125,7 +137,7 @@ const G05_REGION = {
     pieces: {
       telegraph: ['Телеграф через перевалы', '📡', 1, 6, 12, ['brindia', 'russia', 'china']],
       trade: ['Торговые фактории', '🏪', 2, 8, 15, ['brindia', 'china', 'nepal', 'russia']],
-      gold: ['Золотые прииски', '🪙', 3, 10, 22, ['brindia', 'china', 'russia', 'japan']],
+      gold: ['Золотые прииски', '🪙', 3, 10, 22, ['brindia', 'china', 'russia']],
       wool: ['Шерстяная монополия', '🐑', 2, 6, 14, ['brindia', 'china', 'nepal']],
       road: ['Колёсная дорога через перевал', '🛤️', 2, 10, 20, ['brindia', 'china']],
       mint: ['Монетный двор и серебряный заём', '💰', 2, 10, 20, ['china', 'brindia', 'russia', 'japan']],
@@ -134,6 +146,9 @@ const G05_REGION = {
   },
 };
 const POWER05 = ['uk', 'france', 'russia', 'germany', 'austria', 'ottoman', 'brindia', 'china', 'japan'];
+// Кто реально может прислать ультиматум, крейсер или отряд: в Гималаи японцы и русские войска не дойдут, а у Балкан нет моря для французского флота
+const GUN05 = { balkan05: ['austria', 'russia', 'germany', 'ottoman'], gulf05: ['uk', 'germany', 'russia', 'ottoman', 'france'], himal05: ['brindia', 'uk', 'china'] };
+const gunPowers05 = () => REGIONS[S.region].countries.filter(c => (GUN05[S.region] || POWER05).includes(c));
 
 Object.assign(Game, {
   g05() {
@@ -222,7 +237,7 @@ Object.assign(Game, {
   // ---------- сцены ----------
   g05Prologue() {
     S.flags.prologue05 = true;
-    const [title, text] = Game.g05Cfg().prologue, P = REGIONS[S.region].patron, PN = Game.cName(P);
+    const C = Game.g05Cfg(), [title, text] = (C.prologueBy || {})[S.regime] || C.prologue, P = REGIONS[S.region].patron, PN = Game.cName(P);
     return {
       title, bg: 'palace',
       lines: [['narrator', text], ['foreign', `Державы ждут, с кем вы будете дружить. ${PN} считает, что с ним. Остальные с этим не согласны.`]],
@@ -236,8 +251,8 @@ Object.assign(Game, {
   g05GunScene() {
     const G = Game.g05(), R = Game.g05Cfg(), RG = REGIONS[S.region];
     G.gunAt = S.turn;
-    const angry = Object.keys(G.angry).filter(c => S.turn - G.angry[c] <= 4 && S.rel[c] !== undefined);
-    const power = angry.length ? pick(angry) : RG.countries.filter(c => POWER05.includes(c)).sort((a, b) => S.rel[a] - S.rel[b])[0];
+    const angry = Object.keys(G.angry).filter(c => S.turn - G.angry[c] <= 4 && S.rel[c] !== undefined && gunPowers05().includes(c));
+    const power = angry.length ? pick(angry) : gunPowers05().sort((a, b) => S.rel[a] - S.rel[b])[0];
     delete G.angry[power];
     const PN = Game.g05Name(power), free = Object.keys(G.pieces).filter(k => !G.pieces[k]);
     const take = free.length ? pick(free) : pick(Object.keys(G.pieces).filter(k => G.pieces[k] !== power));
@@ -287,7 +302,7 @@ Object.assign(Game, {
       ],
       choices: [
         { text: 'Встать на сторону Антанты', fx: { rel: { $west: 15, $axis: -20 }, g05Riv: 10, flag: { side05: 'west' }, ...pay('west') }, res: bal ? 'Вы объявили войну Австро-Венгрии. Петербург шлёт телеграмму благодарности и обещания. Вена — полки.' : him ? 'Тысяча ваших солдат ушла в Индию. Британия благодарит и обещает признать ваши границы после войны.' : 'Вы подняли над портом британский флаг рядом со своим. Британия обещает признать вашу независимость под своей защитой.' },
-        { text: 'Встать на сторону Тройственного союза', fx: { rel: { $axis: 15, $west: -20 }, g05Riv: 10, flag: { side05: 'axis' }, ...pay('axis') }, res: bal ? 'Вы поставили на Вену и Берлин, как болгарский царь. Немецкие офицеры уже едут учить вашу армию.' : him ? 'Вы заявили о дружбе с кайзером. До Берлина далеко, а до Индии — один перевал.' : 'Вы приняли германского консула с почестями. Султан, говорят, тоже скоро объявит священную войну.' },
+        { text: 'Встать на сторону Тройственного союза', fx: { rel: { $axis: 15, $west: -20 }, g05Riv: 10, flag: { side05: 'axis' }, ...pay('axis') }, res: bal ? 'Вы поставили на Вену и Берлин, как через год поставит болгарский царь. Немецкие офицеры уже едут учить вашу армию.' : him ? 'Вы заявили о дружбе с кайзером. До Берлина далеко, а до Индии — один перевал.' : 'Вы приняли германского консула с почестями. Султан, говорят, тоже скоро объявит священную войну.' },
         { text: 'Объявить нейтралитет', chance: () => clamp(0.35 + (S.flags.neutral05 ? 0.25 : 0) + G.indep / 250 - G.riv / 400, 0.15, 0.85),
           win: { fx: { support: 6, flag: { side05: 'neutral' } }, res: 'Обе коалиции признали ваш нейтралитет. Пока Европа воюет, вы продаёте всем всё — по военным ценам.' },
           lose: { fx: { g05Indep: -15, support: -6, flag: { side05: 'neutral' } }, res: 'Нейтралитет никто не признал. Чужие войска вошли «временно, чтобы защитить концессии».' } },
@@ -323,7 +338,7 @@ Game.forcedList.push(() => {
   const G = Game.g05(), t = Game.eraTime();
   if (!S.flags.prologue05 && S.turn === 0) return Game.g05Prologue();
   if (!S.flags.finale05 && t >= 1914.5) return Game.g05FinaleScene();
-  const angry = Object.keys(G.angry).some(c => S.turn - G.angry[c] >= 1 && S.turn - G.angry[c] <= 4);
+  const angry = Object.keys(G.angry).some(c => S.turn - G.angry[c] >= 1 && S.turn - G.angry[c] <= 4 && gunPowers05().includes(c));
   if (S.turn - G.gunAt >= 5 && ((angry && Math.random() < 0.5) || (G.riv >= 75 && S.turn - G.gunAt >= 6))) return Game.g05GunScene();
   return null;
 });
@@ -352,7 +367,7 @@ Game.coupScene = function (role) {
   const sc = _coup05.call(Game, role);
   if (S.era !== '1905') return sc;
   sc.title = 'Мятеж гвардии!';
-  sc.lines[0] = ['narrator', 'Три часа ночи. Топот сапог и выстрелы во дворе. Телефонная линия перерезана, у ворот — офицеры с револьверами.'];
+  sc.lines[0] = ['narrator', S.region === 'gulf05' ? 'Три часа ночи. Топот копыт и выстрелы во дворе. Сторожевые костры на стенах погасли, у ворот — всадники с винтовками.' : S.region === 'himal05' ? 'Три часа ночи. Выстрелы во дворе крепости. Гонцы к монастырям перехвачены, у ворот — солдаты новой армии с британскими ружьями.' : 'Три часа ночи. Топот сапог и выстрелы во дворе. Телеграфные провода перерезаны, у ворот — офицеры с револьверами.'];
   if (sc.lines[1][0] === 'npc:colonel') sc.lines[1] = ['npc:colonel', 'Именем армии и отечества! Тиран низложен! Ну, почти.'];
   const [c0, c1, c2, c3] = sc.choices;
   c0.text = 'Выйти на балкон и обратиться к народу';
@@ -369,7 +384,7 @@ Game.revolutionScene = function () {
   const sc = _rev05.call(Game);
   if (S.era !== '1905') return sc;
   sc.lines = [
-    ['narrator', `Толпа на ${REGIONS[S.region].capitalSquare}. Красные флаги, портреты сорваны. Ворота дворца трещат.`],
+    ['narrator', `Толпа на ${REGIONS[S.region].capitalSquare}. ${S.region === 'gulf05' ? 'Знамёна племён, лодочники с вёслами' : S.region === 'himal05' ? 'Крестьяне с вилами, монахи с барабанами' : 'Красные флаги, портреты сорваны'}. Ворота дворца трещат.`],
     ['npc:rebel', 'Народ пришёл за своим! Выходи, тиран!'],
     ['propaganda', '{Addr}, я... я, пожалуй, пойду проверю типографию. Надолго.'],
     ['defense', 'Войска ждут приказа. Но солдаты смотрят на толпу и видят там своих братьев.'],
@@ -421,6 +436,7 @@ Object.assign(UI, {
         <section class="card cr-side">
           ${UI.meter('Независимость', G.indep, G.indep >= 60 ? 'good' : G.indep >= 30 ? 'warn' : 'bad')}
           ${UI.meter('Соперничество держав', G.riv, G.riv >= 70 ? 'bad' : G.riv >= 45 ? 'warn' : 'good')}
+          <p class="muted small"><b>Независимость</b> — сколько страны ещё ваше. Ниже 50 растёт риск, что «патриоты» поднимут революцию, ниже 30 народ недоволен и офицеры думают о перевороте, на нуле — протекторат. Отобрать концессию — вернуть независимость, но держава обидится. <b>Соперничество</b> — насколько державы дерутся за вас. Оно растёт само и от каждой проданной концессии; от 75 — жди ${S.region === 'balkan05' ? 'ультиматумов' : S.region === 'himal05' ? 'отрядов на перевалах' : 'крейсеров на рейде'}. «Политика равновесия» его снижает. <b>Торги</b>: с шансом 60% концессию купит держава из другого лагеря в полтора раза дороже, иначе первый покупатель обидится.</p>
           <p class="muted small">Доход от концессий: <b>${Game.g05Income()} млн</b> в квартал. ${S.flags.finale05 ? 'Сторона в войне выбрана.' : `До августа 1914 года — кварталов: <b>${left}</b>.`}${S.flags.neutral05 ? ' Объявлен вечный нейтралитет.' : ''}</p>
           ${blocs}
         </section>
@@ -465,11 +481,19 @@ for (const list of Object.values(PROJECTS05)) for (const p of list) {
 
 // Китай в 1905–1914: империя Цин, с 1912 года — республика
 const CHINA_BASE = { name: COUNTRIES.china.name, cases: COUNTRY_CASES.china.slice() };
+// С 1867 года — Австро-Венгрия, а не Австрийская империя
+const AUSTRIA_BASE = { name: COUNTRIES.austria.name, cases: COUNTRY_CASES.austria.slice() };
 Game.china05 = () => {
   const on = !!S && S.era === '1905';
   COUNTRIES.china.name = on ? (Game.eraTime() < 1912 ? 'Цинская империя' : 'Китайская Республика') : CHINA_BASE.name;
   COUNTRY_CASES.china = on ? (Game.eraTime() < 1912 ? ['Цинской империи', 'Цинской империей', 'в Пекин'] : ['Китайской Республики', 'Китайской Республикой', 'в Пекин']) : CHINA_BASE.cases.slice();
+  COUNTRIES.austria.name = on ? 'Австро-Венгрия' : AUSTRIA_BASE.name;
+  COUNTRY_CASES.austria = on ? ['Австро-Венгрии', 'Австро-Венгрией', 'в Вену'] : AUSTRIA_BASE.cases.slice();
 };
+// Регент при малолетнем владыке — не «драгоценный владыка»
+const ADDR05 = { himal05: { officers05: 'господин регент' } };
+const _vars05 = Game.vars;
+Game.vars = function () { const v = _vars05.call(Game); const a = S && S.era === '1905' && (ADDR05[S.region] || {})[S.regime]; if (a) v.addr = a; return v; };
 const _eraLook05b = Game.eraLook;
 Game.eraLook = function () { _eraLook05b.call(Game); Game.china05(); };
 Game.forcedList.unshift(() => { Game.china05(); return null; });

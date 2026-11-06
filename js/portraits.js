@@ -326,7 +326,7 @@ const Portrait = (() => {
   // 1905–1914: эдвардианские костюмы и канотье вместо толстовок и бейсболок
   const P05 = {
     outfit: { suit2000: 'suit', hoodie: 'blouse', tracksuit: 'blouse', polo: 'blouse', guayabera: 'suit', mao: 'suit' },
-    hat: { baseball: 'flatcap', hijab: 'bonnet', tubeteika: 'fez' },
+    hat: { baseball: 'flatcap', tubeteika: 'fez' },
     glasses: { aviator: 'none', sport: 'none', rimless: 'pince', square: 'round' },
     hair: { buzz: 'short', gelled: 'slick' },
   };
