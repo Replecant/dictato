@@ -70,7 +70,7 @@ const REGIME_TYPES = {
   front: {
     name: 'Народный фронт', icon: '✊',
     desc: 'Вы пришли к власти на волне забастовок и красных флагов. Москва довольна, банкиры паникуют, духовенство молится.',
-    fx: { support: 15, economy: -3 }, fac: { left: { a: 30 }, oligarchs: { a: -18, s: -5 }, faith: { a: -10 }, hawks: { a: 5 } }, rel: { ussr: 25, germany: -15, italy: -15, usa: -5, france: 5 },
+    fx: { support: 15, economy: -3 }, fac: { left: { a: 30 }, oligarchs: { a: -12, s: -5 }, faith: { a: -10 }, hawks: { a: 5 } }, rel: { ussr: 25, germany: -15, italy: -15, usa: -5, france: 5 },
   },
 };
 

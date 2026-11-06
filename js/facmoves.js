@@ -13,7 +13,7 @@ const FAC_MOVES = {
   },
   oligarchs: {
     bad: [
-      { t: (L, D) => `Бегство капитала: «${D}» переводят деньги за границу. Банки опустели.`, fx: { treasury: -8, economy: -2 } },
+      { t: (L, D) => `Бегство капитала: «${D}» переводят деньги за границу. Банки опустели.`, fx: { treasury: -6, economy: -1 } },
       { t: (L, D) => `${L} «временно» закрыл три фабрики. Рабочих отправили по домам.`, fx: { economy: -4, support: -2 } },
     ],
     good: [
@@ -111,6 +111,7 @@ Object.assign(Game, {
 });
 // Генералы, которым отказали, готовят заговор два квартала
 Game.coupHooks.push(() => (S.flags.hawkPlot !== undefined && S.turn - S.flags.hawkPlot <= 2 ? 0.15 : 0));
+Game.coupHooks.push(() => (S.flags.hawkNudge !== undefined && S.turn - S.flags.hawkNudge <= 1 ? 0.05 : 0));
 // Саботаж приказов
 const _apTurn = Game.apTurn;
 Game.apTurn = () => { const pen = S.flags.apPenalty || 0; S.flags.apPenalty = 0; return Math.max(1, _apTurn() - pen); };
@@ -122,7 +123,7 @@ Game.quarterHooks.push(rep => {
   const cand = [];
   for (const f of Object.keys(S.fac)) {
     const F = S.fac[f], m = Game.facMood(f);
-    if (m === 'bad' || m === 'ult') cand.push({ f, good: false, p: Math.min(0.85, 0.25 + (35 - F.a) / 70 + F.s / 200) });
+    if (m === 'bad' || m === 'ult') cand.push({ f, good: false, p: Math.min(0.7, 0.15 + (35 - F.a) / 80 + F.s / 300) });
     else if (m === 'good') cand.push({ f, good: true, p: Math.min(0.6, 0.2 + (F.a - 65) / 100 + F.s / 300) });
   }
   let n = 0;
@@ -134,7 +135,7 @@ Game.quarterHooks.push(rep => {
     const text = mv.t(Game.leader(c.f).name, Game.facDef(c.f).name);
     Game.apply(facScale(mv.fx, k), { silent: true });
     if (mv.ap) S.flags.apPenalty = 1;
-    if (mv.coup) S.flags.hawkPlot = S.turn;
+    if (mv.coup) S.flags.hawkNudge = S.turn;
     S.facMoves[c.f] = { turn: S.turn, text, good: c.good, i: mi };
     rep[c.good ? 'lines' : 'warn'].push(`${c.good ? '🤝' : '⚠️'} ${Game.facDef(c.f).name}: ${text}`);
     Game.log(`${Game.facDef(c.f).name}: ${text}`);
