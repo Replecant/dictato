@@ -142,31 +142,40 @@ Object.assign(Game, {
       title: `Переговоры: ${C.name}`, bg: 'office',
       lines: [
         ['foreign', `Делегация ${cGen(c)} готова подписать торговый договор. Вопрос в условиях. Я, разумеется, предлагаю торговаться. Красиво.`],
-        ['economy', 'Хороший договор — это деньги каждый квартал. Плохой — тоже деньги, только их.'],
+        ['economy', (() => { const n = Game.tradeBreakdown().length; return n ? `Хороший договор — это деньги каждый квартал. Но у нас уже ${n} ${n === 1 ? 'договор' : n < 5 ? 'договора' : 'договоров'}, и новый принесёт меньше: наши товары уже продаются на этих рынках.` : 'Хороший договор — это деньги каждый квартал. Плохой — тоже деньги, только их.'; })()],
       ],
       choices: [
-        { text: 'Жёсткие условия: доход +4 млн в квартал', adv: ['economy'], chance: () => r / 130 + comp * 0.12, win: { fx: deal(4, 2), res: 'Делегация поморщилась, но подписала. Каждый квартал казна будет получать на четыре миллиона больше.' }, lose: { fx: { ap: -1, rel: { [c]: -6 } }, res: 'Делегация встала из-за стола и уехала. Министр иностранных дел произнёс ей вслед прочувствованную речь. Не помогло.' } },
-        { text: 'Взаимовыгодные условия: доход +2,5 млн в квартал', adv: ['foreign'], chance: () => r / 100 + 0.25, win: { fx: deal(2.5, 6), res: 'Договор подписан. Обе стороны называют его «историческим». Так называют все договоры.' }, lose: { fx: { ap: -1, rel: { [c]: -2 } }, res: 'Стороны не сошлись в мелочах. Например, на каком языке писать слово «мелочи».' } },
-        { text: 'Уступчивые условия: доход +1 млн в квартал, их компании довольны', fx: { ...deal(1, 10), fac: { oligarchs: { a: -5 } } }, res: 'Договор подписан мгновенно. Их компании получили льготы, ваши купцы — головную боль.' },
+        { text: 'Жёсткие условия: до +4 млн в квартал', adv: ['economy'], chance: () => r / 130 + comp * 0.12, win: { fx: deal(4, 2), res: 'Делегация поморщилась, но подписала. Каждый квартал казна будет получать на четыре миллиона больше.' }, lose: { fx: { ap: -1, rel: { [c]: -6 } }, res: 'Делегация встала из-за стола и уехала. Министр иностранных дел произнёс ей вслед прочувствованную речь. Не помогло.' } },
+        { text: 'Взаимовыгодные условия: до +2,5 млн в квартал', adv: ['foreign'], chance: () => r / 100 + 0.25, win: { fx: deal(2.5, 6), res: 'Договор подписан. Обе стороны называют его «историческим». Так называют все договоры.' }, lose: { fx: { ap: -1, rel: { [c]: -2 } }, res: 'Стороны не сошлись в мелочах. Например, на каком языке писать слово «мелочи».' } },
+        { text: 'Уступчивые условия: до +1 млн в квартал, их компании довольны', fx: { ...deal(1, 10), fac: { oligarchs: { a: -5 } } }, res: 'Договор подписан мгновенно. Их компании получили льготы, ваши купцы — головную боль.' },
         { text: 'Отложить переговоры', fx: {}, res: 'Делегация уехала, оставив визитки. Приказ не потрачен.' },
       ],
     };
   },
+  // Доход договора зависит от отношений и мировых цен; каждый следующий договор приносит меньше
+  tradeRelFactor(c) { const r = S.rel[c] || 0; return r >= 50 ? 1 : r >= 35 ? 0.6 : r >= 20 ? 0.25 : 0; },
+  tradeBreakdown() {
+    const list = Object.entries(S.treaties || {}).filter(([, T]) => T.trade).map(([c, T]) => ({ c, base: T.trade.income, raw: T.trade.income * Game.tradeRelFactor(c) * (S.price || 1), until: T.trade.until }));
+    list.sort((a, b) => b.raw - a.raw);
+    const DIM = [1, 0.7, 0.45, 0.3, 0.2, 0.15, 0.1];
+    list.forEach((x, i) => { x.k = DIM[Math.min(i, DIM.length - 1)]; x.v = Math.round(x.raw * x.k * 10) / 10; });
+    return list;
+  },
+  tradeOf(c) { return Game.tradeBreakdown().find(x => x.c === c); },
   treatyIncome() {
-    let v = 0;
-    for (const T of Object.values(S.treaties || {})) if (T.trade) v += T.trade.income;
-    return v ? { label: 'Торговые договоры', v } : null;
+    const v = Game.tradeBreakdown().reduce((a, x) => a + x.v, 0);
+    return v ? { label: 'Торговые договоры', v: Math.round(v * 10) / 10 } : null;
   },
 });
 
 // Хуки движка
 Game.applyHooks.push((fx, ch) => {
   if (fx.ap) S.ap = Math.max(0, S.ap + fx.ap);
-  if (fx.treaty) { const T = Game.treaties(fx.treaty.c); T[fx.treaty.type] = { since: S.turn, income: fx.treaty.income }; ch.push({ k: 'fs', d: 0, label: `Договор: ${COUNTRIES[fx.treaty.c].name}`, icon: '📜' }); }
+  if (fx.treaty) { const T = Game.treaties(fx.treaty.c); T[fx.treaty.type] = { since: S.turn, income: fx.treaty.income, until: S.turn + 12 }; ch.push({ k: 'fs', d: 0, label: `Договор: ${COUNTRIES[fx.treaty.c].name}`, icon: '📜' }); }
   if (fx.facStatus) for (const [f, st] of Object.entries(fx.facStatus)) S.fac[f].st = st;
 });
 Game.previewHooks.push((fx, out) => {
-  if (fx.treaty) out.push({ icon: '📜', d: fx.treaty.income, label: 'Торговый договор', text: `договор: +${fx.treaty.income} млн/кв.` });
+  if (fx.treaty) out.push({ icon: '📜', d: fx.treaty.income, label: 'Торговый договор', text: `договор: до +${fx.treaty.income} млн/кв. на 3 года` });
   if (fx.facStatus) for (const f of Object.keys(fx.facStatus)) out.push({ icon: '⛔', d: -1, label: 'Запрет движения', text: `запрет: ${REGIONS[S.region].factions[f].short}` });
 });
 Game.incomeHooks.push(() => Game.treatyIncome());
@@ -184,6 +193,17 @@ Game.newGameHooks.push(() => {
 });
 // Не больше двух просьб одновременно и не больше одной новой за квартал
 const DEMAND_MAX = 2;
+// Срок торговых договоров и разрыв при испорченных отношениях
+Game.quarterHooks.push(rep => {
+  for (const [c, T] of Object.entries(S.treaties || {})) {
+    if (!T.trade) continue;
+    if (T.trade.until === undefined) T.trade.until = S.turn + 8; // старые сохранения
+    const r = S.rel[c] || 0;
+    if (r < 20) { T.trade.bad = (T.trade.bad || 0) + 1; if (T.trade.bad >= 2) { delete T.trade; rep.warn.push(`${COUNTRIES[c].name}: торговый договор расторгнут — отношения испорчены.`); continue; } }
+    else T.trade.bad = 0;
+    if (S.turn + 1 >= T.trade.until) { delete T.trade; rep.lines.push(`${COUNTRIES[c].name}: срок торгового договора истёк. Можно провести переговоры заново.`); }
+  }
+});
 Game.quarterHooks.push(rep => {
   S.demands = S.demands || {};
   const cs = REGIONS[S.region].countries;
@@ -218,13 +238,13 @@ Object.assign(UI, {
     const tchip = { trade: '📜 Торговый договор', friend: '🤝 Дружба', alliance: '⚔️ Военный союз' };
     const B = Game.budgetCalc();
     const ti = Game.treatyIncome();
-    return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. ${ti ? `Торговые договоры приносят <b>${ti.v.toFixed(1)} млн</b> в квартал.` : 'Торговых договоров пока нет.'} Страны иногда обращаются с просьбами, одновременно не больше двух: выполните до срока, иначе обидятся. Договор о дружбе не даёт отношениям остывать, военный союз защищает от переворота.</p>
+    return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. ${ti ? `Торговые договоры приносят <b>${ti.v.toFixed(1).replace('.', ',')} млн</b> в квартал.` : 'Торговых договоров пока нет.'} Договор заключается на 3 года. Его доход падает, если отношения портятся (ниже 50 — меньше, ниже 20 — договор расторгнут) или рушатся мировые цены, а каждый следующий договор приносит меньше предыдущего: рынок не резиновый. Страны иногда обращаются с просьбами, одновременно не больше двух: выполните до срока, иначе обидятся. Договор о дружбе не даёт отношениям остывать, военный союз защищает от переворота.</p>
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c], T = Game.treaties(c), dm = Game.demandOf(c), bl = Game.blocOf(c);
         return `<article class="card country">
           <header>${flagSvg(c)}<div><h3>${Game.cName(c)}</h3><span class="muted small">${Game.leaderAt(c)}</span></div><span class="chip ${bl}">${blocName[bl]}</span></header>
           ${UI.meter('Отношения', v, v < 25 ? 'bad' : v < 50 ? 'warn' : 'good')}
-          <div class="rel-line"><span class="muted small">Отношения ${Game.relLevel(v)}</span>${Object.keys(tchip).filter(k => T[k]).map(k => `<span class="chip treaty">${tchip[k]}${k === 'trade' ? ` +${T.trade.income}` : ''}</span>`).join('')}</div>
+          <div class="rel-line"><span class="muted small">Отношения ${Game.relLevel(v)}</span>${Object.keys(tchip).filter(k => T[k]).map(k => `<span class="chip treaty">${tchip[k]}${k === 'trade' ? (() => { const x = Game.tradeOf(c); return x ? ` +${String(x.v).replace('.', ',')} млн · ещё ${Math.max(0, (T.trade.until ?? S.turn + 8) - S.turn)} кв.` : ''; })() : ''}</span>`).join('')}</div>
           ${dm ? `<div class="demand"><div class="demand-h"><span class="dec-tag">Просьба · ещё ${Math.max(0, dm.until - S.turn)} кв.</span><b>${esc(dm.label)}</b></div><div class="dec-row">${UI.fxChips(Game.previewFx(dm.fxv))}</div>${UI.actBtn('dem:' + c, { name: 'Выполнить', cost: '1 приказ', ok: true })}</div>` : ''}
           <div class="acts">${Game.countryActions(c).map(a => UI.actBtn(`world:${c}:${a.id}`, a)).join('')}</div>
         </article>`;
