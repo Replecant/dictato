@@ -13,6 +13,9 @@ const REGIME_LOOKS = {
   crown: { outfit: 'uniform48', outfitColor: '#f1ede2', collar: '#c1272d', medals: 7, hat: 'bicorne', hatColor: '#1a1a1a', plume: '#f4f1ea', sash: '#c1272d', glasses: 'none', beard: 'sideburns', mustache: 'thick', bluetooth: false },
   charter: { outfit: 'frock', outfitColor: '#1d1d22', vest: '#d6a63a', tie: '#f4f1ea', medals: 0, hat: 'top', hatColor: '#1a1a1a', sash: '#1f4e8c', glasses: 'pince', beard: 'chinstrap', mustache: 'none', bluetooth: false },
   general: { outfit: 'uniform48', outfitColor: '#1d2a44', collar: '#d6a63a', medals: 10, hat: 'shako', hatColor: '#1a1a1a', plume: '#c1272d', sash: '', glasses: 'none', beard: 'imperial', mustache: 'waxed', bluetooth: false },
+  throne05: { outfit: 'uniform48', outfitColor: '#2a3a5a', collar: '#c1272d', medals: 8, hat: 'none', glasses: 'none', sash: '#c1272d', mustache: 'waxed', beard: 'none', bluetooth: false },
+  officers05: { outfit: 'military', outfitColor: '#3a4a5a', medals: 5, hat: 'kepi', hatColor: '#3a4a5a', glasses: 'none', sash: '', mustache: 'handlebar', beard: 'none', bluetooth: false },
+  reform05: { outfit: 'suit', outfitColor: '#2a2a30', tie: '#1f4e8c', medals: 0, hat: 'top', hatColor: '#1a1a1a', glasses: 'pince', sash: '#1f4e8c', mustache: 'waxed', beard: 'goatee', bluetooth: false },
   junta80: { outfit: 'military', outfitColor: '#4a4f36', medals: 11, hat: 'cap', hatColor: '#4a4f36', glasses: 'aviator', sash: '', mustache: 'thick', bluetooth: false },
   party80: { outfit: 'suit', outfitColor: '#4a4a52', tie: '#7a1a1a', medals: 3, hat: 'none', glasses: 'square', sash: '', mustache: 'none', hair: 'combover', bluetooth: false },
   family80: { outfit: 'guayabera', outfitColor: '#f1ead6', medals: 0, hat: 'none', glasses: 'aviator', sash: '#c1272d', mustache: 'none', hair: 'slick', bluetooth: false },
@@ -81,6 +84,14 @@ const UI = {
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
       outfit: [['Мундир', 'uniform48'], ['Фрак', 'frock'], ['Пончо', 'poncho']],
       hair: [['Короткие', 'short'], ['Романтические', 'romantic'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
+    } : st.era === '1905' ? {
+      skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
+      hat: [['Без убора', 'none'], ['Кепи', 'kepi'], ['Каска с шишаком', 'pickelhaube'], ['Цилиндр', 'top'], ['Котелок', 'bowler'], ['Канотье', 'boater'], ['Феска', 'fez'], ['Чалма', 'turban'], ['Куфия', 'keffiyeh'], ['Меховая шапка', 'furhat']],
+      mustache: [['Нафабренные', 'waxed'], ['Руль', 'handlebar'], ['Моржовые', 'walrus'], ['Пышные', 'thick'], ['Нет', 'none']],
+      beard: [['Нет', 'none'], ['Эспаньолка', 'imperial'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
+      glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
+      outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
+      hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
     } : st.era === '1980' ? {
       skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
       hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Бейсболка', 'baseball'], ['Без убора', 'none']],
@@ -123,7 +134,8 @@ const UI = {
     for (const b of document.querySelectorAll('[data-region]')) b.onclick = () => {
       st.region = b.dataset.region; st.country = REGIONS[st.region].country; st.name = defaults[st.region]; st.title = REGION_TITLES[st.region][0];
       st.look.skin = SKIN[REGIONS[st.region].leaderSkin];
-      st.look.hat = st.era === '2000' ? 'none' : st.era === '1980' ? REGIME_LOOKS[st.regime].hat : st.era === '1848' ? (st.region === 'latam48' && st.regime === 'crown' ? 'gaucho' : REGIME_LOOKS[st.regime].hat) : st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
+      st.look.hat = st.era === '2000' ? 'none' : st.era === '1980' || st.era === '1905' ? REGIME_LOOKS[st.regime].hat : st.era === '1848' ? (st.region === 'latam48' && st.regime === 'crown' ? 'gaucho' : REGIME_LOOKS[st.regime].hat) : st.region === 'africa' ? 'kepi' : st.region === 'asia30' ? 'helmet' : 'cap';
+      if (st.era === '1905') Object.assign(st.look, st.region === 'gulf05' ? { outfit: 'robe', outfitColor: '#e8dcc0', trim: '#c9a24a', hat: 'keffiyeh', hatColor: '#f4f1ea', beard: 'full' } : st.region === 'himal05' ? { outfit: 'robe', outfitColor: '#8a1a2a', trim: '#e0b020', hat: st.regime === 'throne05' ? 'lamahat' : 'furhat', hatColor: st.regime === 'throne05' ? '#e0b020' : '#5a3a1a', beard: 'none' } : { ...REGIME_LOOKS[st.regime] });
       if (st.era === '1848') Object.assign(st.look, st.region === 'latam48' && st.regime === 'crown' ? { outfit: 'poncho', outfitColor: '#9a1a1a' } : { outfit: REGIME_LOOKS[st.regime].outfit, outfitColor: REGIME_LOOKS[st.regime].outfitColor });
       UI.renderSetup();
     };
@@ -134,7 +146,7 @@ const UI = {
     };
     for (const b of document.querySelectorAll('[data-look]')) b.onclick = () => {
       st.look[b.dataset.look] = b.dataset.look === 'bluetooth' ? b.dataset.val === '1' : b.dataset.val;
-      if (b.dataset.look === 'outfit') st.look.outfitColor = { military: '#4b5320', suit: '#2a2d36', mao: '#56604a', guayabera: '#f1e4c3', suit2000: '#1c2230', tracksuit: '#1f3f8a', polo: '#2a6a4a', uniform48: '#1d2a44', frock: '#1d1d22', poncho: '#9a1a1a' }[b.dataset.val];
+      if (b.dataset.look === 'outfit') st.look.outfitColor = { military: '#4b5320', suit: '#2a2d36', mao: '#56604a', guayabera: '#f1e4c3', suit2000: '#1c2230', tracksuit: '#1f3f8a', polo: '#2a6a4a', uniform48: '#1d2a44', frock: '#1d1d22', poncho: '#9a1a1a', robe: '#5a2a2a' }[b.dataset.val];
       UI.renderSetup();
     };
   },
@@ -298,13 +310,15 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980' };
+    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905' };
     if (eraTabs[UI.tab] && eraTabs[UI.tab] !== S.era) UI.tab = 'cabinet';
     for (const b of document.querySelectorAll('.tabs button')) { b.hidden = !!eraTabs[b.dataset.tab] && eraTabs[b.dataset.tab] !== S.era; b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
     const crb = document.querySelector('.tabs button[data-tab="colorrev"]');
     if (crb && S.era === '2000') { crb.textContent = (CR_REGION[S.region] || {}).tab || 'Цветные революции'; crb.classList.toggle('alert', !!S.cr && (S.cr.heat >= 55 || S.cr.rad >= 50)); }
     const spb = document.querySelector('.tabs button[data-tab="spring"]');
     if (spb && S.era === '1848' && typeof SP_REGION !== 'undefined') { spb.textContent = SP_REGION[S.region].tab; spb.classList.toggle('alert', !!S.sp && (S.sp.heat >= 55 || S.sp.rad >= 55)); }
+    const g5b = document.querySelector('.tabs button[data-tab="gun05"]');
+    if (g5b && S.era === '1905' && typeof G05_REGION !== 'undefined') { g5b.textContent = G05_REGION[S.region].tab; g5b.classList.toggle('alert', !!S.g05 && (S.g05.indep <= 30 || S.g05.riv >= 70 || !!S.g05.offer)); }
     const c8b = document.querySelector('.tabs button[data-tab="cold80"]');
     if (c8b && S.era === '1980' && S.c80) c8b.classList.toggle('alert', S.c80.heat >= 55 || S.c80.debt >= 70 || (S.c80.need < 30 && S.year >= 1985));
     const cwb = document.querySelector('.tabs button[data-tab="coldwar"]');

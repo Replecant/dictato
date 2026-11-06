@@ -1028,3 +1028,72 @@ body[data-era="1980"] .dossier { border-top: 18px solid #8a3cff; }
 .c80-line { fill: none; stroke: #ff3fa4; stroke-width: 3; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(255, 63, 164, 0.7)); }
 .c80-proj { fill: none; stroke: rgba(45, 226, 230, 0.6); stroke-width: 2; stroke-dasharray: 5 5; }
 .c80-now { fill: #fff; stroke: #ff3fa4; stroke-width: 3; }
+
+
+/* ===== Облик 1905–1914: модерн — тёмный нефрит, золото и пыльная роза, арки и ореолы как на плакатах Мухи ===== */
+body[data-era="1905"] {
+  --bg: #1c2822; --wood: #22302a; --panel: #25352d; --panel-2: #2c3f35;
+  --fg: #efe6cf; --muted: #b6ad92; --brass: #c9a24a; --brass-dim: rgba(201, 162, 74, 0.3);
+  --red: #c4584e; --green: #8fb36a; --amber: #d6a63a; --rose: #d08a8a;
+  --c-support: #d6a63a; --c-army: #8fb36a; --c-economy: #6fb0a8; --c-fear: #c4584e;
+  --f-display: "Philosopher", "PT Serif", Georgia, serif;
+  --r: 14px;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(201, 162, 74, 0.08), transparent 40%), radial-gradient(circle at 85% 100%, rgba(208, 138, 138, 0.07), transparent 45%),
+    repeating-radial-gradient(circle at 50% -40%, rgba(201, 162, 74, 0.025) 0 2px, transparent 2px 46px);
+}
+body[data-era="1905"] .logo { font: 700 clamp(48px, 8vw, 100px)/1 var(--f-display); color: var(--brass); text-shadow: 3px 3px 0 #6a3a3a, 0 0 26px rgba(201, 162, 74, 0.3); letter-spacing: 0.04em; }
+body[data-era="1905"] .eyebrow { color: var(--rose); font-family: var(--f-display); letter-spacing: 0.1em; }
+body[data-era="1905"] h1, body[data-era="1905"] h2, body[data-era="1905"] h3, body[data-era="1905"] .pick-name, body[data-era="1905"] .hdr-id b, body[data-era="1905"] .leader-info h2 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.02em; }
+body[data-era="1905"] .pick-year { font: italic 700 30px/1 var(--f-display); color: var(--brass); }
+body[data-era="1905"] .btn { background: linear-gradient(180deg, #ddb862, #b88a2e); color: #1c2822; font: 700 14px/1.2 var(--f-display); letter-spacing: 0.04em; text-transform: none; border-radius: 18px 18px 6px 6px; box-shadow: inset 0 0 0 1px rgba(255, 240, 200, 0.4), 0 3px 0 #6a4a14; }
+body[data-era="1905"] .btn.ghost { background: transparent; color: var(--brass); box-shadow: inset 0 0 0 1px var(--brass); }
+body[data-era="1905"] .btn.danger { background: linear-gradient(180deg, #d87a6e, #a8443a); color: #fff3e6; box-shadow: inset 0 0 0 1px rgba(255, 220, 200, 0.35), 0 3px 0 #5a1f18; }
+body[data-era="1905"] .btn.danger-o { color: #e8a49a; box-shadow: inset 0 0 0 1px rgba(196, 88, 78, 0.7); }
+body[data-era="1905"] .card, body[data-era="1905"] .pick, body[data-era="1905"] .stat, body[data-era="1905"] .proj-item { background: var(--panel); border: 1px solid rgba(201, 162, 74, 0.35); border-radius: 22px 22px 6px 6px; box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px rgba(201, 162, 74, 0.18); }
+body[data-era="1905"] .pick.on { background: var(--panel-2); box-shadow: inset 0 0 0 4px var(--panel-2), inset 0 0 0 6px var(--brass), 0 0 18px rgba(201, 162, 74, 0.18); }
+body[data-era="1905"] .tabs { border-bottom: 1px solid rgba(201, 162, 74, 0.5); gap: 4px; }
+body[data-era="1905"] .tabs button { font: 700 14px var(--f-display); letter-spacing: 0.02em; border-radius: 16px 16px 0 0; background: rgba(44, 63, 53, 0.6); }
+body[data-era="1905"] .tabs button.on { background: var(--brass); color: #1c2822; }
+body[data-era="1905"] .seg button.on, body[data-era="1905"] .dtabs button.on, body[data-era="1905"] .chip.gold, body[data-era="1905"] .plate { background: var(--brass); color: #1c2822; }
+body[data-era="1905"] .pip { border-color: var(--brass); }
+body[data-era="1905"] .pip.on { background: var(--brass); box-shadow: 0 0 8px rgba(201, 162, 74, 0.7); }
+/* портреты — арка с золотым ореолом, как на плакатах */
+body[data-era="1905"] .leader-portrait, body[data-era="1905"] .end-portrait, body[data-era="1905"] .adv-portrait, body[data-era="1905"] .setup-portrait svg {
+  border-radius: 50% 50% 10px 10px / 40% 40% 10px 10px; border: 2px solid var(--brass); overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #e3d3a2 0 24%, #c9a24a 24% 25.5%, #3d5c4b 25.5% 38%, #c9a24a 38% 39%, #2c4337 39% 56%, rgba(201, 162, 74, 0.6) 56% 57%, #223429 57%);
+  box-shadow: 0 0 0 4px var(--panel), 0 0 0 5px rgba(201, 162, 74, 0.45), 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+body[data-era="1905"] .setup-portrait { background: var(--panel); border: 1px solid rgba(201, 162, 74, 0.45); border-radius: 26px 26px 8px 8px; box-shadow: none; }
+body[data-era="1905"] .plate { font-family: var(--f-display); border-radius: 10px; }
+body[data-era="1905"] .hdr-leader { border-radius: 50% 50% 8px 8px; border-color: var(--brass); background: radial-gradient(circle at 50% 40%, #e3d3a2 0 40%, #3d5c4b 41%); }
+body[data-era="1905"] .mini-portrait, body[data-era="1905"] .adv-tag { border-radius: 50% 50% 6px 6px; background: radial-gradient(circle at 50% 40%, #e3d3a2 0 40%, #3d5c4b 41%); }
+body[data-era="1905"] .tp { filter: sepia(0.25) drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5)); }
+/* новелла — плакат в золотой раме с аркой */
+body[data-era="1905"] .vn { border: 12px solid #22302a; border-radius: 60px 60px 12px 12px; box-shadow: inset 0 0 0 2px var(--brass), inset 0 0 0 7px #22302a, inset 0 0 0 8px rgba(201, 162, 74, 0.5); background: #121a16; }
+body[data-era="1905"] .vn-bg svg { filter: sepia(0.35) saturate(0.75) hue-rotate(-12deg) brightness(0.9); }
+body[data-era="1905"] .vn-bg::after { background: radial-gradient(ellipse at center, transparent 55%, rgba(16, 24, 20, 0.6) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 30%, rgba(0, 0, 0, 0.35)); }
+body[data-era="1905"] .actor { filter: sepia(0.2) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.55)); }
+body[data-era="1905"] .vn-title { font: italic 700 clamp(22px, 3.2vw, 34px)/1.1 var(--f-display); color: var(--brass); background: rgba(28, 40, 34, 0.85); padding: 6px 18px 8px; border-radius: 20px 20px 6px 6px; display: inline-block; right: auto; text-shadow: 2px 2px 0 #4a2a2a; box-shadow: inset 0 0 0 1px rgba(201, 162, 74, 0.5); }
+body[data-era="1905"] .vn-box { background: rgba(28, 40, 34, 0.95); border: 1px solid rgba(201, 162, 74, 0.55); border-radius: 26px 26px 8px 8px; box-shadow: inset 0 0 0 4px rgba(28, 40, 34, 0.95), inset 0 0 0 5px rgba(201, 162, 74, 0.25), 0 14px 40px rgba(0, 0, 0, 0.5); }
+body[data-era="1905"] .vn-name { background: var(--brass); color: #1c2822; border-radius: 12px 12px 4px 4px; font-family: var(--f-display); }
+body[data-era="1905"] .choice { border-radius: 16px 16px 4px 4px; background: rgba(44, 63, 53, 0.92); border: 1px solid rgba(201, 162, 74, 0.25); }
+body[data-era="1905"] .choice:hover:not(:disabled), body[data-era="1905"] .choice:focus-visible { border-color: var(--brass); box-shadow: 0 0 14px rgba(201, 162, 74, 0.2); }
+body[data-era="1905"] .toast { border-left-color: var(--brass); border-radius: 14px; }
+body[data-era="1905"] .club-list li.me { background: rgba(201, 162, 74, 0.14); border-left-color: var(--brass); }
+body[data-era="1905"] .log time { color: var(--brass); }
+body[data-era="1905"] .dossier { border-top: 18px solid #3d5c4b; border-radius: 20px 20px 4px 4px; }
+/* концессии */
+.g05-pieces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+.g05-piece { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: rgba(0, 0, 0, 0.18); border: 1px solid rgba(201, 162, 74, 0.25); }
+.g05-piece.sold { background: rgba(196, 88, 78, 0.12); border-color: rgba(196, 88, 78, 0.45); }
+.g05-piece > div { display: flex; flex-direction: column; min-width: 0; }
+.g05-piece .btn { grid-column: 1 / -1; justify-self: start; }
+.g05-ic { font-size: 22px; text-align: center; }
+.g05-piece .flag { width: 18px; height: 12px; vertical-align: -2px; }
+.g05-bloc { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.g05-bloc .eyebrow { width: 100%; }
+.g05-offer { border-color: var(--brass) !important; }
+.g05-offer .flag { width: 22px; height: 15px; vertical-align: -3px; }
+@media (max-width: 720px) { .g05-pieces { grid-template-columns: minmax(0, 1fr); } }

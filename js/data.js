@@ -49,7 +49,7 @@ const FLAGS = {
   egypt: `<rect width="30" height="6.7" fill="#ce1126"/><rect y="6.7" width="30" height="6.7" fill="#fff"/><rect y="13.3" width="30" height="6.7" fill="#000"/><circle cx="11" cy="10" r="1.3" fill="#007a3d"/><circle cx="19" cy="10" r="1.3" fill="#007a3d"/>`,
 };
 function flagSvg(key, custom) {
-  const inner = key === 'player' ? custom : (typeof S !== 'undefined' && S && S.era === '1848' && typeof FLAGS48 !== 'undefined' && FLAGS48[key]) || FLAGS[key];
+  const inner = key === 'player' ? custom : (typeof S !== 'undefined' && S && S.era === '1848' && typeof FLAGS48 !== 'undefined' && FLAGS48[key]) || (typeof S !== 'undefined' && S && S.era === '1905' && typeof FLAGS05 !== 'undefined' && FLAGS05[key]) || FLAGS[key];
   return `<svg viewBox="0 0 30 20" class="flag" aria-hidden="true">${inner}</svg>`;
 }
 
@@ -315,7 +315,7 @@ function npcLook(key, region) {
     prince: { name: 'Наследный принц в изгнании', look: { ...base, face: 'long', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'worried', mouth: 'smile', outfit: 'military', outfitColor: '#f2ead6', medals: 9, sash: '#1f4e8c' } },
     egypt_amb: { name: 'Посол ОАР Хасан эль-Масри', look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#222', mustache: 'thick', brows: 'normal', mouth: 'smile', outfit: 'suit', outfitColor: '#3a3a3a', tie: '#ce1126' } },
   };
-  return (r.era === '2000' && npc00(key, region, base, r)) || (r.era === '1848' && typeof npc48 === 'function' && npc48(key, region)) || (r.era === '1980' && typeof npc80 === 'function' && npc80(key, region)) || L[key];
+  return (r.era === '2000' && npc00(key, region, base, r)) || (r.era === '1848' && typeof npc48 === 'function' && npc48(key, region)) || (r.era === '1980' && typeof npc80 === 'function' && npc80(key, region)) || (r.era === '1905' && typeof npc05 === 'function' && npc05(key, region)) || L[key];
 }
 
 // Эпохи

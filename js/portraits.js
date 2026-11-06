@@ -204,6 +204,7 @@ const Portrait = (() => {
     let hair = p.hair;
     if (hatOn) {
       if (['keffiyeh', 'hijab'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
+      else if (p.hat === 'lamahat' || p.hat === 'furhat') hair = hair === 'bald' ? 'none' : 'baldside';
       else if (hair === 'curly' || hair === 'romantic') hair = 'curlyside';
       else if (['bun', 'gelled', 'slick'].includes(hair)) hair = 'short';
       else if (hair === 'combover') hair = 'baldside';
@@ -272,6 +273,11 @@ const Portrait = (() => {
         `<circle cx="68" cy="64" r="8" fill="#1f4e8c"/><circle cx="68" cy="64" r="5.4" fill="#f4f1ea"/><circle cx="68" cy="64" r="2.8" fill="#c1272d"/>`;
       case 'studentcap': return `<path d="M66 64 L68 42 Q100 36 132 42 L134 64 Z" fill="${c}"/><rect x="66" y="52" width="68" height="4" fill="#111"/><rect x="66" y="56" width="68" height="4" fill="#c1272d"/><rect x="66" y="60" width="68" height="4" fill="#d6a63a"/>` +
         `<path d="M64 62 Q100 70 136 62 Q132 72 100 76 Q68 72 64 62 Z" fill="#141414"/>`;
+      case 'boater': return `<ellipse cx="100" cy="64" rx="68" ry="11" fill="${c}"/><path d="M64 64 L66 40 Q100 34 134 40 L136 64 Z" fill="${c}"/><ellipse cx="100" cy="40" rx="34" ry="5" fill="${shade(c, 15)}"/><rect x="64" y="52" width="72" height="9" fill="${p.trim || '#1a1a1a'}"/>` +
+        [70, 82, 94, 106, 118, 130].map(x => `<path d="M${x} 42 L${x + 1} 62" stroke="${shade(c, -25)}" stroke-width="0.8" opacity="0.5"/>`).join('');
+      case 'lamahat': return `<path d="M52 76 Q50 50 100 44 Q150 50 148 76 Z" fill="${c}"/>` + Array.from({ length: 9 }, (_, i) => `<path d="M${62 + i * 9.5} 52 Q${66 + i * 9.5} 14 ${100} 6" stroke="${shade(c, i % 2 ? -18 : 10)}" stroke-width="7" fill="none" stroke-linecap="round"/>`).join('') + `<path d="M52 76 Q100 66 148 76" stroke="${shade(c, -30)}" stroke-width="3" fill="none"/>`;
+      case 'furhat': return `<path d="M54 74 Q50 34 100 30 Q150 34 146 74 Z" fill="${c}"/><path d="M44 80 Q42 62 60 60 Q100 52 140 60 Q158 62 156 80 Q130 72 100 72 Q70 72 44 80 Z" fill="#e8dcc0"/>` +
+        Array.from({ length: 10 }, (_, i) => `<path d="M${50 + i * 11} 66 l3 10" stroke="#b8a888" stroke-width="1.4"/>`).join('') + `<circle cx="100" cy="30" r="5" fill="#c1272d"/>`;
       case 'flatcap': return `<path d="M50 74 Q46 38 100 36 Q154 38 158 70 Q120 66 50 74 Z" fill="${c}"/><path d="M48 74 Q120 64 164 72 Q150 82 108 82 Z" fill="${d}"/>`;
       default: return '';
     }
@@ -317,10 +323,24 @@ const Portrait = (() => {
     if (p.outfit === 'suit' && p.earring && p.tie && p.tie !== 'none' && p.mustache === 'none') p.tie = 'none';
     return p;
   }
+  // 1905–1914: эдвардианские костюмы и канотье вместо толстовок и бейсболок
+  const P05 = {
+    outfit: { suit2000: 'suit', hoodie: 'blouse', tracksuit: 'blouse', polo: 'blouse', guayabera: 'suit', mao: 'suit' },
+    hat: { baseball: 'flatcap', hijab: 'bonnet', tubeteika: 'fez' },
+    glasses: { aviator: 'none', sport: 'none', rimless: 'pince', square: 'round' },
+    hair: { buzz: 'short', gelled: 'slick' },
+  };
+  function period05(p0) {
+    const p = { ...p0, bluetooth: false, earpiece: false };
+    if (p.earring && p.mustache === 'none' && ['suit', 'suit2000', 'hoodie', 'polo', 'tracksuit'].includes(p.outfit)) { p.outfit = 'gown'; p.trim = p.trim || '#f4f1ea'; }
+    for (const k of Object.keys(P05)) if (P05[k][p[k]]) p[k] = P05[k][p[k]];
+    return p;
+  }
   function svg(p, opts = {}) {
     const era = typeof document !== 'undefined' && document.body ? document.body.dataset.era : '';
     if (era === '1848') p = period48(p);
     else if (era === '1980') p = period80(p);
+    else if (era === '1905') p = period05(p);
     const bg = opts.bg ? `<rect width="200" height="240" fill="${opts.bg}"/>` : '';
     return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.label || 'портрет'}">${bg}${body(p)}${head(p)}<g transform="${hatFit(p.face)}">${hat(p)}</g>${extras(p)}</svg>`;
   }

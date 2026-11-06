@@ -57,12 +57,12 @@ const WHIMS = {
 
 const PROJECTS = {
   defense: [{ id: 'academy', name: 'Военная академия имени {title_gen}', q: 4, cost: 6, payoff: { army: 8, fac: { hawks: { a: 8 } } }, pitch: 'Своя военная академия! Офицеры будут учиться у нас, а не в чужих столицах. И учиться верности.' },
-    { id: 'airforce', name: { '1930': 'Национальная авиация', '1960': 'Эскадрилья реактивных истребителей', '1980': 'Эскадрилья сверхзвуковых истребителей', '2000': 'Эскадрилья беспилотников' }, q: 5, cost: 8, payoff: { army: 10, fear: 3 }, pitch: 'Небо должно быть нашим. Хотя бы над столицей.' }],
+    { id: 'airforce', name: { '1930': 'Национальная авиация', '1960': 'Эскадрилья реактивных истребителей', '1980': 'Эскадрилья сверхзвуковых истребителей', '1905': 'Воздухоплавательный отряд', '2000': 'Эскадрилья беспилотников' }, q: 5, cost: 8, payoff: { army: 10, fear: 3 }, pitch: 'Небо должно быть нашим. Хотя бы над столицей.' }],
   economy: [{ id: 'airline', name: 'Национальная авиакомпания', q: 5, cost: 7, payoff: { economy: 6, treasury: 20 }, pitch: 'Самолёты с нашим флагом! Туристы, грузы, престиж. И бесплатные перелёты для министров.' },
     { id: 'bourse', name: 'Фондовая биржа', q: 4, cost: 5, payoff: { economy: 5, fac: { oligarchs: { a: 10 } } }, pitch: 'Биржа! Акции, облигации, табло с цифрами. Иностранные инвесторы обожают табло с цифрами.' }],
   police: [{ id: 'informers', name: 'Сеть осведомителей в каждом доме', q: 3, cost: 4, payoff: { fear: 8, flag: { informers: true } }, pitch: 'Один осведомитель на подъезд. Потом на квартиру. Потом на каждого.' },
     { id: 'prison', name: 'Образцовая тюрьма „Санаторий“', q: 3, cost: 6, payoff: { fear: 5, fac: { left: { s: -6 }, liberals: { s: -4 } } }, pitch: 'Тюрьма, которую не стыдно показать журналистам. И которой не стыдно пугать остальных.' }],
-  propaganda: [{ id: 'studio', name: { '1930': 'Национальная киностудия', '1960': 'Национальная киностудия „Отечество“', '1980': 'Национальная видеостудия', '2000': 'Международный телеканал' }, q: 4, cost: 6, payoff: { support: 7, loy: { propaganda: 8 } }, pitch: 'Свои фильмы о нашей великой истории. Главную роль, разумеется, предложим вам.' },
+  propaganda: [{ id: 'studio', name: { '1930': 'Национальная киностудия', '1960': 'Национальная киностудия „Отечество“', '1980': 'Национальная видеостудия', '1905': 'Придворный синематограф', '2000': 'Международный телеканал' }, q: 4, cost: 6, payoff: { support: 7, loy: { propaganda: 8 } }, pitch: 'Свои фильмы о нашей великой истории. Главную роль, разумеется, предложим вам.' },
     { id: 'games', name: 'Всенародные спортивные игры', q: 3, cost: 5, payoff: { support: 6 }, pitch: 'Спартакиада на весь народ! Стадионы, медали, ваша речь на открытии.' }],
   foreign: [{ id: 'festival', name: 'Международный фестиваль молодёжи', q: 3, cost: 5, payoff: { relAll: 6, support: 2 }, pitch: 'Молодёжь всего мира приедет к нам петь и танцевать. Мир полюбит нас. Ну, хотя бы молодёжь.' },
     { id: 'lobby', name: 'Лоббисты в столице покровителя', q: 3, cost: 6, payoff: { rel: { $patron: 12 } }, pitch: 'Наши люди в коридорах власти покровителя. Улыбки, ужины, нужные подписи.' }],
@@ -77,7 +77,7 @@ const PROJECT_TROUBLES = [
 Object.assign(Game, {
   projName(p) { return Game.fmt(typeof p.name === 'string' ? p.name : p.name[S.era] || Object.values(p.name)[0]); },
   whimScene(role) {
-    const A = S.adv[role], w = pick((S.era === '1848' && typeof WHIMS48 !== 'undefined' ? WHIMS48 : WHIMS)[role]);
+    const A = S.adv[role], w = pick((S.era === '1905' && typeof WHIMS05 !== 'undefined' ? WHIMS05 : S.era === '1848' && typeof WHIMS48 !== 'undefined' ? WHIMS48 : WHIMS)[role]);
     const mk = ([text, fx, res]) => ({ text, fx, res });
     const choices = [mk(w.yes), mk(w.no)]; if (w.alt) choices.push(mk(w.alt));
     choices[0].adv = [role];
@@ -85,7 +85,7 @@ Object.assign(Game, {
   },
   projectScene(role) {
     const used = new Set([...(S.projects || []).map(p => p.id), ...((S.projectsDone || []))]);
-    const opts = (S.era === '1848' && typeof PROJECTS48 !== 'undefined' ? PROJECTS48 : PROJECTS)[role].filter(p => !used.has(p.id));
+    const opts = (S.era === '1905' && typeof PROJECTS05 !== 'undefined' ? PROJECTS05 : S.era === '1848' && typeof PROJECTS48 !== 'undefined' ? PROJECTS48 : PROJECTS)[role].filter(p => !used.has(p.id));
     if (!opts.length || (S.projects || []).length >= 2) return null;
     const P = pick(opts), name = Game.projName(P);
     const full = { id: P.id, role, name, left: P.q, total: P.q, cost: P.cost, payoff: P.payoff, risk: 0.12 };
