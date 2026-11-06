@@ -302,8 +302,25 @@ const Portrait = (() => {
     if (p.outfit === 'uniform48' && !p.collar) p.collar = '#c1272d';
     return p;
   }
+  // В 1980-х — без моноклей, цилиндров и котелков: авиаторы, большие очки, фуражки и бейсболки
+  const P80 = {
+    hat: { top: 'none', bowler: 'none', kepi: 'cap', helmet: 'cap', fez: 'none', fedora: 'none', bicorne: 'cap', shako: 'cap', pickelhaube: 'cap', slouch: 'none', bonnet: 'none' },
+    glasses: { monocle: 'aviator', pince: 'square', rimless: 'square' },
+    mustache: { handlebar: 'thick', waxed: 'thick' },
+    outfit: { suit2000: 'suit', frock: 'suit', uniform48: 'military', gown: 'suit', blouse: 'tracksuit' },
+    beard: { sideburns: 'none', chinstrap: 'full', imperial: 'goatee' },
+    hair: { romantic: 'curly' },
+  };
+  function period80(p0) {
+    const p = { ...p0, bluetooth: false, earpiece: false };
+    for (const k of Object.keys(P80)) if (P80[k][p[k]]) p[k] = P80[k][p[k]];
+    if (p.outfit === 'suit' && p.earring && p.tie && p.tie !== 'none' && p.mustache === 'none') p.tie = 'none';
+    return p;
+  }
   function svg(p, opts = {}) {
-    if (typeof document !== 'undefined' && document.body && document.body.dataset.era === '1848') p = period48(p);
+    const era = typeof document !== 'undefined' && document.body ? document.body.dataset.era : '';
+    if (era === '1848') p = period48(p);
+    else if (era === '1980') p = period80(p);
     const bg = opts.bg ? `<rect width="200" height="240" fill="${opts.bg}"/>` : '';
     return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.label || 'портрет'}">${bg}${body(p)}${head(p)}<g transform="${hatFit(p.face)}">${hat(p)}</g>${extras(p)}</svg>`;
   }

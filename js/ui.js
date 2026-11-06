@@ -81,6 +81,13 @@ const UI = {
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
       outfit: [['Мундир', 'uniform48'], ['Фрак', 'frock'], ['Пончо', 'poncho']],
       hair: [['Короткие', 'short'], ['Романтические', 'romantic'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
+    } : st.era === '1980' ? {
+      skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
+      hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Бейсболка', 'baseball'], ['Без убора', 'none']],
+      mustache: [['Пышные', 'thick'], ['Моржовые', 'walrus'], ['Ниточка', 'pencil'], ['Нет', 'none']],
+      glasses: [['Нет', 'none'], ['Авиаторы', 'aviator'], ['Большие', 'square'], ['Круглые', 'round']],
+      outfit: [['Мундир', 'military'], ['Костюм', 'suit'], ['Френч', 'mao'], ['Гуаябера', 'guayabera'], ['Спортивный', 'tracksuit']],
+      hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Афро', 'afro'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === '2000' ? {
       skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
       hat: [['Без убора', 'none'], ['Фуражка', 'cap'], ['Бейсболка', 'baseball'], ['Тюбетейка', 'tubeteika'], ['Куфия', 'keffiyeh']],
