@@ -113,7 +113,7 @@ Object.assign(Game, {
     const traits = Object.keys(LEADER_TRAITS);
     const trait = bias === 'radical' ? pick(['fanatic', 'firebrand', 'fanatic']) : bias === 'moderate' ? pick(['pragmatic', 'merchant', 'coward']) : pick(traits);
     const LEFT00 = { africa00: 'Генерал', mideast00: 'Устаз', centralasia00: 'Экс-министр' };
-    const title48 = S.era === '1848' ? { left: st === 'latam' ? (female ? 'Касика' : 'Касик') : (female ? 'Гражданка' : 'Гражданин'), new: 'Капитан' } : {};
+    const title48 = S.era === '1980' ? { left: S.region === 'east80' ? 'Профсоюзный лидер' : S.region === 'asia80' ? 'Товарищ' : 'Команданте', liberals: S.region === 'east80' ? pick(['Профессор', 'Писатель', 'Доктор']) : pick(['Профессор', 'Доктор', 'Адвокат']), new: 'Правозащитник' } : S.era === '1848' ? { left: st === 'latam' ? (female ? 'Касика' : 'Касик') : (female ? 'Гражданка' : 'Гражданин'), new: 'Капитан' } : {};
     const title = title48[f] || { left: S.era === '2000' ? (LEFT00[S.region] || 'Лидер оппозиции') : st === 'latam' ? 'Команданте' : 'Товарищ', liberals: S.era === '2000' ? pick(['Блогер', 'Журналист', 'Адвокат']) : pick(['Профессор', 'Доктор', 'Адвокат']), faith: FAITH_TITLE[R.faithStyle] || 'Отец', oligarchs: RICH_TITLE[st] || 'Господин', hawks: 'Полковник', new: S.era === '2000' ? 'Блогер' : S.era === '1930' ? 'Вождь' : 'Товарищ' }[f];
     const skin = f === 'oligarchs' && (st === 'africa') && Math.random() < 0.4 ? SKIN.light : SKIN[R.leaderSkin];
     const H = ['#1a1410', '#2b1b10', '#3a2a1a', '#555', '#999'];
@@ -447,6 +447,7 @@ UI.actionHandlers.push(id => {
 // Кто и как реагирует на запрет левых: зависит от эпохи и региона
 Game.leftBanRel = () => {
   if (S.era === '1960') return { usa: 5, ussr: -8, cuba: -5, china: -4 };
+  if (S.era === '1980') return S.region === 'east80' ? { usa: -6, vatican: -6, frg: -4, ussr: 4 } : { usa: 5, ussr: -8, cuba: -5 };
   if (S.era === '1848') return S.region === 'latam48' ? { uk: -2, usa: 2 } : { $east: 5, $west: -4 };
   if (S.era === '1930') return { ussr: -8, uk: 2, italy: 3, japan: 2, ...(S.year >= 1933 ? { germany: 3 } : {}) };
   return {

@@ -82,7 +82,7 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .setup-sec { margin-top: 24px; }
 .sec-h { font: 15px/1.3 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 .picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.picks-2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.picks-2 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .stats.seven { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .stat.net .bar > span { background: var(--c-net); }
 .pick-year { font: 30px/1 var(--f-display); color: var(--fg); }
@@ -948,3 +948,75 @@ body[data-era="1848"] .setup-portrait svg { background: radial-gradient(ellipse 
 body[data-era="1848"] .hdr-leader { background: #bba984; }
 body[data-era="1848"] .vn { border-color: #8f7438; box-shadow: inset 0 0 0 2px #5e4719, inset 0 0 0 6px #b89f68, inset 0 0 0 7px #5e4719; }
 body[data-era="1848"] .vn-bg svg { filter: sepia(0.75) saturate(0.45) contrast(1.05) brightness(0.82); }
+
+
+/* ===== Облик 1980-х: неон и видеокассета — тёмно-фиолетовая ночь, малиновый и бирюзовый неон, развёртка VHS ===== */
+body[data-era="1980"] {
+  --bg: #0d0a1a; --wood: #14102a; --panel: #171230; --panel-2: #1f1840;
+  --fg: #f3ecff; --muted: #a99dcf; --brass: #ff3fa4; --brass-dim: rgba(255, 63, 164, 0.3);
+  --red: #ff4d5a; --green: #3ef0a0; --amber: #ffc23d; --teal: #2de2e6;
+  --c-support: #ffc23d; --c-army: #3ef0a0; --c-economy: #2de2e6; --c-fear: #ff4d5a;
+  --f-display: "Unbounded", "Russo One", "Arial Black", sans-serif; --f-body: "PT Sans", Arial, sans-serif;
+  --r: 4px;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(180deg, rgba(45, 226, 230, 0.04), transparent 30%, transparent 62%, rgba(255, 63, 164, 0.12)),
+    repeating-linear-gradient(90deg, rgba(45, 226, 230, 0.045) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(255, 63, 164, 0.035) 0 1px, transparent 1px 64px);
+  background-attachment: fixed;
+}
+body[data-era="1980"] .logo { font: 900 clamp(46px, 8vw, 100px)/1 var(--f-display); color: #fff; letter-spacing: 0.02em; text-shadow: -3px 0 var(--teal), 3px 0 var(--brass), 0 0 28px rgba(255, 63, 164, 0.55); }
+body[data-era="1980"] .eyebrow { color: var(--teal); text-shadow: 0 0 8px rgba(45, 226, 230, 0.45); }
+body[data-era="1980"] h1, body[data-era="1980"] h2, body[data-era="1980"] h3, body[data-era="1980"] .pick-name, body[data-era="1980"] .hdr-id b, body[data-era="1980"] .leader-info h2 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.01em; }
+body[data-era="1980"] .pick-year { font: 900 30px/1 var(--f-display); color: #fff; text-shadow: -2px 0 var(--teal), 2px 0 var(--brass); }
+body[data-era="1980"] .btn { background: linear-gradient(90deg, #ff3fa4, #8a3cff); color: #fff; box-shadow: 0 0 14px rgba(255, 63, 164, 0.45); border-radius: 4px; font: 600 12px/1.2 var(--f-display); letter-spacing: 0.06em; }
+body[data-era="1980"] .btn.ghost { background: transparent; color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal), 0 0 10px rgba(45, 226, 230, 0.2); }
+body[data-era="1980"] .btn.danger { background: linear-gradient(90deg, #ff4d5a, #ff8a3d); box-shadow: 0 0 14px rgba(255, 77, 90, 0.45); }
+body[data-era="1980"] .btn.danger-o { color: #ff8a95; box-shadow: inset 0 0 0 1px rgba(255, 77, 90, 0.6); }
+body[data-era="1980"] .card, body[data-era="1980"] .pick, body[data-era="1980"] .stat, body[data-era="1980"] .proj-item { background: rgba(23, 18, 48, 0.88); border: 1px solid rgba(45, 226, 230, 0.18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+body[data-era="1980"] .pick.on { background: rgba(40, 24, 72, 0.95); box-shadow: inset 0 0 0 1px var(--brass), 0 0 20px rgba(255, 63, 164, 0.35); }
+body[data-era="1980"] .tabs { border-bottom: 1px solid rgba(255, 63, 164, 0.55); box-shadow: 0 1px 10px rgba(255, 63, 164, 0.2); }
+body[data-era="1980"] .tabs button { font: 12px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; background: transparent; }
+body[data-era="1980"] .tabs button.on { background: var(--brass); color: #12071c; box-shadow: 0 0 14px rgba(255, 63, 164, 0.6); }
+body[data-era="1980"] .tabs button.on::before { content: "▶ "; }
+body[data-era="1980"] .seg button.on, body[data-era="1980"] .dtabs button.on, body[data-era="1980"] .chip.gold, body[data-era="1980"] .plate { background: var(--brass); color: #12071c; }
+body[data-era="1980"] .bar > span { box-shadow: 0 0 8px currentColor; }
+body[data-era="1980"] .pip { border-color: var(--teal); }
+body[data-era="1980"] .pip.on { background: var(--teal); box-shadow: 0 0 10px rgba(45, 226, 230, 0.9); }
+/* портреты — экран монитора с развёрткой */
+body[data-era="1980"] .leader-portrait, body[data-era="1980"] .setup-portrait, body[data-era="1980"] .end-portrait, body[data-era="1980"] .adv-portrait {
+  position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 38%, #4a2a8a, #120b26 78%); border: 2px solid var(--teal); border-radius: 10px; box-shadow: 0 0 16px rgba(45, 226, 230, 0.4), inset 0 0 22px rgba(255, 63, 164, 0.25);
+}
+body[data-era="1980"] .leader-portrait::after, body[data-era="1980"] .end-portrait::after, body[data-era="1980"] .adv-portrait::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px), linear-gradient(90deg, rgba(255, 63, 164, 0.06), transparent 20%, transparent 80%, rgba(45, 226, 230, 0.06));
+}
+body[data-era="1980"] .setup-portrait .plate { position: relative; z-index: 1; }
+body[data-era="1980"] .hdr-leader { background: #2a1850; border-color: var(--teal); box-shadow: 0 0 8px rgba(45, 226, 230, 0.4); }
+body[data-era="1980"] .tp { filter: drop-shadow(0 0 14px rgba(255, 63, 164, 0.35)) drop-shadow(0 10px 14px rgba(0, 0, 0, 0.6)); }
+/* новелла — видеокассета: развёртка, сдвиг цветов, экранное меню видеомагнитофона */
+body[data-era="1980"] .vn::after { content: "▶ PLAY   SP"; position: absolute; top: calc(16px + env(safe-area-inset-top, 0px)); right: 28px; z-index: 4; font: 700 18px var(--f-mono); letter-spacing: 0.12em; color: #eafff6; text-shadow: 2px 0 rgba(255, 63, 164, 0.8), -2px 0 rgba(45, 226, 230, 0.8); pointer-events: none; animation: onair 2.4s infinite; }
+body[data-era="1980"] .vn-bg svg { filter: saturate(1.35) contrast(1.08) hue-rotate(-12deg); animation: vhsjit 6s steps(1) infinite; }
+@keyframes vhsjit { 0%, 92%, 100% { transform: none; } 93% { transform: translate(-3px, 1px); } 95% { transform: translate(2px, -1px); } }
+body[data-era="1980"] .vn-bg::after { background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px), linear-gradient(90deg, rgba(255, 63, 164, 0.12), transparent 18%, transparent 82%, rgba(45, 226, 230, 0.12)), radial-gradient(ellipse at center, transparent 55%, rgba(10, 4, 24, 0.6) 100%); }
+body[data-era="1980"] .actor { filter: drop-shadow(-2px 0 0 rgba(45, 226, 230, 0.45)) drop-shadow(2px 0 0 rgba(255, 63, 164, 0.45)) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)); }
+body[data-era="1980"] .vn-title { font: 900 clamp(20px, 3vw, 32px)/1.1 var(--f-display); color: #fff; background: transparent; text-shadow: -2px 0 var(--teal), 2px 0 var(--brass), 0 0 18px rgba(255, 63, 164, 0.5); text-transform: uppercase; }
+body[data-era="1980"] .vn-box { background: rgba(13, 10, 26, 0.93); border: 1px solid rgba(45, 226, 230, 0.5); border-radius: 6px; box-shadow: 0 0 26px rgba(255, 63, 164, 0.25); }
+body[data-era="1980"] .vn-name { background: linear-gradient(90deg, #ff3fa4, #8a3cff); color: #fff; border-radius: 3px; font-family: var(--f-display); }
+body[data-era="1980"] .choice { background: rgba(31, 24, 64, 0.92); border: 1px solid rgba(45, 226, 230, 0.25); border-radius: 4px; }
+body[data-era="1980"] .choice:hover:not(:disabled), body[data-era="1980"] .choice:focus-visible { border-color: var(--brass); box-shadow: 0 0 16px rgba(255, 63, 164, 0.35); }
+body[data-era="1980"] .toast { border-left-color: var(--brass); box-shadow: 0 0 20px rgba(255, 63, 164, 0.25); }
+body[data-era="1980"] .club-list li.me { background: rgba(255, 63, 164, 0.14); border-left-color: var(--brass); }
+body[data-era="1980"] .log time { color: var(--teal); }
+body[data-era="1980"] .dossier { border-top: 18px solid #8a3cff; }
+/* карта эпохи */
+.c80-map { width: 100%; display: block; margin: 6px 0; }
+.c80-link { stroke: rgba(45, 226, 230, 0.22); stroke-width: 1.4; stroke-dasharray: 4 4; fill: none; }
+.c80-link.hot { stroke: #ff3fa4; stroke-width: 2.2; stroke-dasharray: 0; }
+.c80-node { stroke: rgba(255, 255, 255, 0.45); stroke-width: 1.4; }
+.c80-node.me { stroke: #fff; stroke-width: 2.4; filter: drop-shadow(0 0 8px rgba(255, 63, 164, 0.7)); }
+.c80-t { font: 700 12px "Unbounded", "Russo One", sans-serif; fill: #f3ecff; }
+.c80-t.big { font-size: 13px; }
+.c80-s { font: 11px "PT Mono", monospace; fill: rgba(243, 236, 255, 0.75); }
+.c80-s.me { fill: #fff; }
+.chip .flag { width: 18px; height: 12px; vertical-align: -2px; margin-right: 4px; }

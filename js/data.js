@@ -315,7 +315,7 @@ function npcLook(key, region) {
     prince: { name: 'Наследный принц в изгнании', look: { ...base, face: 'long', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'worried', mouth: 'smile', outfit: 'military', outfitColor: '#f2ead6', medals: 9, sash: '#1f4e8c' } },
     egypt_amb: { name: 'Посол ОАР Хасан эль-Масри', look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#222', mustache: 'thick', brows: 'normal', mouth: 'smile', outfit: 'suit', outfitColor: '#3a3a3a', tie: '#ce1126' } },
   };
-  return (r.era === '2000' && npc00(key, region, base, r)) || (r.era === '1848' && typeof npc48 === 'function' && npc48(key, region)) || L[key];
+  return (r.era === '2000' && npc00(key, region, base, r)) || (r.era === '1848' && typeof npc48 === 'function' && npc48(key, region)) || (r.era === '1980' && typeof npc80 === 'function' && npc80(key, region)) || L[key];
 }
 
 // Эпохи
