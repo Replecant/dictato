@@ -406,8 +406,9 @@ const Game = {
   // ---------- события ----------
   // выбор к исторической новости бывает только в части регионов
   histChoice(h) { return !!h.choice && (!h.choice.regions || h.choice.regions.includes(S.region)); },
+  histAll() { return S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : S.era === '1980' ? HISTORY_80 : S.era === '1905' ? HISTORY_05 : HISTORY; },
   historyFor(year, q) {
-    const list = S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : S.era === '1980' ? HISTORY_80 : S.era === '1905' ? HISTORY_05 : HISTORY;
+    const list = Game.histAll();
     return list.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));
   },
   drawEvent() {

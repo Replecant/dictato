@@ -256,6 +256,7 @@ const UI = {
   },
 
   // ---------- игровой цикл ----------
+  HIST_PER_Q: 2,
   async startQuarter() {
     if (S.over) return UI.showEnding();
     S.phase = 'news'; Game.save();
@@ -263,20 +264,34 @@ const UI = {
     for (const h of news) S.hist.push(h.head);
     await UI.pressPage(news);
     if (S.over) return UI.showEnding();
+    // Не больше двух исторических решений в квартал: лишние — в следующий квартал, по порядку дат
+    const queue = [...(S.histDefer || []).map(head => ({ h: Game.histAll().find(x => x.head === head), late: true })).filter(x => x.h && Game.histChoice(x.h)),
+      ...news.filter(h => Game.histChoice(h)).map(h => ({ h, late: false }))];
+    S.histDefer = queue.slice(UI.HIST_PER_Q).map(x => x.h.head);
+    let busy = 0;
+    for (const { h, late } of queue.slice(0, UI.HIST_PER_Q)) {
+      const lines = late ? [['narrator', 'Министры вернулись к вопросу, который отложили в прошлом квартале.'], ...h.choice.lines] : h.choice.lines;
+      Game.save();
+      await VN.play({ title: h.head, bg: 'office', lines, choices: h.choice.choices });
+      busy++;
+      if (S.over) return UI.showEnding();
+    }
     for (const make of Game.forcedList) {
       const forced = make();
       if (!forced) continue;
+      busy++;
       Game.save();
       const res = await VN.play(forced);
       const end = forced.after ? forced.after(res.out, res.choice) : null;
       if (end) { Game.ending(end); return UI.showEnding(); }
     }
     S.phase = 'event'; Game.save();
-    if (S.turn > 0 && Math.random() < 0.9) {
+    // Насыщенный квартал: после двух решений случайного события и советника не будет, после одного — реже
+    if (S.turn > 0 && Math.random() < [0.9, 0.55, 0][Math.min(busy, 2)]) {
       const ev = Game.drawEvent();
       if (ev) { Game.markUsed(ev); await VN.play(UI.eventScene(ev)); }
     }
-    if (Game.advisorScene && S.turn > 1 && !S.over && Math.random() < 0.4) {
+    if (Game.advisorScene && S.turn > 1 && !S.over && busy === 0 && Math.random() < 0.4) {
       const sc = Game.advisorScene();
       if (sc) await VN.play(sc);
     }

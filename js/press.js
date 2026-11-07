@@ -241,7 +241,6 @@ Object.assign(UI, {
         ${comments}
         <section class="np-classified"><h4>${site ? 'Реклама' : 'Объявления'}</h4><div class="np-ads"><p class="np-bigad">${esc(AD.big)}</p>${AD.local.map(a => `<p>${esc(a)}</p>`).join('')}</div></section>
       </div>`), news.some(h => Game.histChoice(h)) ? 'Что скажет правительство?' : 'Перевернуть страницу', 'wide');
-    for (const h of news) if (Game.histChoice(h)) await VN.play({ title: h.head, bg: 'office', lines: h.choice.lines, choices: h.choice.choices });
   },
 });
 
