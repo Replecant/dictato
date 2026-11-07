@@ -34,8 +34,9 @@ const Scenes = (() => {
     return s;
   }
   function palms(p, n, y, scale = 1) {
-    if (STYLE === 'europe') return firs(p, n, y, scale);
+    if (STYLE === 'europe' || STYLE === 'german' || STYLE === 'himal') return firs(p, n, y, scale);
     if (STYLE === 'steppe') return poplars(p, n, y, scale);
+    if (STYLE === 'italy') return poplars({ ...p, plant: '#2e4a2a' }, n, y, scale); // кипарисы
     let s = '';
     for (let i = 0; i < n; i++) {
       const x = 40 + i * (W / n) + (i % 2) * 30;
