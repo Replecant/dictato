@@ -3,6 +3,10 @@
 // Все действующие лица вымышлены.
 const DARK = 'dark70';
 const isDark = () => !!S && S.era === DARK;
+// Вторая страна версии — Италия (js/italy70.js). Общий слой без шуток работает для обеих.
+const DARK_I = 'dark70i';
+const isItal = () => !!S && S.era === DARK_I;
+const isGloom = () => isDark() || isItal();
 
 // ---------- державы ----------
 FLAGS.reich = FLAGS.germany33;
@@ -242,7 +246,7 @@ UI.tab_world = function () {
 const _tabAdvD = UI.tab_advisors;
 UI.tab_advisors = function () {
   const h = _tabAdvD.call(UI);
-  if (!isDark()) return h;
+  if (!isGloom()) return h;
   const out = h.replace(/^[\s\S]*?(?=<p class="lede">)/, '');
   return darkPre() ? out : out.replace('Ваш кабинет. Лояльность ниже 25 — и советник может предать.', 'Ваши министры. Лояльность ниже 25 — и министр может вас сдать.');
 };
@@ -383,11 +387,11 @@ const moveTextD = line => {
   const t = m && MOVE_D[m[1] === '🤝' ? 'good' : 'bad'][m[2]];
   return t ? `${m[1]} ${m[2]}: ${t}` : Game.eraText(line);
 };
-Game.eraText = s => (isDark() && typeof s === 'string' ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
+Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _modalD = Modal.open;
 Modal.open = function (html, ...rest) { return _modalD.call(Modal, Game.eraText(html), ...rest); };
 const _vnPlayD = VN.play;
-VN.play = function (sc) { if (isDark() && sc && sc.title) sc.title = Game.eraText(sc.title); return _vnPlayD.call(VN, sc); };
+VN.play = function (sc) { if (isGloom() && sc && sc.title) sc.title = Game.eraText(sc.title); return _vnPlayD.call(VN, sc); };
 const _fmtD = Game.fmt;
 Game.fmt = function (str) { return Game.eraText(_fmtD.call(Game, str)); };
 // Ответы на действия советников — без прибауток
@@ -418,13 +422,14 @@ Game.darkAdvAct = function (role) {
 Game.advisorAction = function (role, act) {
   if (darkPre() && act === 'act') return Game.darkAdvAct(role);
   const r = _advActD.call(Game, role, act);
-  if (r && isDark() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
-  if (r && isDark() && act === 'act' && ADV_TEXT_D[role]) { r.text = ADV_TEXT_D[role]; if (S.log[0]) S.log[0].text = r.text; }
+  if (r && isGloom() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
+  const advText = isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
+  if (r && isGloom() && act === 'act' && advText[role]) { r.text = advText[role]; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
 // Капризы и проекты советников в этой эпохе отключены
 const _advSceneD = Game.advisorScene;
-Game.advisorScene = function () { return isDark() ? null : _advSceneD.call(Game); };
+Game.advisorScene = function () { return isGloom() ? null : _advSceneD.call(Game); };
 
 // ---------- распоряжения вместо указов ----------
 const decD = (cat, d) => DECREES[cat].push({ eras: [DARK], ok: () => true, ...d });
@@ -449,22 +454,22 @@ decD('economy', { id: 'd_orders', name: 'Военные заказы конце�
 decD('economy', { id: 'd_east', name: 'Вывоз сырья с Востока', desc: 'Больше руды и зерна из восточных комиссариатов. Там станет ещё хуже, чем было.', cost: '', repeat: true,
   run: (S, m) => ({ fx: { treasury: Math.round(14 * m), fear: 3, fac: { liberals: { a: -6 }, new: { a: 3 } }, rel: { usa: -4 } }, text: 'Эшелоны идут на запад гружёные. О том, что остаётся позади, в сводках не пишут.' }) });
 const _decListD = Game.decreeList;
-Game.decreeList = function (cat) { const L = _decListD.call(Game, cat); return isDark() ? L.filter(d => d.eras && d.eras.includes(DARK)) : L; };
+Game.decreeList = function (cat) { const L = _decListD.call(Game, cat); return isGloom() ? L.filter(d => d.eras && d.eras.includes(S.era)) : L; };
 // Хозяйственные действия: без займов, национализации и земельной реформы
 const _ecoActsD = Game.economyActions;
 Game.economyActions = function () {
   const acts = _ecoActsD.call(Game);
-  if (!isDark()) return acts;
+  if (!isGloom()) return acts;
   return acts.filter(a => !['loan_w', 'loan_e', 'nationalize', 'land'].includes(a.id)).map(a => (a.id === 'transfer' ? { ...a, name: 'Перевести 15 млн в личный фонд', desc: 'Цюрих. На случай, если придётся уходить. Шанс огласки 20%.' } : a));
 };
 const _ecoFxD = Game.economyFx;
 Game.economyFx = function (id) {
   const r = _ecoFxD.call(Game, id);
-  if (isDark() && id === 'transfer') { r.text = 'Перевод прошёл.'; if (r.risk) r.risk.text = 'О переводе узнали в партийном суде.'; }
+  if (isGloom() && id === 'transfer') { r.text = 'Перевод прошёл.'; if (r.risk) r.risk.text = isItal() ? 'О переводе узнали в партийной контрольной комиссии.' : 'О переводе узнали в партийном суде.'; }
   return r;
 };
 // Требования сил: только бюджетные и свои; общие «указные» требования здесь не к месту
-for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70'];
+for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70'];
 FAC_DEMANDS.faith.push({ id: 'dk_gau', kind: 'pay', text: 'Подтвердить привилегии гауляйтеров', fx: { treasury: -8, fac: { liberals: { a: -5 } } }, only: ['reich70'] });
 FAC_DEMANDS.hawks.push({ id: 'dk_ss', kind: 'pay', text: 'Запретить СС вербовку в армейских частях', fx: { fac: { new: { a: -8 } } }, only: ['reich70'] });
 FAC_DEMANDS.oligarchs.push({ id: 'dk_ord', kind: 'act', acts: ['dec:d_orders'], text: 'Разместить военные заказы на заводах концернов', only: ['reich70'] });
@@ -502,23 +507,23 @@ DEMANDS.push(
 );
 const _pickDemandD = Game.pickDemand;
 Game.pickDemand = function (c) {
-  if (!isDark()) return _pickDemandD.call(Game, c);
-  if (Game.suc().phase !== 'rule') return null; // претенденту державы требований не предъявляют
-  const keep = DEMANDS.filter(d => d.eras && d.eras.includes(DARK));
+  if (!isGloom()) return _pickDemandD.call(Game, c);
+  if (isDark() && Game.suc().phase !== 'rule') return null; // претенденту державы требований не предъявляют
+  const keep = DEMANDS.filter(d => d.eras && d.eras.includes(S.era));
   const all = DEMANDS.splice(0, DEMANDS.length, ...keep);
   try { return _pickDemandD.call(Game, c); } finally { DEMANDS.splice(0, DEMANDS.length, ...all); }
 };
 const _countryActsD = Game.countryActions;
 Game.countryActions = function (c) {
   const a = _countryActsD.call(Game, c);
-  if (!isDark()) return a;
+  if (!isGloom()) return a;
   if (darkPre()) return a.filter(x => x.id === 'visit').map(x => ({ ...x, name: 'Встреча с послом' }));
   return a.filter(x => !['aid', 'arms'].includes(x.id));
 };
 const _countryActD = Game.countryAction;
 Game.countryAction = function (c, act) {
   const r = _countryActD.call(Game, c, act);
-  if (r && isDark() && act === 'visit' && r.text) { r.text = darkPre() ? `Встреча с послом (${Game.cName(c)}) состоялась. Он слушал внимательно и ничего не обещал.` : `Визит состоялся: ${Game.cName(c)}.`; if (S.log[0]) S.log[0].text = r.text; }
+  if (r && isGloom() && act === 'visit' && r.text) { r.text = darkPre() ? `Встреча с послом (${Game.cName(c)}) состоялась. Он слушал внимательно и ничего не обещал.` : `Визит состоялся: ${Game.cName(c)}.`; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
 // Претендент не может ни запретить силу, ни арестовать её лидера, ни раздавать ордена

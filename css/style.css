@@ -1174,16 +1174,16 @@ body[data-era="1905"] .dossier { border-top: 18px solid #3d5c4b; border-radius: 
 @media (max-width: 720px) { .g05-pieces { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- эпоха «Тучи над миром» (Диктато 1.2): холодный серый, тусклый красный ---------- */
-body[data-era="dark70"] { --bg: #0c0d0e; --wood: #151718; --panel: #1b1d1f; --panel-2: #232628; --fg: #d5d1c6; --muted: #8f8b80; --brass: #b9b3a4; --brass-dim: rgba(185, 179, 164, 0.22); --red: #9a2a22; --green: #6d8a66; --amber: #a8873f; --paper: #c9c5b8; --paper-2: #b5b1a4; --ink: #17181a; --ink-muted: #4d4d4a; --news: #c9c5b8; --f-display: "Oswald", "Arial Narrow", Impact, sans-serif; --r: 3px; background: #0c0d0e; }
-body[data-era="dark70"] h1, body[data-era="dark70"] h2, body[data-era="dark70"] h3, body[data-era="dark70"] .pick-name, body[data-era="dark70"] .hdr-id b { font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
-body[data-era="dark70"] .card, body[data-era="dark70"] .stat, body[data-era="dark70"] .pick, body[data-era="dark70"] .proj-item { background: var(--panel); border: 1px solid #2c2f31; border-radius: 3px; box-shadow: none; }
-body[data-era="dark70"] .pick.on { background: var(--panel-2); border-color: #9a2a22; box-shadow: inset 0 0 0 1px #9a2a22; }
-body[data-era="dark70"] .btn { background: #2c2f31; color: #d5d1c6; box-shadow: inset 0 0 0 1px #45484a; text-shadow: none; border-radius: 3px; }
-body[data-era="dark70"] .btn.big, body[data-era="dark70"] #btn-end { background: #7e231c; color: #ece8dc; box-shadow: inset 0 0 0 1px #a8372d; }
-body[data-era="dark70"] .btn:disabled { opacity: 0.45; }
-body[data-era="dark70"] .tabs button.on { background: #7e231c; color: #ece8dc; }
-body[data-era="dark70"] .logo { text-shadow: none; }
-body[data-era="dark70"] .eyebrow { color: #a04a40; }
+body[data-era^="dark70"] { --bg: #0c0d0e; --wood: #151718; --panel: #1b1d1f; --panel-2: #232628; --fg: #d5d1c6; --muted: #8f8b80; --brass: #b9b3a4; --brass-dim: rgba(185, 179, 164, 0.22); --red: #9a2a22; --green: #6d8a66; --amber: #a8873f; --paper: #c9c5b8; --paper-2: #b5b1a4; --ink: #17181a; --ink-muted: #4d4d4a; --news: #c9c5b8; --f-display: "Oswald", "Arial Narrow", Impact, sans-serif; --r: 3px; background: #0c0d0e; }
+body[data-era^="dark70"] h1, body[data-era^="dark70"] h2, body[data-era^="dark70"] h3, body[data-era^="dark70"] .pick-name, body[data-era^="dark70"] .hdr-id b { font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-era^="dark70"] .card, body[data-era^="dark70"] .stat, body[data-era^="dark70"] .pick, body[data-era^="dark70"] .proj-item { background: var(--panel); border: 1px solid #2c2f31; border-radius: 3px; box-shadow: none; }
+body[data-era^="dark70"] .pick.on { background: var(--panel-2); border-color: #9a2a22; box-shadow: inset 0 0 0 1px #9a2a22; }
+body[data-era^="dark70"] .btn { background: #2c2f31; color: #d5d1c6; box-shadow: inset 0 0 0 1px #45484a; text-shadow: none; border-radius: 3px; }
+body[data-era^="dark70"] .btn.big, body[data-era^="dark70"] #btn-end { background: #7e231c; color: #ece8dc; box-shadow: inset 0 0 0 1px #a8372d; }
+body[data-era^="dark70"] .btn:disabled { opacity: 0.45; }
+body[data-era^="dark70"] .tabs button.on { background: #7e231c; color: #ece8dc; }
+body[data-era^="dark70"] .logo { text-shadow: none; }
+body[data-era^="dark70"] .eyebrow { color: #a04a40; }
 .suc-rows { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
 .suc-row { display: grid; grid-template-columns: 46px minmax(0, 1.5fr) minmax(0, 1fr) 34px; gap: 12px; align-items: center; }
 .suc-face { width: 46px; height: 55px; overflow: hidden; border-radius: 3px; background: #2a2d2f; border: 1px solid #3a3d3f; }
@@ -1216,9 +1216,9 @@ body[data-era="dark70"] .eyebrow { color: #a04a40; }
 .dk-np-off p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; }
 .dk-np .fx-list { margin-top: 12px; }
 .stat-txt { font: 600 13px/1.15 var(--f-display); letter-spacing: 0.03em; text-transform: uppercase; display: inline-block; }
-body[data-era="dark70"] .tip-card { background: var(--panel); color: var(--fg); }
-body[data-era="dark70"] .tip-card .eyebrow { color: #a04a40; }
-body[data-era="dark70"] .quote { color: var(--fg); }
+body[data-era^="dark70"] .tip-card { background: var(--panel); color: var(--fg); }
+body[data-era^="dark70"] .tip-card .eyebrow { color: #a04a40; }
+body[data-era^="dark70"] .quote { color: var(--fg); }
 .dk-draft { margin: -4px 0 12px; padding: 4px 10px; display: inline-block; border: 1px dashed #5a3a36; border-radius: 3px; color: #a04a40; font-family: var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; font-size: 11px; }
 .dk-gone { opacity: 0.55; }
 .dk-prog { display: block; height: 8px; margin-top: 6px; background: rgba(255, 255, 255, 0.07); border-radius: 2px; overflow: hidden; }
@@ -1230,3 +1230,45 @@ body[data-era="dark70"] .quote { color: var(--fg); }
 .dk-debug-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .dk-debug-note { font-family: var(--f-mono); font-size: 11.5px; }
 .dk-debug code { color: var(--fg); }
+
+/* ---------- «Тучи над миром», Италия ---------- */
+button.dk-card.dk-it { border-top-color: #2f6b4a; }
+button.dk-card.dk-it:hover, button.dk-card.dk-it:focus-visible { border-color: #2f6b4a; }
+button.dk-card.dk-it:focus-visible { box-shadow: 0 0 0 2px #2f6b4a; }
+.dk-it .dk-go { color: #6fa585; }
+.dk-card.dk-it .dk-state { color: #6f9a80; }
+.via-r { --via-c: #5f8f8a; } .via-o { --via-c: #a8873f; } .via-n { --via-c: #a23a31; } .via-x { --via-c: #837f96; }
+.via-lines { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.via-line header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 10px; }
+.via-line header h3 { margin: 0; }
+.via-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.via-opt { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 12px; background: var(--panel-2); border: 1px solid transparent; border-top: 3px solid var(--via-c); border-radius: 3px; }
+.via-opt:not(.on) { opacity: 0.8; }
+.via-opt.on { border-color: var(--via-c); box-shadow: inset 0 0 0 1px var(--via-c); }
+.via-opt p { margin: 0; }
+.via-opt > b { font-family: var(--f-display); letter-spacing: 0.03em; font-size: 16px; font-weight: 600; }
+.via-opt-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 22px; }
+.via-tag { font: 10.5px/1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--via-c); }
+.via-fx { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.via-go { margin-top: auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding-top: 6px; }
+.via-far { margin-top: auto; }
+.via-doc { border-top: 3px solid var(--via-c); }
+.via-doc-r { --via-c: #5f8f8a; } .via-doc-o { --via-c: #a8873f; } .via-doc-n { --via-c: #a23a31; } .via-doc-x { --via-c: #837f96; }
+.via-name { margin: 2px 0 6px; font: 600 28px/1.1 var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; text-wrap: balance; }
+.via-side { display: grid; grid-template-columns: 112px minmax(0, 1fr) 22px; gap: 10px; align-items: center; margin: 5px 0; }
+.via-side > span:first-child { font: 11px/1.2 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--via-c); }
+.via-side > b { text-align: right; font-variant-numeric: tabular-nums; }
+.via-pips { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; }
+.via-pips i { height: 10px; background: var(--panel-2); border-radius: 1px; }
+.via-pips i.f { background: var(--via-c); }
+.via-miles { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; }
+.via-mile { display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 8px; border: 1px solid var(--brass-dim); border-radius: 2px; font-size: 12.5px; color: var(--muted); }
+.via-mile small { font-family: var(--f-mono); font-size: 10.5px; }
+.via-mile.done { color: var(--fg); border-color: var(--via-c); background: color-mix(in srgb, var(--via-c) 20%, transparent); }
+.via-cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.via-cap .eyebrow { flex-basis: 100%; }
+.via-cap b { font: 600 34px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.via-cap small { color: var(--muted); }
+.via-clash { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--red); background: rgba(154, 42, 34, 0.12); }
+.via-clash p { margin: 3px 0 0; }
+@media (max-width: 900px) { .via-opts { grid-template-columns: minmax(0, 1fr); } }

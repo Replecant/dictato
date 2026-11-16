@@ -8,6 +8,8 @@ const Portrait = (() => {
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
+  // Ликторская фасция: связка прутьев с топором. Знак итальянской партии в версии «Тучи над миром».
+  const FASCIO = (x, y, k = 1, metal = '#c9a640') => `<g transform="translate(${x} ${y}) scale(${k})"><rect x="-2" y="0" width="4" height="15" rx="1" fill="${metal}"/><path d="M-2.4 3 H2.4 M-2.4 7.5 H2.4 M-2.4 12 H2.4" stroke="#3a2a10" stroke-width="0.9"/><path d="M2 1.6 Q8.4 2.2 7.6 7.6 Q4.6 9 2 7.2 Z" fill="${metal}" stroke="#3a2a10" stroke-width="0.5"/></g>`;
   const MEDAL_COLORS = ['#c9302c', '#2a6fdb', '#f0c419', '#2e8b57', '#ffffff', '#8e44ad'];
 
   function body(p) {
@@ -20,7 +22,8 @@ const Portrait = (() => {
         s += `<path d="M84 189 L100 232 L116 189 Z" fill="#f4f1ea"/>`;
         if (p.tie !== 'none') s += `<path d="M96 196 L104 196 L107 228 L100 238 L93 228 Z" fill="${p.tie || '#a82424'}"/>`;
         s += `<path d="M84 189 L100 232 L70 240 L56 198 Z" fill="${d}"/><path d="M116 189 L100 232 L130 240 L144 198 Z" fill="${d}"/>`;
-        if (p.pin) s += `<circle cx="126" cy="210" r="4.2" fill="#b3141c" stroke="#c9a640" stroke-width="1"/><circle cx="126" cy="210" r="1.8" fill="#fff"/>`; // партийный значок
+        if (p.pin === 'fascio') s += FASCIO(126, 204, 0.8); // значок с фасцией
+        else if (p.pin) s += `<circle cx="126" cy="210" r="4.2" fill="#b3141c" stroke="#c9a640" stroke-width="1"/><circle cx="126" cy="210" r="1.8" fill="#fff"/>`; // партийный значок
         break;
       case 'mao':
         s += `<path d="M82 186 Q100 198 118 186 L120 197 Q100 210 80 197 Z" fill="${d}"/>`;
@@ -117,6 +120,41 @@ const Portrait = (() => {
         if (p.cross) s += `<path d="M96 203 H104 M100 199 V207" stroke="#0c0c0d" stroke-width="5"/><path d="M96 203 H104 M100 199 V207" stroke="${metal}" stroke-width="1.2"/>`;
         // нарукавная повязка у партии и СС
         if (br !== 'heer') s += `<path d="M163 212 L190 220 L192 240 L160 240 Z" fill="#b3141c"/><circle cx="177" cy="229" r="7" fill="#fff"/><g transform="rotate(45 177 229)" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M177 225 V233 M173 229 H181"/><path d="M177 225 H180.2 M181 229 V232.2 M177 233 H173.8 M173 229 V225.8"/></g>`;
+        break;
+      }
+      case 'orbace': { // чёрная форма иерархов партии и милиции: чёрная рубашка, чёрный галстук, «чёрное пламя» на воротнике
+        const metal = p.metal || '#c9a640';
+        s += `<path d="M84 189 L100 232 L116 189 Z" fill="#0a0a0b"/><path d="M96.5 196 L103.5 196 L106 228 L100 237 L94 228 Z" fill="#232327"/><path d="M96.5 196 L103.5 196 L102 203 L98 203 Z" fill="#303035"/>`;
+        s += `<path d="M84 189 L100 232 L68 240 L54 198 Z" fill="${d}"/><path d="M116 189 L100 232 L132 240 L146 198 Z" fill="${d}"/>`;
+        // «чёрное пламя» с серебряной фасцией на отворотах
+        s += `<path d="M62 199 L78 205 L74 212 L71 208 L68 216 L64 209 L60 213 Z" fill="#0a0a0b" stroke="${metal}" stroke-width="0.9"/><path d="M138 199 L122 205 L126 212 L129 208 L132 216 L136 209 L140 213 Z" fill="#0a0a0b" stroke="${metal}" stroke-width="0.9"/>`;
+        s += `<path d="M69 203 V210 M131 203 V210" stroke="${metal}" stroke-width="1.6"/>`;
+        // узкие погоны с кантом
+        s += `<rect x="20" y="198" width="36" height="8" rx="2" fill="#0a0a0b" stroke="${metal}" stroke-width="1.2" transform="rotate(13 38 202)"/><rect x="144" y="198" width="36" height="8" rx="2" fill="#0a0a0b" stroke="${metal}" stroke-width="1.2" transform="rotate(-13 162 202)"/>`;
+        // фасция на груди и ремень с портупеей
+        s += FASCIO(70, 216, 1.15, metal);
+        s += `<path d="M150 200 L112 240 L104 240 L143 198 Z" fill="#2a1d14"/><circle cx="127" cy="220" r="2.2" fill="${metal}"/>`;
+        break;
+      }
+      case 'grigio': { // серо-зелёный мундир королевской армии: открытый ворот, петлицы со звёздочками
+        const tab = p.tab || '#a3161d', metal = '#c9ccd0', sh = shade(c, 28);
+        s += `<path d="M84 189 L100 230 L116 189 Z" fill="${sh}"/><path d="M96.5 196 L103.5 196 L106 226 L100 235 L94 226 Z" fill="${shade(c, -42)}"/>`;
+        s += `<path d="M84 189 L100 230 L70 240 L56 198 Z" fill="${d}"/><path d="M116 189 L100 230 L130 240 L144 198 Z" fill="${d}"/>`;
+        // петлицы с пятиконечными звёздочками
+        const star = (x, y) => `<path d="M${x} ${y - 3.4} L${x + 1} ${y - 1} L${x + 3.4} ${y - 1} L${x + 1.5} ${y + 0.6} L${x + 2.2} ${y + 3.2} L${x} ${y + 1.6} L${x - 2.2} ${y + 3.2} L${x - 1.5} ${y + 0.6} L${x - 3.4} ${y - 1} L${x - 1} ${y - 1} Z" fill="${metal}"/>`;
+        s += `<path d="M61 198 L77 204 L74 215 L59 208 Z" fill="${tab}"/><path d="M139 198 L123 204 L126 215 L141 208 Z" fill="${tab}"/>` + star(68, 207) + star(132, 207);
+        // погоны с золотым кантом и ремень через плечо
+        s += `<rect x="20" y="197" width="38" height="9" rx="2" fill="${shade(c, -18)}" stroke="#c9a640" stroke-width="1.3" transform="rotate(13 39 201)"/><rect x="142" y="197" width="38" height="9" rx="2" fill="${shade(c, -18)}" stroke="#c9a640" stroke-width="1.3" transform="rotate(-13 161 201)"/>`;
+        s += `<path d="M50 200 L88 240 L96 240 L57 198 Z" fill="#4a3320"/><circle cx="72" cy="221" r="2.2" fill="#c9a640"/>`;
+        break;
+      }
+      case 'sahariana': { // колониальный китель: четыре кармана, ремень, открытый ворот
+        const sh = shade(c, 30);
+        s += `<path d="M84 189 L100 218 L116 189 Z" fill="${sh}"/><path d="M84 189 L100 218 L84 226 L66 198 Z" fill="${d}"/><path d="M116 189 L100 218 L116 226 L134 198 Z" fill="${d}"/>`;
+        s += `<path d="M100 218 V240" stroke="${shade(c, -45)}" stroke-width="1.6"/>` + [224, 235].map(y => `<circle cx="100" cy="${y}" r="2.2" fill="${shade(c, -55)}"/>`).join('');
+        // нагрудные карманы с клапаном
+        s += [[52, 208], [124, 208]].map(([x, y]) => `<rect x="${x}" y="${y}" width="24" height="20" rx="2" fill="${shade(c, -10)}" stroke="${shade(c, -45)}" stroke-width="1.2"/><path d="M${x} ${y} H${x + 24} L${x + 12} ${y + 8} Z" fill="${shade(c, -24)}"/><circle cx="${x + 12}" cy="${y + 6}" r="1.6" fill="${shade(c, -60)}"/>`).join('');
+        s += `<rect x="20" y="198" width="36" height="8" rx="2" fill="${shade(c, -22)}" transform="rotate(13 38 202)"/><rect x="144" y="198" width="36" height="8" rx="2" fill="${shade(c, -22)}" transform="rotate(-13 162 202)"/>`;
         break;
       }
       default: // military
@@ -264,6 +302,29 @@ const Portrait = (() => {
           `<path d="M84 30 Q92 24 100 30 Q108 24 116 30 M100 28 V38" stroke="${metal}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="100" cy="41" r="2.4" fill="${metal}"/>` +
           (p.branch === 'ss' ? `<circle cx="100" cy="64" r="4.6" fill="#e8e8e4"/><circle cx="98.2" cy="63.4" r="1" fill="#111"/><circle cx="101.8" cy="63.4" r="1" fill="#111"/>` : `<circle cx="100" cy="64" r="4.6" fill="#101010"/><circle cx="100" cy="64" r="3" fill="#f4f1ea"/><circle cx="100" cy="64" r="1.5" fill="#b3141c"/><path d="M92 66 Q94 71 100 71 Q106 71 108 66" stroke="${metal}" stroke-width="1.4" fill="none"/>`);
       }
+      case 'fez70': // чёрная феска милиции: кисть на шнуре и золотая фасция
+        return `<path d="M64 70 L72 20 L128 20 L136 70 Q100 62 64 70 Z" fill="${c}"/><ellipse cx="100" cy="20" rx="28" ry="4.5" fill="${shade(c, 18)}"/>` +
+          `<path d="M100 19 Q130 20 140 54" stroke="#0a0a0b" stroke-width="2.2" fill="none"/><path d="M136 52 L144 52 L146 78 L134 78 Z" fill="#0a0a0b"/><path d="M137 60 V78 M140 60 V78 M143 60 V78" stroke="#2c2c30" stroke-width="0.8"/>` +
+          FASCIO(100, 34, 1.5, p.hatMetal || '#c9a640');
+      case 'bustina': { // пилотка королевской армии
+        const metal = p.hatMetal || '#c9a640';
+        return `<path d="M40 70 Q52 24 104 18 Q150 22 162 64 Q100 52 40 70 Z" fill="${c}"/><path d="M40 70 Q100 52 162 64 L160 54 Q100 40 46 58 Z" fill="${d}"/>` +
+          `<path d="M58 44 Q100 22 150 40" stroke="${shade(c, -18)}" stroke-width="1.6" fill="none"/>` +
+          `<path d="M92 40 Q96 34 100 40 Q104 34 108 40 M100 38 V46" stroke="${metal}" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="100" cy="49" r="2" fill="${metal}"/>`;
+      }
+      case 'alpino': // фетровая шляпа альпийских стрелков с пером
+        return `<path d="M58 14 L50 60" stroke="#101010" stroke-width="6" stroke-linecap="round"/><path d="M58 14 L52 44" stroke="#3a3a3a" stroke-width="1.6"/>` +
+          `<ellipse cx="100" cy="70" rx="76" ry="12" fill="${d}"/><path d="M56 70 Q54 30 100 26 Q146 30 144 70 Q100 62 56 70 Z" fill="${c}"/>` +
+          `<path d="M56 66 Q100 58 144 66 L144 58 Q100 50 56 58 Z" fill="${shade(c, -45)}"/><circle cx="52" cy="60" r="5.5" fill="#a3161d"/>` +
+          `<path d="M92 42 Q96 36 100 42 Q104 36 108 42 M100 40 V48" stroke="${p.hatMetal || '#c9a640'}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+      case 'berretto': { // фуражка итальянского образца: золотой шнур, орёл с короной
+        const band = p.hatBand || d, metal = p.hatMetal || '#c9a640';
+        return `<path d="M36 66 Q30 18 100 14 Q170 18 164 66 Q100 54 36 66 Z" fill="${c}"/>` +
+          `<path d="M46 62 Q100 52 154 62 L152 76 Q100 68 48 76 Z" fill="${band}"/>` +
+          `<path d="M52 74 Q100 82 148 74 Q146 86 100 90 Q54 86 52 74 Z" fill="#101010"/><path d="M64 79 Q100 85 136 79" stroke="#fff" stroke-opacity="0.2" stroke-width="2" fill="none"/>` +
+          `<path d="M50 72 Q100 79 150 72" stroke="${metal}" stroke-width="2.6" fill="none"/><circle cx="51" cy="72" r="2.6" fill="${metal}"/><circle cx="149" cy="72" r="2.6" fill="${metal}"/>` +
+          `<path d="M86 42 Q93 34 100 42 Q107 34 114 42 M100 40 V52" stroke="${metal}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M95 30 L97 34 L100 31 L103 34 L105 30 L105 36 L95 36 Z" fill="${metal}"/><circle cx="100" cy="56" r="3" fill="${metal}"/>`;
+      }
       case 'cap': return `<path d="M40 68 Q34 24 100 20 Q166 24 160 68 Z" fill="${c}"/><rect x="48" y="58" width="104" height="16" rx="3" fill="${d}"/>` +
         `<path d="M54 72 Q100 80 146 72 Q143 83 100 87 Q57 83 54 72 Z" fill="#141414"/><path d="M66 77 Q100 83 134 77" stroke="#fff" stroke-opacity="0.22" stroke-width="2" fill="none"/>` +
         `<path d="M52 69 Q100 76 148 69" stroke="#e2b33c" stroke-width="2.5" fill="none"/><circle cx="53" cy="69" r="3" fill="#e2b33c"/><circle cx="147" cy="69" r="3" fill="#e2b33c"/>` +
@@ -370,7 +431,7 @@ const Portrait = (() => {
   function svg(p, opts = {}) {
     const era = typeof document !== 'undefined' && document.body ? document.body.dataset.era : '';
     if (era === '1848') p = period48(p);
-    else if (era === '1980' || era === 'dark70') p = period80(p);
+    else if (era === '1980' || (era || '').startsWith('dark70')) p = period80(p);
     else if (era === '1905') p = period05(p);
     const bg = opts.bg ? `<rect width="200" height="240" fill="${opts.bg}"/>` : '';
     return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.label || 'портрет'}">${bg}${body(p)}${head(p)}<g transform="${hatFit(p.face)}">${hat(p)}</g>${extras(p)}</svg>`;
