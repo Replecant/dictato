@@ -127,7 +127,7 @@ const UI = {
       mustache: [['Нет', 'none'], ['Пышные', 'thick'], ['Руль', 'handlebar'], ['Моржовые', 'walrus']],
       beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Монокль', 'monocle']],
-      outfit: [['Силовой доспех', 'powerarmor'], ['Шинель', 'greatcoat'], ['Ряса', 'robe']],
+      outfit: [['Мантия Высокого дома', 'mantle'], ['Шинель', 'greatcoat'], ['Ряса', 'robe']],
       hair: [['Короткие', 'short'], ['Площадка', 'flattop'], ['Зачёс', 'slick'], ['Ирокез', 'mohawk'], ['Тонзура', 'tonsure'], ['Длинные', 'long'], ['Лысина', 'bald']],
     } : st.era === 'house' ? {
       hat: [['Без убора', 'none'], ['Капюшон пустынника', 'hood']],

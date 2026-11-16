@@ -37,13 +37,13 @@ REGIME_TITLES[DMN] = { dmnoble: 'Лорд-регент', dmpriest: 'Лорд-р�
 REGION_TITLES[DMN] = ['Лорд-регент', 'Голос Трона', 'Местоблюститель', 'Первый Толкователь'];
 Object.assign(TITLE_FORMS, { 'Лорд-регент': ['Лорда-регента', 'Лордом-регентом'], 'Голос Трона': ['Голоса Трона', 'Голосом Трона'], 'Местоблюститель': ['Местоблюстителя', 'Местоблюстителем'], 'Первый Толкователь': ['Первого Толкователя', 'Первым Толкователем'] });
 REGIME_SETUP_LOOK[DMN] = {
-  dmnoble: LM({ face: 'long', hair: 'slick', hairColor: '#c8c8c8', mustache: 'handlebar', mouth: 'smirk', glasses: 'monocle', eyeGlow: '', hat: 'laurel', ...DM_ARM('#3a2230') }),
+  dmnoble: LM({ face: 'long', hair: 'slick', hairColor: '#c8c8c8', mustache: 'handlebar', mouth: 'smirk', glasses: 'monocle', eyeGlow: '', hat: 'laurel', outfit: 'mantle', outfitColor: '#3a2230', trim: '#c9a640' }),
   dmpriest: LM({ face: 'long', hair: 'bald', hairColor: '#999', beard: 'full', brows: 'bushy', eyeGlow: '', hat: 'mitre', hatColor: '#5a1a20', ...DM_ROBE('#5a1a20') }),
   dmwar: LM({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#555', brows: 'angry', eyeGlow: '', bionic: true, ...DM_COAT('#1d1e22') }),
 };
 for (const k of ['dmnoble', 'dmpriest', 'dmwar']) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK[DMN][k], bluetooth: false };
 const DM_NAMES = { dmnoble: 'Максимилиан фон Кастелян', dmpriest: 'Игнаций Неугасимый', dmwar: 'Маркус Железный Кодекс' };
-function dominSetupLook(st, key) { const L = st.look; if (key === 'outfit') { L.outfitColor = { powerarmor: '#3a3f4a', greatcoat: '#1d1e22', robe: '#5a1a20' }[L.outfit]; L.steel = L.outfitColor; L.trim = '#c9a640'; } L.hatColor = L.hat === 'mitre' ? '#5a1a20' : L.outfitColor; }
+function dominSetupLook(st, key) { const L = st.look; if (key === 'outfit') { L.outfitColor = { mantle: '#3a2230', greatcoat: '#1d1e22', robe: '#5a1a20' }[L.outfit]; L.steel = L.outfitColor; L.trim = '#c9a640'; } L.hatColor = L.hat === 'mitre' ? '#5a1a20' : L.outfitColor; }
 
 NAME_POOLS.domin = { m: ['Северус', 'Маркус', 'Тиберий', 'Валериан', 'Игнаций', 'Корнелий', 'Люций', 'Октавиан', 'Грегор', 'Феодор'], f: ['Северина', 'Аурелия', 'Клавдия'], last: ['Вакс', 'Кастелян', 'Мортис', 'Феррум', 'Солар', 'Ригор', 'Канцер', 'Обскур', 'Гравис', 'Литания'] };
 RELATIVES_BY_STYLE.domin = { defense: 'Племянник Тиберий', economy: 'Кузен Корнелий', police: 'Тётка Клавдия', propaganda: 'Шурин Феодор', foreign: 'Зять Люций' };
@@ -82,7 +82,7 @@ LEADER_STYLE[DMN] = {
   left: { title: 'Старшина смены', look: { outfit: 'robe', outfitColor: '#3a3a34', trim: '#6a5a3a', hat: 'hood', hatColor: '#3a3a34', glasses: 'none', medals: 0, sash: '' } },
   liberals: { title: 'Старший писец', look: { ...DM_ROBE('#2a2d33'), hat: 'none', glasses: 'monocle', medals: 0, sash: '' } },
   faith: { male: true, title: 'Первосвятитель', look: { ...DM_ROBE('#5a1a20'), hat: 'mitre', hatColor: '#5a1a20', glasses: 'none', medals: 0, sash: '' } },
-  oligarchs: { title: 'Глава дома', look: { ...DM_ARM('#3a2230'), hat: 'laurel', glasses: 'monocle', medals: 0, sash: '' } },
+  oligarchs: { title: 'Глава дома', look: { outfit: 'mantle', outfitColor: '#3a2230', trim: '#c9a640', hat: 'laurel', glasses: 'monocle', medals: 0, sash: '' } },
   hawks: { male: true, title: 'Магистр легиона', look: { ...DM_ARM('#2a3a5a'), hat: 'none', glasses: 'none', medals: 0, sash: '' } },
   new: { male: true, title: 'Архимеханик', look: { ...DM_ROBE('#6a1a14'), hat: 'hood', hatColor: '#6a1a14', glasses: 'none', medals: 0, sash: '', bionic: true } },
 };
