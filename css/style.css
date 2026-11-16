@@ -1360,8 +1360,9 @@ button.rl-card:hover, button.rl-card:focus-visible { transform: translateY(-2px)
 .rl-h3 { margin: 4px 0 2px; font: 400 30px/1.05 "Forum", "Old Standard TT", Georgia, serif; color: var(--rl-ink); }
 .rl-card .rl-p { clear: both; font: 15px/1.5 "PT Serif", Georgia, serif; color: var(--rl-ink); }
 .rl-go { margin-top: 12px; font: 400 17px/1 "Forum", Georgia, serif; letter-spacing: 0.08em; color: var(--rl-wine); }
-body[data-era="realm"] { --bg: #15121d; --wood: #1d1928; --panel: #221d30; --panel-2: #2c2640; --fg: #e4dcc4; --muted: #9c93ad; --brass: #c9a85a; --brass-dim: rgba(201, 168, 90, 0.24); --red: #8e2a4a; --green: #6f9a78; --amber: #c08a3a; --f-display: "Forum", "Old Standard TT", Georgia, serif; }
-body[data-era="realm"] .tabs button { letter-spacing: 0.06em; }
+body[data-era="realm"], body[data-era="burg"] { --bg: #15121d; --wood: #1d1928; --panel: #221d30; --panel-2: #2c2640; --fg: #e4dcc4; --muted: #9c93ad; --brass: #c9a85a; --brass-dim: rgba(201, 168, 90, 0.24); --red: #8e2a4a; --green: #6f9a78; --amber: #c08a3a; --f-display: "Forum", "Old Standard TT", Georgia, serif; }
+body[data-era="realm"] .tabs button, body[data-era="burg"] .tabs button { letter-spacing: 0.06em; }
+body[data-era="burg"] { --bg: #17140f; --wood: #1f1a13; --panel: #262019; --panel-2: #312a20; --muted: #a39a86; --brass: #c8a45a; --red: #8e3a2a; }
 .rm-rank { margin: 2px 0 10px; font: 400 30px/1.1 var(--f-display); }
 .rm-total { display: grid; grid-template-columns: repeat(30, minmax(0, 1fr)); gap: 2px; margin-bottom: 8px; }
 .rm-total i { height: 12px; background: var(--panel-2); border-radius: 1px; } .rm-total i.f { background: var(--brass); }
@@ -1389,3 +1390,21 @@ body[data-era="realm"] .tabs button { letter-spacing: 0.06em; }
 .rm-np-off b { font: 11px/1 "PT Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #7a2a2a; } .rm-np-off p { margin: 4px 0 0; font: italic 13.5px/1.4 "Old Standard TT", Georgia, serif; color: #2a2118; }
 .rm-np .fx-list { margin-top: 12px; }
 @media (max-width: 900px) { .rm-schools, .rm-magi, .rm-np-off { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Вольный город: бумаги, авантюристы, торговля ---------- */
+.bg-pile { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.bg-paper { position: relative; padding: 14px 16px 12px; background: linear-gradient(180deg, #e9dcb8, #dccb9f); color: #2a2118; border-radius: 2px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); }
+.bg-paper.old { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 0 0 2px #8e3a2a; }
+.bg-paper h3 { margin: 2px 0 4px; font: 400 21px/1.15 "Forum", "Old Standard TT", Georgia, serif; color: #2a2118; }
+.bg-paper p { margin: 0 0 8px; font: 14.5px/1.45 "PT Serif", Georgia, serif; color: #3a2f20; }
+.bg-paper .bg-from { font: 10.5px/1.2 "PT Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #7a2a2a; }
+.bg-paper .dec-fx { margin: 6px 0 8px; } .bg-paper .dec-tag { color: #5c4d33; }
+.bg-paper .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.bg-paper .btn { background: #2a2118; color: #e9dcb8; border-color: #2a2118; } .bg-paper .btn.ghost { background: transparent; color: #2a2118; border-color: #5c4d33; } .bg-paper .btn:disabled { opacity: 0.4; }
+.bg-stamps { display: inline-flex; gap: 6px; vertical-align: middle; } .bg-stamps i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--red); } .bg-stamps i.f { background: var(--red); }
+.bg-quests, .bg-parties, .bg-routes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.bg-parties { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bg-skill { display: flex; gap: 10px; flex-wrap: wrap; font: 12px/1.3 var(--f-mono); color: var(--muted); margin: 6px 0; } .bg-skill b { color: var(--fg); }
+.bg-quest.busy { border-top: 2px solid var(--amber); } .bg-quest:not(.busy) { border-top: 2px solid var(--red); }
+.bg-tariff { display: flex; gap: 4px; margin: 8px 0; }
+@media (max-width: 900px) { .bg-pile, .bg-quests, .bg-parties, .bg-routes { grid-template-columns: minmax(0, 1fr); } }

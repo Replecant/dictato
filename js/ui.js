@@ -67,7 +67,7 @@ const UI = {
 
   // ---------- настройка ----------
   startSetup(world, land) {
-    if (world === 'dark' && typeof DARK_SETUP !== 'undefined') { UI.setup = JSON.parse(JSON.stringify(land === 'realm' && typeof REALM_SETUP !== 'undefined' ? REALM_SETUP : land === 'jp' && typeof JAP_SETUP !== 'undefined' ? JAP_SETUP : land === 'it' && typeof ITAL_SETUP !== 'undefined' ? ITAL_SETUP : DARK_SETUP)); UI.show('screen-setup'); return UI.renderSetup(); }
+    if (world === 'dark' && typeof DARK_SETUP !== 'undefined') { UI.setup = JSON.parse(JSON.stringify(land === 'burg' && typeof BURG_SETUP !== 'undefined' ? BURG_SETUP : land === 'realm' && typeof REALM_SETUP !== 'undefined' ? REALM_SETUP : land === 'jp' && typeof JAP_SETUP !== 'undefined' ? JAP_SETUP : land === 'it' && typeof ITAL_SETUP !== 'undefined' ? ITAL_SETUP : DARK_SETUP)); UI.show('screen-setup'); return UI.renderSetup(); }
     UI.setup = { era: '1960', region: 'latam', regime: 'junta', name: 'Хосе Мария Альварадо', title: 'Генералиссимус', country: REGIONS.latam.country,
       look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#1a1410', hat: 'cap', hatColor: '#4b5320', mustache: 'thick', brows: 'bushy', mouth: 'smile', glasses: 'none', outfit: 'military', outfitColor: '#4b5320', medals: 10, sash: '#c1272d' } };
     UI.show('screen-setup');
@@ -120,6 +120,13 @@ const UI = {
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
       outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
+    } : st.era === 'burg' ? {
+      hat: [['Цилиндр', 'top'], ['Котелок', 'bowler'], ['Шляпа мага', 'wizard'], ['Шлем', 'helmet'], ['Без убора', 'none']],
+      mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Моржовые', 'walrus'], ['Руль', 'handlebar']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
+      glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Монокль', 'monocle'], ['Пенсне', 'pince']],
+      outfit: [['Сюртук', 'frock'], ['Мантия', 'mantle'], ['Латы', 'plate']],
+      hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === 'realm' ? {
       hat: [['Шляпа мага', 'wizard'], ['Капюшон', 'hood'], ['Обруч с камнем', 'circlet'], ['Без убора', 'none']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Моржовые', 'walrus']],
@@ -221,6 +228,7 @@ const UI = {
       if (st.era === 'dark70i' && typeof italSetupLook === 'function') { italSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'dark70j' && typeof japSetupLook === 'function') { japSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'realm' && typeof realmSetupLook === 'function') { realmSetupLook(st, b.dataset.look); return UI.renderSetup(); }
+      if (st.era === 'burg' && typeof burgSetupLook === 'function') { burgSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (b.dataset.look === 'outfit') st.look.outfitColor = { military: '#4b5320', suit: '#2a2d36', mao: '#56604a', guayabera: '#f1e4c3', suit2000: '#1c2230', tracksuit: '#1f3f8a', polo: '#2a6a4a', uniform48: '#1d2a44', frock: '#1d1d22', poncho: '#9a1a1a', robe: '#5a2a2a' }[b.dataset.val];
       UI.renderSetup();
     };
@@ -428,7 +436,7 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70', agit: 'dark70', colony: 'dark70', cw70: 'dark70', via70: 'dark70i', imp70: 'dark70i', itcw: 'dark70i', sphere70: 'dark70j', party70: 'dark70j', jpcw: 'dark70j', magic: 'realm', council: 'realm' };
+    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70', agit: 'dark70', colony: 'dark70', cw70: 'dark70', via70: 'dark70i', imp70: 'dark70i', itcw: 'dark70i', sphere70: 'dark70j', party70: 'dark70j', jpcw: 'dark70j', magic: 'realm', council: 'realm', papers: 'burg', quests: 'burg', trade: 'burg' };
     const tabOff = t => (!!eraTabs[t] && eraTabs[t] !== S.era) || !!(Game.tabHidden && Game.tabHidden(t));
     if (tabOff(UI.tab)) UI.tab = 'cabinet';
     for (const b of document.querySelectorAll('.tabs button')) { b.hidden = tabOff(b.dataset.tab); b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
@@ -602,7 +610,7 @@ const UI = {
 
   tab_world() {
     const R = REGIONS[S.region];
-    const blocName = S.era === 'realm' ? { west: 'Светлый союз', east: 'Тёмные земли', neutral: 'сами по себе' } : (ERAS[S.era] || {}).dark ? { latin: 'латинские страны', pact: 'Единый пакт', sphere: 'Сфера сопроцветания', west: 'Свободный мир', neutral: 'нейтралы' } : S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
+    const blocName = S.era === 'realm' || S.era === 'burg' ? { west: 'Светлый союз', east: 'Тёмные земли', neutral: 'сами по себе' } : (ERAS[S.era] || {}).dark ? { latin: 'латинские страны', pact: 'Единый пакт', sphere: 'Сфера сопроцветания', west: 'Свободный мир', neutral: 'нейтралы' } : S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
     return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. Дружба со сверхдержавой приносит помощь каждый квартал, если отношения выше 60. Но другая сверхдержава это запомнит.</p>
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c];
@@ -902,6 +910,7 @@ function boot() {
   $('#btn-folder').onclick = () => UI.setWorld(true);
   $('#btn-realm').onclick = () => UI.setWorld('realm');
   $('#btn-realm-mag').onclick = () => UI.startSetup('dark', 'realm');
+  $('#btn-realm-burg').onclick = () => UI.startSetup('dark', 'burg');
   $('#btn-realm-close').onclick = () => { UI.setWorld(false); $('#btn-realm').focus(); };
   $('#btn-folder-close').onclick = () => { UI.setWorld(false); $('#btn-folder').focus(); };
   $('#btn-continue').onclick = () => UI.continueGame();

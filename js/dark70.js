@@ -12,7 +12,10 @@ const isJap = () => !!S && S.era === DARK_J;
 // Четвёртый отдельный мир — фэнтези «Мир, которого нет» (js/realm.js). Он не мрачный, но так же отрезан от общего набора событий и указов.
 const REALM = 'realm';
 const isRealm = () => !!S && S.era === REALM;
-const isGloom = () => isDark() || isItal() || isJap() || isRealm();
+// Вторая держава того же мира — вольный город (js/burg.js)
+const BURG = 'burg';
+const isBurg = () => !!S && S.era === BURG;
+const isGloom = () => isDark() || isItal() || isJap() || isRealm() || isBurg();
 
 // ---------- державы ----------
 FLAGS.reich = FLAGS.germany33;
@@ -393,7 +396,7 @@ const moveTextD = line => {
   const t = m && MOVE_D[m[1] === '🤝' ? 'good' : 'bad'][m[2]];
   return t ? `${m[1]} ${m[2]}: ${t}` : Game.eraText(line);
 };
-Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : isRealm() && typeof TR !== 'undefined' ? TR.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
+Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : isRealm() && typeof TR !== 'undefined' ? TR.reduce((a, [f, t]) => a.split(f).join(t), s) : isBurg() && typeof TB !== 'undefined' ? TB.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _modalD = Modal.open;
 Modal.open = function (html, ...rest) { return _modalD.call(Modal, Game.eraText(html), ...rest); };
 const _vnPlayD = VN.play;
@@ -429,7 +432,7 @@ Game.advisorAction = function (role, act) {
   if (darkPre() && act === 'act') return Game.darkAdvAct(role);
   const r = _advActD.call(Game, role, act);
   if (r && isGloom() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
-  const advText = isRealm() && typeof ADV_TEXT_R !== 'undefined' ? ADV_TEXT_R : isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
+  const advText = isBurg() && typeof ADV_TEXT_B !== 'undefined' ? ADV_TEXT_B : isRealm() && typeof ADV_TEXT_R !== 'undefined' ? ADV_TEXT_R : isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
   if (r && isGloom() && act === 'act' && advText[role]) { r.text = advText[role]; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
@@ -471,11 +474,11 @@ Game.economyActions = function () {
 const _ecoFxD = Game.economyFx;
 Game.economyFx = function (id) {
   const r = _ecoFxD.call(Game, id);
-  if (isGloom() && id === 'transfer') { r.text = 'Перевод прошёл.'; if (r.risk) r.risk.text = isRealm() ? 'Гномы-счетоводы проболтались. Гномы-счетоводы всегда пробалтываются.' : isJap() ? 'О переводе узнали в особой высшей полиции.' : isItal() ? 'О переводе узнали в партийной контрольной комиссии.' : 'О переводе узнали в партийном суде.'; }
+  if (isGloom() && id === 'transfer') { r.text = 'Перевод прошёл.'; if (r.risk) r.risk.text = isRealm() || isBurg() ? 'Гномы-счетоводы проболтались. Гномы-счетоводы всегда пробалтываются.' : isJap() ? 'О переводе узнали в особой высшей полиции.' : isItal() ? 'О переводе узнали в партийной контрольной комиссии.' : 'О переводе узнали в партийном суде.'; }
   return r;
 };
 // Требования сил: только бюджетные и свои; общие «указные» требования здесь не к месту
-for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70', 'velentar'];
+for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70', 'velentar', 'kislobrod'];
 FAC_DEMANDS.faith.push({ id: 'dk_gau', kind: 'pay', text: 'Подтвердить привилегии гауляйтеров', fx: { treasury: -8, fac: { liberals: { a: -5 } } }, only: ['reich70'] });
 FAC_DEMANDS.hawks.push({ id: 'dk_ss', kind: 'pay', text: 'Запретить СС вербовку в армейских частях', fx: { fac: { new: { a: -8 } } }, only: ['reich70'] });
 FAC_DEMANDS.oligarchs.push({ id: 'dk_ord', kind: 'act', acts: ['dec:d_orders'], text: 'Разместить военные заказы на заводах концернов', only: ['reich70'] });
