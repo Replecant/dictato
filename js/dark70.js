@@ -306,6 +306,35 @@ UI.render = function () {
   set('cabinet', pre ? 'Штаб' : 'Канцелярия', 'Кабинет'); set('factions', 'Силы Рейха', 'Движения'); set('decrees', 'Проекты Рейха', 'Указы');
   set('world', pre ? 'Союзники' : 'Мир', 'Мир'); set('advisors', pre ? 'Ваши люди' : 'Министры', 'Советники'); set('log', 'Хроника', 'Летопись');
 };
+// ---------- отладка разработчика: старт с момента признания главой Рейха ----------
+const DarkDebug = {
+  // how: 'peace' — сцена избрания, 'war' — сцена победы в войне, 'rule' — сразу правление; course — курс для 'rule'
+  start(how = 'peace', course = 'old') {
+    const st = UI.setup && UI.setup.world === 'dark' ? UI.setup : JSON.parse(JSON.stringify(DARK_SETUP));
+    const nm = document.querySelector('#setup-name');
+    if (UI.setup === st && nm && nm.value.trim()) st.name = nm.value.trim();
+    st.title = REGIME_TITLES.reich70[st.regime]; st.country = REGIONS.reich70.country;
+    Game.newGame(st);
+    const U = Game.suc();
+    // пять лет борьбы «прошли»: I квартал 1975 года, Фюрер умер, силы Рейха за вас
+    S.turn = 20; S.year = 1975; S.q = 1; S.ap = Game.apTurn();
+    U.health = 0; U.expo = 30; U.auth = 8; U.ready = how === 'war' ? 60 : 25; S.flags.fuhrerDead = true;
+    for (const [f, d] of Object.entries({ faith: 18, hawks: 10, oligarchs: 8, left: 8 })) S.fac[f].a = clamp(S.fac[f].a + d);
+    for (const R of Object.values(U.rivals)) { R.base += 6; R.infl = clamp(R.infl + rnd(2, 6)); }
+    U.rivals.ss.infl = Math.min(U.rivals.ss.infl, 52);
+    S.treasury = 60; S.statHist = Array.from({ length: 21 }, (_, i) => ({ ...Game.snapshotStats(), t: i, support: 46 + Math.sin(i / 3) * 3, economy: 44 - i / 10, army: 60 + i / 6, fear: 54 + Math.cos(i / 4) * 3 }));
+    S.hist = HISTORY_D.filter(h => h.at[0] < 1975).map(h => h.head);
+    Game.log('Отладка: пять лет борьбы за преемство пропущены.');
+    if (how === 'war') { U.hadWar = true; U.war = { kind: 'legit', enemy: 'ss', q: 4, ctrl: 84, promised: false, rome: false }; S.economy = clamp(S.economy - 10); S.support = clamp(S.support - 6); }
+    Game.sucWin(how === 'war' ? 'war' : 'peace');
+    if (how === 'rule') { U.triumph = true; U.courseAsked = true; Game.apply({ sucCourse: ['old', 'thaw', 'army'].includes(course) ? course : 'old' }, { silent: true }); }
+    document.body.dataset.era = S.era;
+    UI.show('screen-game'); UI.tab = 'cabinet'; S.phase = 'hub';
+    Game.save(); UI.render();
+    if (how !== 'rule') UI.startQuarter(); // сцена победы и выбор курса
+    return S;
+  },
+};
 // Экран создания: вы не «приходите к власти», вы вступаете в борьбу
 const DIFF_D = { easy: ['Передышка', 'Три приказа в квартал, больше средств, соперники осторожнее.'], normal: ['Как было бы', 'Два приказа в квартал. Соперники и канцелярия действуют в полную силу.'], hard: ['Без права на ошибку', 'Мало средств, соперники сильнее, люди штаба ненадёжны. Итог ×1,4.'] };
 const SETUP_BASE = {};
@@ -322,6 +351,8 @@ UI.renderSetup = function () {
   for (const el of [root.querySelector('label[for="setup-country"]'), root.querySelector('#setup-country')]) el.hidden = dark;
   root.querySelector('label[for="setup-title"]').textContent = dark ? 'Звание' : 'Титул';
   go.textContent = dark ? 'Открыть дело' : SETUP_BASE.go;
+  const dbg = document.querySelector('#dk-debug');
+  if (dbg) { dbg.hidden = !dark; for (const b of dbg.querySelectorAll('[data-dkdebug]')) b.onclick = () => DarkDebug.start(b.dataset.dkdebug); }
   if (dark) for (const m of root.querySelectorAll('#setup-regions .pick-meta')) m.textContent = 'Великогерманский рейх · 1970–1984';
   if (dark) for (const b of root.querySelectorAll('[data-diff]')) { const d = DIFF_D[b.dataset.diff]; if (d) { b.querySelector('.pick-name').textContent = d[0]; b.querySelector('.pick-desc').textContent = d[1]; } }
 };

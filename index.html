@@ -96,6 +96,16 @@
   </section>
   <section class="setup-sec"><h2 class="sec-h">5. Сложность</h2><div class="picks" id="setup-diff"></div></section>
   <div class="setup-go"><button class="btn big" id="btn-begin">Принять присягу</button></div>
+  <details class="dk-debug" id="dk-debug" hidden>
+    <summary>Отладка разработчика</summary>
+    <p>Пропустить пять лет борьбы и начать с момента, когда вас признают главой Рейха. Берутся опора, имя, облик и сложность, выбранные выше.</p>
+    <div class="dk-debug-btns">
+      <button class="btn small" type="button" data-dkdebug="peace">Старт: избран сенатом</button>
+      <button class="btn small" type="button" data-dkdebug="war">Старт: победа в гражданской войне</button>
+      <button class="btn small" type="button" data-dkdebug="rule">Старт: сразу правление (без сцен)</button>
+    </div>
+    <p class="dk-debug-note">Из консоли: <code>DarkDebug.start('peace' | 'war' | 'rule', курс)</code>, курс — <code>'old'</code>, <code>'thaw'</code> или <code>'army'</code>.</p>
+  </details>
 </main>
 
 <main id="screen-game" class="screen game" hidden>
