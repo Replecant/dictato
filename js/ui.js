@@ -46,11 +46,13 @@ const UI = {
   // ---------- титульный экран ----------
   // Что открыто на титульном экране: основная игра (false), папка «Тучи над миром» (true) или свиток «Мир, которого нет» ('realm')
   setWorld(mode) {
-    const dark = mode === true, realm = mode === 'realm';
-    const main = $('#title-main'), dk = $('#title-dark'), rl = $('#title-realm');
+    const dark = mode === true, realm = mode === 'realm', voidW = mode === 'void';
+    const main = $('#title-main'), dk = $('#title-dark'), rl = $('#title-realm'), sf = $('#title-void');
     $('#screen-title').classList.toggle('world-dark', dark);
     $('#screen-title').classList.toggle('world-realm', realm);
-    main.inert = dark || realm; main.setAttribute('aria-hidden', dark || realm ? 'true' : 'false');
+    $('#screen-title').classList.toggle('world-void', voidW);
+    main.inert = dark || realm || voidW; main.setAttribute('aria-hidden', dark || realm || voidW ? 'true' : 'false');
+    if (sf) { sf.inert = !voidW; sf.setAttribute('aria-hidden', voidW ? 'false' : 'true'); if (voidW) { sf.scrollTop = 0; setTimeout(() => { const b = $('#btn-void-close'); if (b) b.focus({ preventScroll: true }); }, 60); } }
     dk.inert = !dark; dk.setAttribute('aria-hidden', dark ? 'false' : 'true');
     if (rl) { rl.inert = !realm; rl.setAttribute('aria-hidden', realm ? 'false' : 'true'); }
     if (dark) { dk.scrollTop = 0; setTimeout(() => { const b = $('#btn-folder-close'); if (b) b.focus({ preventScroll: true }); }, 60); }
@@ -921,6 +923,8 @@ function boot() {
   $('#btn-realm-burg').onclick = () => UI.startSetup('dark', 'burg');
   $('#btn-realm-emp').onclick = () => UI.startSetup('dark', 'crown');
   $('#btn-realm-close').onclick = () => { UI.setWorld(false); $('#btn-realm').focus(); };
+  $('#btn-void').onclick = () => UI.setWorld('void');
+  $('#btn-void-close').onclick = () => { UI.setWorld(false); $('#btn-void').focus(); };
   $('#btn-folder-close').onclick = () => { UI.setWorld(false); $('#btn-folder').focus(); };
   $('#btn-continue').onclick = () => UI.continueGame();
   $('#btn-begin').onclick = () => UI.beginGame();
