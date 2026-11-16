@@ -139,11 +139,11 @@ const DARK_SETUP = {
 
 // ---------- роли и общие тексты без шуток ----------
 const ROLES_D = {
-  defense: { title: 'Военный референт', action: 'Смотр верных частей', actionDesc: 'Гарнизоны видят, кто о них помнит. Армия довольна, казна тратится.' },
-  economy: { title: 'Хозяйственный референт', action: 'Хозяйственная программа', actionDesc: 'Заказы, сырьё, рабочая сила. Экономика растёт, если расчёты верны.' },
-  police: { title: 'Связной в полиции', action: 'Аресты по спискам', actionDesc: 'Недовольные замолкают, страх растёт.' },
-  propaganda: { title: 'Референт по печати', action: 'Кампания в печати', actionDesc: 'Газеты и радио говорят о вас. Поддержка растёт, пока им верят.' },
-  foreign: { title: 'Референт по внешним делам', action: 'Поездка по столицам пакта', actionDesc: 'Рим, Мадрид, Токио. Отношения улучшаются.' },
+  defense: { title: 'Военный министр', action: 'Смотр верных частей', actionDesc: 'Гарнизоны видят, кто о них помнит. Армия довольна, казна тратится.' },
+  economy: { title: 'Министр хозяйства', action: 'Хозяйственная программа', actionDesc: 'Заказы, сырьё, рабочая сила. Экономика растёт, если расчёты верны.' },
+  police: { title: 'Шеф полиции', action: 'Аресты по спискам', actionDesc: 'Недовольные замолкают, страх растёт.' },
+  propaganda: { title: 'Министр печати', action: 'Кампания в печати', actionDesc: 'Газеты и радио говорят о вас. Поддержка растёт, пока им верят.' },
+  foreign: { title: 'Министр иностранных дел', action: 'Поездка по столицам пакта', actionDesc: 'Рим, Мадрид, Токио. Отношения улучшаются.' },
 };
 const _eraLookD = Game.eraLook;
 Game.eraLook = function () {
@@ -175,7 +175,11 @@ const TD = [
   ['Казна почти пуста. Урежьте расходы или найдите кредит. Рынок!', 'Фонды почти исчерпаны. Нужно урезать расходы.'],
   ['Офицеры недовольны. Поднимите бюджет армии или устройте парад.', 'Офицеры недовольны. Нужны деньги гарнизонам или смотр.'],
   ['Народ ворчит. Хлеб, зрелища, моё радиошоу — что-нибудь!', 'Сводки о настроениях плохие. Нужны хлеб по карточкам без перебоев и кампания в печати.'],
-  ['Риск переворота', 'Риск ареста или путча'], ['Риск революции', 'Риск волнений'],
+  ['предан, но не слишком умён', 'предан, но не слишком способен'],
+  ['Риск переворота', 'Риск путча'], ['Риск революции', 'Риск стачки'],
+  ['У нас нет ни одного настоящего друга в мире. Это поэтично, но опасно.', 'У Рейха не осталось ни одного надёжного союзника.'],
+  ['В столице спокойно. Подозрительно спокойно. Я слежу.', 'В столице спокойно. Сводки без происшествий.'],
+  ['набирает силу. У меня есть списки.', 'набирает силу.'],
   ['Семья — это надёжно.', ''],
   ['Летопись правления', 'Хроника'],
   ['Казна в минусе! Армии задерживают жалованье, банки требуют проценты.', 'Фонды в минусе. Гарнизонам задерживают жалованье.'],
@@ -183,7 +187,7 @@ const TD = [
   ['Новое требование движения ', 'Новое требование: '],
   ['пришёл к власти. Режим:', 'вступил в борьбу за преемство. Опора:'],
   ['Подарить виллу', 'Наградить деньгами'],
-  ['переговоры с движениями, проекты, визиты, поручения советникам', 'переговоры с силами Рейха, распоряжения, визиты, поручения штабу'],
+  ['переговоры с движениями, проекты, визиты, поручения советникам', 'переговоры с силами Рейха, распоряжения, визиты, поручения министрам'],
   ['Проекты и указы — на вкладке «Указы».', 'Распоряжения — на вкладке «Распоряжения».'],
   ['Армия ниже 45 и злые «ястребы» — к перевороту. Народ ниже 30 и сильные левые — к революции.', 'Армия ниже 45 и недовольные вермахт или СС — к путчу. Народ ниже 30 — к всеобщей стачке.'],
   ['Деньги «нужд дворца» уходят на', 'Часть расходов канцелярии уходит на'],
@@ -219,9 +223,19 @@ UI.tab_world = function () {
 };
 // Проекты советников в этой версии отключены — убираем и пустой раздел о них
 const _tabAdvD = UI.tab_advisors;
-UI.tab_advisors = function () { const h = _tabAdvD.call(UI); return isDark() ? h.replace(/^[\s\S]*?(?=<p class="lede">)/, '') : h; };
+UI.tab_advisors = function () {
+  const h = _tabAdvD.call(UI);
+  if (!isDark()) return h;
+  const out = h.replace(/^[\s\S]*?(?=<p class="lede">)/, '');
+  return darkPre() ? out : out.replace('Ваш кабинет. Лояльность ниже 25 — и советник может предать.', 'Ваши министры. Лояльность ниже 25 — и министр может вас сдать.');
+};
 const _tabCabD = UI.tab_cabinet;
 UI.tab_cabinet = function () {
+  if (isDark() && !darkPre()) {
+    const U = Game.suc(), yrs = ((S.turn - (U.wonAt === undefined ? S.turn : U.wonAt)) / 4).toFixed(1).replace('.0', '').replace('.', ',');
+    const course = { old: 'Курс: всё как при Фюрере. Опора — партия и СС.', thaw: 'Курс: лагеря распущены, СС ограничена. Опора — реформисты и Трудовой фронт.', army: 'Курс: власть армии. Опора — вермахт и концерны.' }[U.course] || '';
+    return _tabCabD.call(UI).replace(/У власти [\d.,]+ г\./, `${U.wonBy === 'war' ? 'Взяли власть оружием' : 'Избраны сенатом партии'}. У власти ${yrs} г. ${course}`);
+  }
   if (!darkPre()) return _tabCabD.call(UI);
   const U = Game.suc(), war = U.phase === 'war' && U.war && !U.war.over, B = Game.budgetCalc(), cr = Game.riskWord(Game.coupRisk());
   const my = Game.sucScore() + Game.sucPactBonus(), [topK, top] = Game.sucTop(), ss = U.rivals.ss.infl;
@@ -290,7 +304,7 @@ UI.render = function () {
   _renderD.call(UI);
   const pre = darkPre(), set = (t, dark, base) => { const b = document.querySelector(`.tabs button[data-tab="${t}"]`); if (b) b.textContent = isDark() ? dark : base; };
   set('cabinet', pre ? 'Штаб' : 'Канцелярия', 'Кабинет'); set('factions', 'Силы Рейха', 'Движения'); set('decrees', 'Распоряжения', 'Указы');
-  set('world', pre ? 'Союзники' : 'Мир', 'Мир'); set('advisors', pre ? 'Ваши люди' : 'Штаб', 'Советники'); set('log', 'Хроника', 'Летопись');
+  set('world', pre ? 'Союзники' : 'Мир', 'Мир'); set('advisors', pre ? 'Ваши люди' : 'Министры', 'Советники'); set('log', 'Хроника', 'Летопись');
 };
 // Экран создания: вы не «приходите к власти», вы вступаете в борьбу
 const DIFF_D = { easy: ['Передышка', 'Три приказа в квартал, больше средств, соперники осторожнее.'], normal: ['Как было бы', 'Два приказа в квартал. Соперники и канцелярия действуют в полную силу.'], hard: ['Без права на ошибку', 'Мало средств, соперники сильнее, люди штаба ненадёжны. Итог ×1,4.'] };
@@ -479,7 +493,7 @@ Object.assign(Game, {
       const hard = { easy: -5, normal: 0, hard: 5 }[S.diff] || 0;
       S.suc = { phase: 'wait', health: 62, expo: 12, auth: 0, ready: S.regime === 'heer70' ? 25 : 8, pact: null, visitAt: -9, summons: -9, war: null, course: null, hadWar: false,
         kompAt: {},
-        rivals: { ss: { infl: 52 + hard, base: 52 + hard }, [others[0]]: { infl: 48 + hard, base: 48 + hard }, [others[1]]: { infl: 44 + hard, base: 44 + hard } } };
+        rivals: { ss: { infl: 54 + hard, base: 54 + hard }, [others[0]]: { infl: 50 + hard, base: 50 + hard }, [others[1]]: { infl: 46 + hard, base: 46 + hard } } };
     }
     return S.suc;
   },
@@ -738,6 +752,8 @@ Game.applyHooks.push((fx, ch) => {
   if (fx.sucRival) for (const [k, d] of Object.entries(fx.sucRival)) if (U.rivals[k]) { const b = U.rivals[k].infl; U.rivals[k].infl = clamp(b + d, 22, 95); add(U.rivals[k].infl - b, `Влияние: ${RIVALS_D[k].short}`, '⚖️'); }
   if (fx.sucPact) U.pact = fx.sucPact;
   if (fx.sucLostTo) U.lostTo = fx.sucLostTo;
+  if (fx.colSet) { const [k, d] = fx.colSet, T = Game.col()[k]; if (T) { if (d.ctrl) T.ctrl = clamp(T.ctrl + d.ctrl); if (d.unrest) T.unrest = clamp(T.unrest + d.unrest); if (d.auto) T.auto = true; if (d.left) { T.left = true; T.ctrl = 0; } add(d.ctrl || 0, `Контроль: ${COL_D[k].short}`, '🗺️'); add(-(d.unrest || 0), `Спокойствие: ${COL_D[k].short}`, '🕊️'); } }
+  if (fx.cwSet) { const C = Game.cw70(); for (const [k, d] of Object.entries(fx.cwSet)) { const b = C[k]; C[k] = clamp(C[k] + d); add(k === 'arms' ? C[k] - b : -(C[k] - b), { japan: 'Разрядка с Токио', usa: 'Разрядка с Вашингтоном', arms: 'Паритет вооружений', ju: 'Согласие Токио и Вашингтона' }[k], '☢️'); } }
   if (fx.sucCtrl && U.war) { const b = U.war.ctrl; U.war.ctrl = clamp(b + fx.sucCtrl); add(U.war.ctrl - b, 'Контроль над Рейхом', '🗺️'); }
   if (fx.sucWar) Game.sucStartWar(fx.sucWar);
   if (fx.sucWin) Game.sucWin(fx.sucWin);
@@ -752,6 +768,8 @@ Game.previewHooks.push((fx, out) => {
   if (fx.sucRival) for (const [k, d] of Object.entries(fx.sucRival)) first.push({ icon: '⚖️', d: -d, label: `Влияние: ${RIVALS_D[k].short}`, text: `${RIVALS_D[k].short} ${sign(d)}` });
   if (fx.sucCtrl) first.push({ icon: '🗺️', d: fx.sucCtrl, label: 'Контроль над Рейхом', text: `контроль ${sign(fx.sucCtrl)}` });
   if (fx.sucPact) first.push({ icon: '🤝', d: 1, label: 'Союз', text: 'союз' });
+  if (fx.colSet) { const [k, d] = fx.colSet; if (d.ctrl) first.push({ icon: '🗺️', d: d.ctrl, label: 'Контроль', text: `контроль ${sign(d.ctrl)}` }); if (d.unrest) first.push({ icon: '🔥', d: -d.unrest, label: 'Волнения', text: `волнения ${sign(d.unrest)}` }); if (d.auto) first.push({ icon: '📜', d: 1, label: 'Самоуправление', text: 'самоуправление' }); if (d.left) first.push({ icon: '🚪', d: -1, label: 'Уход', text: 'владение потеряно' }); }
+  if (fx.cwSet) for (const [k, d] of Object.entries(fx.cwSet)) first.push({ icon: '☢️', d: k === 'arms' ? d : -d, label: k, text: `${{ japan: 'напряжённость с Токио', usa: 'напряжённость с Вашингтоном', arms: 'паритет', ju: 'вражда Токио и Вашингтона' }[k]} ${sign(d)}` });
   if (fx.sucHealth) first.push({ icon: '🩺', d: fx.sucHealth, label: 'Здоровье Фюрера', text: `здоровье Фюрера ${sign(fx.sucHealth)}` });
   out.unshift(...first);
 });
@@ -765,16 +783,17 @@ Object.assign(Game, {
   },
   sucWin(how) {
     const U = Game.suc();
-    U.phase = 'rule'; U.wonBy = how; U.war = U.war ? { ...U.war, over: true } : null;
+    U.phase = 'rule'; U.wonBy = how; U.wonAt = S.turn; U.war = U.war ? { ...U.war, over: true } : null;
     U.ownFunds = Math.round(S.treasury); S.treasury = (how === 'war' ? 45 : 75) + Math.max(0, Math.round(S.treasury / 3)); darkNames(); // теперь в вашем распоряжении казна Рейха
     if (how === 'war') { S.economy = clamp(S.economy - 6); S.fac.new.s = clamp(S.fac.new.s - (U.war && U.war.enemy === 'ss' ? 18 : 4)); }
     Game.log(how === 'peace' ? 'Сенат партии назвал вас преемником.' : 'Гражданская война окончена. Власть в ваших руках.');
   },
 });
 // Пока жив Фюрер и пока идёт война, обычных путчей и революций нет: их место занимают арест и исход войны
+const DARK_HARD = 1.15; // эта версия чуть жёстче основной игры
 const _coupRiskD = Game.coupRisk, _revRiskD = Game.revRisk;
-Game.coupRisk = function () { if (!isDark()) return _coupRiskD.call(Game); const U = Game.suc(); return U.phase === 'rule' ? _coupRiskD.call(Game) : U.phase === 'wait' ? clamp(Math.max(0, U.expo - 55) / 150, 0, 0.3) : 0; };
-Game.revRisk = function () { if (!isDark()) return _revRiskD.call(Game); return Game.suc().phase === 'rule' ? _revRiskD.call(Game) : 0; };
+Game.coupRisk = function () { if (!isDark()) return _coupRiskD.call(Game); const U = Game.suc(); return U.phase === 'rule' ? clamp(_coupRiskD.call(Game) * DARK_HARD, 0, 0.5) : U.phase === 'wait' ? clamp(Math.max(0, U.expo - 55) / 150, 0, 0.3) : 0; };
+Game.revRisk = function () { if (!isDark()) return _revRiskD.call(Game); return Game.suc().phase === 'rule' ? clamp(_revRiskD.call(Game) * DARK_HARD, 0, 0.5) : 0; };
 Game.forcedList.push(() => {
   if (!isDark() || S.over) return null;
   const U = Game.suc();
@@ -786,6 +805,7 @@ Game.forcedList.push(() => {
   }
   return null;
 });
+Game.forcedList.push(() => (isDark() && !S.over && Game.suc().phase === 'rule' && Game.suc().courseAsked ? Game.cw70Crisis() : null));
 Game.forcedList.push(() => (isDark() && !S.over && Game.suc().phase === 'rule' && !Game.suc().triumph && !Game.suc().courseAsked ? Game.sucTriumphScene() : null));
 Game.forcedList.push(() => (isDark() && !S.over && Game.suc().phase === 'rule' && !Game.suc().courseAsked ? Game.sucCourseScene() : null));
 // Арест вместо путча, пока идёт борьба
@@ -838,7 +858,7 @@ Game.quarterHooks.push(rep => {
     U.health = clamp(U.health - rnd(2.2, 3.8));
     if (S.turn >= 23) U.health = Math.min(U.health, 0);
     S.fear = clamp(Math.max(S.fear + 1, 50));
-    U.expo = clamp(U.expo - 2 + (S.fac.new.a < 25 ? 1 : 0));
+    U.expo = clamp(U.expo - 1.5 + (S.fac.new.a < 25 ? 1 : 0));
     for (const [k, R] of Object.entries(U.rivals)) {
       const F = S.fac[RIVALS_D[k].fac];
       R.base = (R.base || 45) + 0.3; // чем ближе «день икс», тем плотнее соперники собирают своих
@@ -855,13 +875,15 @@ Game.quarterHooks.push(rep => {
     rep.lines.push(`Сводка с фронта: под вашим контролем ${Math.round(W.ctrl)}% Рейха (${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(0)} за квартал).`);
     rep.warn.push('Идёт гражданская война: хозяйство разрушается, казна тает.');
   } else if (U.phase === 'rule') {
+    Game.colQuarter(rep); Game.cw70Quarter(rep);
     if (U.course === 'thaw') { S.fac.new.s = clamp(S.fac.new.s - 0.8); S.fear = clamp(S.fear - 0.5); }
     if (U.course === 'old') S.economy = clamp(S.economy - 0.4);
   }
   rep.lines = rep.lines.map(moveTextD); rep.warn = rep.warn.map(moveTextD);
 });
 // Хозяйство Рейха стоит на вывозе с Востока. Отказ от него — правильный и дорогой.
-Game.incomeHooks.push(() => (isDark() && Game.suc().phase === 'rule' ? { label: 'Вывоз с Востока', v: Game.suc().course === 'thaw' ? 8 : 18 } : null));
+Game.incomeHooks.push(() => (isDark() && Game.suc().phase === 'rule' ? { label: 'Вывоз из владений', v: Game.colIncome() } : null));
+Game.incomeHooks.push(() => (isDark() && Game.suc().phase === 'rule' && Game.colUpkeep() ? { label: 'Гарнизоны во владениях', v: -Game.colUpkeep() } : null));
 // Пока вы претендент, казны у вас нет: только средства ведомства и взносы тех, кто на вас ставит
 const _budgetCalcD = Game.budgetCalc, _budgetFxD = Game.budgetEffects;
 Game.budgetCalc = function () {
@@ -877,7 +899,7 @@ Game.budgetEffects = function () {
   return { tot: { army: 0, fear: 0, support: 0, economy: 0 }, fac: { hawks: { a: 0, s: 0 }, liberals: { a: 0, s: 0 }, left: { a: 0 }, oligarchs: { a: 0 }, faith: { a: 0 } }, items: {} };
 };
 // Бюджет и распоряжения появляются только у главы Рейха; агитация — только у претендента
-Game.tabHidden = t => isDark() && ((['budget', 'decrees'].includes(t) && Game.suc().phase !== 'rule') || (t === 'agit' && Game.suc().phase === 'rule'));
+Game.tabHidden = t => isDark() && ((['budget', 'decrees', 'colony', 'cw70'].includes(t) && Game.suc().phase !== 'rule') || (['agit', 'suc'].includes(t) && Game.suc().phase === 'rule'));
 const darkPre = () => isDark() && Game.suc().phase !== 'rule';
 // Пока вы претендент, ваши люди делают для вас другое, чем министры для главы государства
 const ROLES_W = {
@@ -893,6 +915,105 @@ const darkNames = () => {
   STAT_NAMES.treasury = pre ? 'Ваши фонды' : 'Казна Рейха';
   for (const r of Object.keys(ROLES_D)) Object.assign(ROLES[r], pre ? ROLES_W[r] : ROLES_D[r]);
 };
+
+// ---------- скелеты механик правителя ----------
+// «Больной человек Европы»: владения Рейха. Империя не может ни удержать завоёванное, ни отпустить.
+const COL_D = {
+  ost: { name: 'Рейхскомиссариат Остланд', short: 'Остланд', what: 'лес, сланцы, порты Балтики', y: 4, ctrl: 75, unrest: 30 },
+  ukr: { name: 'Рейхскомиссариат Украина', short: 'Украина', what: 'зерно, уголь, руда', y: 8, ctrl: 65, unrest: 45 },
+  mos: { name: 'Рейхскомиссариат Московия', short: 'Московия', what: 'лес и рабочая сила', y: 5, ctrl: 50, unrest: 60 },
+  kav: { name: 'Рейхскомиссариат Кавказ', short: 'Кавказ', what: 'нефть', y: 7, ctrl: 60, unrest: 50 },
+  afr: { name: 'Германская Центральная Африка', short: 'Африка', what: 'уран, медь, каучук', y: 3, ctrl: 55, unrest: 40 },
+};
+Object.assign(Game, {
+  col() { const U = Game.suc(); if (!U.col) U.col = Object.fromEntries(Object.entries(COL_D).map(([k, d]) => [k, { ctrl: d.ctrl, unrest: d.unrest, auto: false, left: false, lost: false }])); return U.col; },
+  colHeld(k) { const T = Game.col()[k]; return !T.left && !T.lost; },
+  colYield(k) { const T = Game.col()[k]; return Game.colHeld(k) ? COL_D[k].y * T.ctrl / 100 * (T.auto ? 0.7 : 1) * (Game.suc().course === 'thaw' ? 0.6 : 1) : 0; },
+  colIncome() { return Math.round(Object.keys(COL_D).reduce((a, k) => a + Game.colYield(k), 0) * 10) / 10; },
+  colUpkeep() { return Object.keys(COL_D).reduce((a, k) => a + (Game.colHeld(k) ? 1 + (Game.col()[k].unrest >= 60 ? 1 : 0) : 0), 0); },
+  colActions(k) {
+    const T = Game.col()[k], D = COL_D[k];
+    if (!Game.colHeld(k)) return [];
+    return [
+      { id: 'garrison', name: 'Усилить гарнизоны', cost: '−10 млн', ok: S.treasury >= 10, fx: { treasury: -10, army: -2, rel: { usa: -2 }, colSet: [k, { ctrl: 10, unrest: -4 }] } },
+      { id: 'auto', name: 'Дать самоуправление', cost: T.auto ? 'уже дано' : '', ok: !T.auto, fx: { fac: { liberals: { a: 5 }, new: { a: -6 }, hawks: { a: -3 } }, rel: { usa: 3 }, colSet: [k, { unrest: -18, ctrl: -5, auto: true }] } },
+      { id: 'leave', name: 'Уйти', cost: '', ok: true, danger: true, fx: { fac: { hawks: { a: -10 }, new: { a: -10 }, faith: { a: -6 }, liberals: { a: 8 } }, rel: { usa: 6 }, support: 2, colSet: [k, { left: true }] } },
+    ];
+  },
+  colAction(k, id) {
+    const a = Game.colActions(k).find(x => x.id === id);
+    if (!a || !a.ok || !Game.spend()) return null;
+    const changes = Game.apply(a.fx);
+    const text = `${COL_D[k].short}: ${{ garrison: 'гарнизоны усилены. Стало тише. Надолго ли — зависит не от гарнизонов.', auto: 'объявлено местное самоуправление. Вывоз сократится, стрельба — тоже.', leave: 'администрация и войска выведены. На карте Рейха стало одним цветом меньше.' }[id]}`;
+    Game.log(text);
+    return { text, changes };
+  },
+  colQuarter(rep) {
+    const U = Game.suc();
+    for (const k of Object.keys(COL_D)) {
+      if (!Game.colHeld(k)) continue;
+      const T = Game.col()[k];
+      T.unrest = clamp(T.unrest + 0.9 + rnd(-1, 1.6) + (U.course === 'old' ? 0.5 : U.course === 'thaw' ? -0.4 : 0) - (T.auto ? 0.8 : 0) + (S.army < 45 ? 0.8 : 0));
+      T.ctrl = clamp(T.ctrl + (48 - T.unrest) / 14 - 0.4);
+      if (T.ctrl <= 12) {
+        T.lost = true;
+        S.support = clamp(S.support - 3); S.fac.hawks.a = clamp(S.fac.hawks.a - 7); S.fac.new.a = clamp(S.fac.new.a - 5); S.army = clamp(S.army - 3);
+        rep.warn.push(`${COL_D[k].name} потерян: гарнизоны отошли к границе, администрация бежала. Армия и СС винят вас.`);
+      } else if (T.unrest >= 70) rep.warn.push(`${COL_D[k].short}: восстание разрастается, контроль ${Math.round(T.ctrl)}%.`);
+    }
+  },
+  // Холодная война трёх держав: Рейх, Япония, США. Когда двое договариваются, третьему хуже.
+  cw70() { const U = Game.suc(); if (!U.cw) U.cw = { japan: 55, usa: 60, ju: 50, arms: 50, crisisAt: -9 }; return U.cw; },
+  cw70Actions() {
+    const C = Game.cw70();
+    return [
+      { id: 'arms', name: 'Гонка вооружений', desc: 'Ракеты, лодки, бомбардировщики. Паритет растёт, хозяйство платит, напряжённость растёт со всеми.', cost: '−15 млн', ok: S.treasury >= 15, fx: { treasury: -15, economy: -1, fac: { hawks: { a: 3 } }, cwSet: { arms: 8, japan: 3, usa: 3 } } },
+      { id: 'detj', name: 'Разрядка с Токио', desc: 'Комиссии, горячая линия, отвод войск от линии раздела. Вашингтон заподозрит сговор.', cost: '−5 млн', ok: S.treasury >= 5, fx: { treasury: -5, rel: { japan: 5 }, fac: { hawks: { a: -3 } }, cwSet: { japan: -10, usa: 4 } } },
+      { id: 'detu', name: 'Разрядка с Вашингтоном', desc: 'Зерно в обмен на списки интернированных и сокращение ракет. Токио заподозрит сговор, СС — измену.', cost: '−5 млн', ok: S.treasury >= 5, fx: { treasury: -5, rel: { usa: 5 }, fac: { new: { a: -5 }, liberals: { a: 3 } }, cwSet: { usa: -10, japan: 4 } } },
+      { id: 'play', name: 'Стравить Токио и Вашингтон', desc: 'Утечки, перехваты, подставные инциденты на Тихом океане. Если поверят — им станет не до вас.', cost: '', ok: true, odds: 0.5, fx: {}, win: { cwSet: { ju: 12 } }, lose: { cwSet: { japan: 6, usa: 6 } } },
+    ];
+  },
+  cw70Action(id) {
+    const a = Game.cw70Actions().find(x => x.id === id);
+    if (!a || !a.ok || !Game.spend()) return null;
+    let fx = { ...a.fx }, text = a.name + '. ';
+    if (a.odds !== undefined) { const ok = Math.random() < a.odds; fx = Game.mergeFxD(fx, ok ? a.win : a.lose); text += ok ? 'Они поверили. В Токио и Вашингтоне отзывают послов друг у друга.' : 'Подлог раскрыт. Обе столицы требуют объяснений от Берлина.'; }
+    else text += a.desc.split('. ')[0] + '.';
+    const changes = Game.apply(fx);
+    Game.log(text);
+    return { text, changes };
+  },
+  cw70Quarter(rep) {
+    const C = Game.cw70();
+    C.ju = clamp(C.ju + rnd(-3, 3) + (50 - C.ju) * 0.04);
+    const third = C.ju >= 65 ? -0.6 : C.ju <= 35 ? 0.7 : 0; // враждуют — ищут вашей дружбы; сговорились — давят вместе
+    for (const k of ['japan', 'usa']) C[k] = clamp(C[k] + 0.7 + rnd(-1, 1.4) + third + ((S.rel[k] || 40) < 30 ? 0.5 : (S.rel[k] || 40) > 60 ? -0.8 : 0) + (C.arms < 35 ? 0.6 : 0));
+    C.arms = clamp(C.arms - 0.8);
+    if (C.arms < 35) { S.fac.hawks.a = clamp(S.fac.hawks.a - 1); rep.warn.push('Паритет вооружений потерян: генералы требуют денег на ракеты.'); }
+    if (Math.max(C.japan, C.usa) >= 75) rep.warn.push(`Холодная война: напряжённость с ${C.japan >= C.usa ? 'Токио' : 'Вашингтоном'} опасно высока.`);
+  },
+  cw70Crisis() {
+    const C = Game.cw70(), k = C.japan >= C.usa ? 'japan' : 'usa';
+    if (C[k] < 85 || S.turn - C.crisisAt < 6) return null;
+    C.crisisAt = S.turn;
+    const J = k === 'japan';
+    return {
+      title: J ? 'Сибирский кризис' : 'Атлантический кризис', bg: 'night', crisis: true,
+      lines: [
+        ['narrator', J ? 'Японские дивизии развёрнуты вдоль линии раздела. Токио требует отвести германские войска на двести километров в течение сорока восьми часов.' : 'Американский флот блокировал подходы к Исландии и требует убрать германские ракеты с побережья Норвегии. Срок — сорок восемь часов.'],
+        ['defense', `Паритет по нашим подсчётам — ${Math.round(C.arms)} из ста. ${C.arms >= 50 ? 'Мы можем ответить.' : 'Ответить нам почти нечем, и они это знают.'}`],
+        ['foreign', 'Если отступим, это увидят все: Рим, Мадрид, гауляйтеры и наши собственные генералы.'],
+      ],
+      choices: [
+        { text: 'Отступить', adv: ['foreign'], fx: { support: -4, fac: { hawks: { a: -10 }, new: { a: -6 }, liberals: { a: 4 } }, cwSet: { [k]: -25 } }, res: 'Войска отведены. Газеты пишут о «мудрой сдержанности». Генералы не пишут ничего и не здороваются.' },
+        { text: 'Стоять до конца', adv: ['defense'], chance: () => clamp(0.25 + C.arms / 130, 0.2, 0.8),
+          win: { fx: { support: 5, fac: { hawks: { a: 8 } }, cwSet: { [k]: -20 } }, res: 'На сорок шестом часу они отошли первыми. Весь мир два дня не дышал.' },
+          lose: { fx: C.arms < 25 && Math.random() < 0.3 ? { end: 'atomic' } : { army: -8, economy: -5, support: -6, fac: { hawks: { a: -6 } }, cwSet: { [k]: -10 } }, res: 'Они не отошли. Был бой: короткий, проигранный, не ставший большой войной только потому, что обе стороны испугались одновременно.' } },
+      ],
+      after: darkEnd,
+    };
+  },
+});
 
 // ---------- финалы ----------
 Game.endingHooks.push((type, E, verdicts) => {
@@ -917,6 +1038,7 @@ Game.endingHooks.push((type, E, verdicts) => {
     helicopter: ['Бегство', `Вы живёте в ${ex} под чужой фамилией. Испанцы не выдают вас, пока это им выгодно.`],
     coup: ['Свергнут', 'Вас сместили ночью, как вы и сами когда-то рассчитывали сместить других. Сообщение в газетах заняло четыре строки: «по состоянию здоровья».'],
     revolution: ['Стачка победила', 'Оцепление расступилось. Правительственный квартал заняли без выстрела. Вас судил открытый суд — первый открытый суд в этой стране за сорок лет. На нём впервые вслух зачитали то, что лежало в папке «О положении на Востоке».'],
+    atomic: ['Последняя война', 'Никто не узнает, кто нажал первым. Сводка верховного командования в этот день не вышла: некому было её составить и некому читать.'],
     retired: ['Ушёл', 'Вы передали дела и уехали в поместье. Вас не тронули. Это всё, что можно сказать.'],
   }[type];
   if (T) { E.title = T[0]; E.text = T[1]; }
@@ -961,6 +1083,36 @@ UI.pressPage = async function (news) {
 
 // ---------- вкладка ----------
 Object.assign(UI, {
+  tab_colony() {
+    const held = Object.keys(COL_D).filter(k => Game.colHeld(k)).length;
+    return `<p class="lede">«Больным человеком Европы» Рейх называют в Вашингтоне и Токио: империя, которая не может ни удержать завоёванное, ни отпустить. Владения кормят хозяйство вывозом и съедают его гарнизонами. Волнения растут сами; когда контроль падает ниже 12%, владение потеряно, и армия с СС винят вас.</p>
+      <p class="muted small dk-draft">Набросок механики: правила будут дополняться.</p>
+      <section class="card"><div class="eyebrow">Баланс владений за квартал</div><div class="sp-facts"><span class="chip coopted">вывоз +${String(Game.colIncome()).replace('.', ',')} млн</span><span class="chip banned">гарнизоны −${Game.colUpkeep()} млн</span><span class="chip">удерживается ${held} из 5</span></div></section>
+      <div class="grid mt">${Object.keys(COL_D).map(k => {
+        const D = COL_D[k], T = Game.col()[k], gone = !Game.colHeld(k);
+        return `<article class="card country ${gone ? 'dk-gone' : ''}"><header><div><h3>${esc(D.name)}</h3><span class="muted small">${esc(D.what)}</span></div><span class="chip ${gone ? 'banned' : T.auto ? 'coopted' : ''}">${T.left ? 'оставлен' : T.lost ? 'потерян' : T.auto ? 'самоуправление' : 'под управлением'}</span></header>
+          ${gone ? '<p class="muted small">Здесь больше нет германской администрации.</p>' : `${UI.meter('Контроль', T.ctrl, T.ctrl >= 60 ? 'good' : T.ctrl >= 35 ? 'warn' : 'bad')}${UI.meter('Волнения', T.unrest, T.unrest >= 60 ? 'bad' : T.unrest >= 40 ? 'warn' : 'good')}
+          <p class="muted small">Вывоз: +${Game.colYield(k).toFixed(1).replace('.', ',')} млн из ${D.y} возможных. Гарнизон: −${1 + (T.unrest >= 60 ? 1 : 0)} млн.</p>
+          <div class="acts">${Game.colActions(k).map(a => UI.actBtn(`col:${k}:${a.id}`, a)).join('')}</div>`}</article>`; }).join('')}</div>`;
+  },
+  tab_cw70() {
+    const C = Game.cw70(), acts = Game.cw70Actions();
+    const tri = C.ju >= 65 ? 'Токио и Вашингтон на ножах: обоим нужна ваша благосклонность, напряжённость с вами спадает.' : C.ju <= 35 ? 'Токио и Вашингтон договорились между собой. Давят на вас вместе.' : 'Токио и Вашингтон следят друг за другом не меньше, чем за вами.';
+    return `<p class="lede">Три державы, три арсенала. Япония держит Тихий океан и Сибирь, США — Атлантику, Рейх — Европу. Напряжённость растёт сама; когда она с кем-то доходит до 85, наступает кризис. Паритет вооружений тает каждый квартал: его приходится оплачивать. Когда двое договариваются, третьему хуже.</p>
+      <p class="muted small dk-draft">Набросок механики: правила будут дополняться.</p>
+      <div class="cr">
+        <section class="card" style="flex:1.2"><div class="eyebrow">Напряжённость</div>
+          ${UI.meter('Рейх — Япония', C.japan, C.japan >= 75 ? 'bad' : C.japan >= 55 ? 'warn' : 'good')}
+          ${UI.meter('Рейх — США', C.usa, C.usa >= 75 ? 'bad' : C.usa >= 55 ? 'warn' : 'good')}
+          ${UI.meter('Япония — США', C.ju, 'str')}
+          <p class="muted small">${tri}</p></section>
+        <section class="card cr-side">${UI.meter('Паритет вооружений', C.arms, C.arms >= 50 ? 'good' : C.arms >= 35 ? 'warn' : 'bad')}
+          <p class="muted small">Ниже 35 — генералы недовольны, а противники давят сильнее. В кризисе от паритета зависит, кто отступит первым.</p></section>
+      </div>
+      <div class="proj dec-grid mt">${acts.map(a => `<div class="proj-item dec"><div class="dec-main"><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p>
+        <div class="dec-fx">${Object.keys(a.fx).length ? `<div class="dec-row"><span class="dec-tag">Сразу</span>${UI.fxChips(Game.previewFx(a.fx))}</div>` : ''}${a.odds !== undefined ? `<div class="dec-row"><span class="dec-tag">Удача ${Math.round(a.odds * 100)}%</span>${UI.fxChips(Game.previewFx(a.win))}</div><div class="dec-row"><span class="dec-tag dec-risk">Провал</span>${UI.fxChips(Game.previewFx(a.lose))}</div>` : ''}</div></div>
+        ${UI.actBtn('cw7:' + a.id, { ok: a.ok, name: 'Приказать', cost: a.cost })}</div>`).join('')}</div>`;
+  },
   tab_agit() {
     const U = Game.suc(), acts = Game.agitActions(), war = U.phase === 'war';
     const F = REGIONS.reich70.factions;
@@ -1007,6 +1159,12 @@ Object.assign(UI, {
   },
 });
 UI.actionHandlers = UI.actionHandlers || [];
+UI.actionHandlers.push(id => {
+  if (!id.startsWith('col:') && !id.startsWith('cw7:')) return false;
+  const out = id.startsWith('col:') ? Game.colAction(id.split(':')[1], id.split(':')[2]) : Game.cw70Action(id.slice(4));
+  if (out) { UI.render(); UI.toast(out.text, out.changes); }
+  return true;
+});
 UI.actionHandlers.push(id => {
   if (!id.startsWith('agit:')) return false;
   const out = Game.agitAction(id.slice(5));
