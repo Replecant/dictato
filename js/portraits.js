@@ -122,6 +122,21 @@ const Portrait = (() => {
         if (br !== 'heer') s += `<path d="M163 212 L190 220 L192 240 L160 240 Z" fill="#b3141c"/><circle cx="177" cy="229" r="7" fill="#fff"/><g transform="rotate(45 177 229)" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M177 225 V233 M173 229 H181"/><path d="M177 225 H180.2 M181 229 V232.2 M177 233 H173.8 M173 229 V225.8"/></g>`;
         break;
       }
+      case 'mantle': { // мантия мага: высокий воротник, кайма, застёжка-звезда
+        const tr = p.trim || '#c9a640';
+        s += `<path d="M62 204 L80 164 L92 202 Z" fill="${d}"/><path d="M138 204 L120 164 L108 202 Z" fill="${d}"/>`;
+        s += `<path d="M82 190 L100 232 L118 190 L112 187 L100 216 L88 187 Z" fill="${tr}"/>`;
+        s += `<path d="M30 240 L52 204 L60 240 Z M170 240 L148 204 L140 240 Z" fill="${shade(c, -22)}"/>`;
+        s += `<path d="M100 207 L102.5 213 L109 213.5 L104 217.5 L105.5 224 L100 220.5 L94.5 224 L96 217.5 L91 213.5 L97.5 213 Z" fill="${tr}" stroke="${shade(c, -50)}" stroke-width="0.8"/>`;
+        break;
+      }
+      case 'plate': { // латы: горжет, наплечники, заклёпки
+        const st = p.steel || '#9aa0a6';
+        s += `<path d="M76 184 Q100 204 124 184 L128 202 Q100 222 72 202 Z" fill="${st}" stroke="${shade(st, -45)}" stroke-width="1.5"/>`;
+        s += `<ellipse cx="40" cy="206" rx="30" ry="14" fill="${st}" stroke="${shade(st, -45)}" stroke-width="1.5" transform="rotate(14 40 206)"/><ellipse cx="160" cy="206" rx="30" ry="14" fill="${st}" stroke="${shade(st, -45)}" stroke-width="1.5" transform="rotate(-14 160 206)"/>`;
+        s += `<path d="M100 216 V240" stroke="${shade(st, -45)}" stroke-width="2"/>` + [[28, 204], [52, 210], [148, 210], [172, 204]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="${shade(st, -55)}"/>`).join('');
+        break;
+      }
       case 'gunpuku': { // мундир императорской армии: отложной воротник, красные петлицы со звёздами
         const metal = '#c9a640', tab = '#b3141c';
         s += `<path d="M100 200 L100 240" stroke="${d}" stroke-width="2"/>` + [210, 222, 234].map(y => `<circle cx="100" cy="${y}" r="2.7" fill="${metal}"/>`).join('');
@@ -230,6 +245,7 @@ const Portrait = (() => {
     let s = '';
     if (p.hair === 'afro' && (!p.hat || p.hat === 'none')) s += `<ellipse cx="100" cy="86" rx="66" ry="54" fill="${p.hairColor}"/>`;
     s += `<ellipse cx="51" cy="114" rx="9" ry="13" fill="${sk}"/><ellipse cx="149" cy="114" rx="9" ry="13" fill="${sk}"/>`;
+    if (p.ears === 'elf') s += `<path d="M43 122 L26 82 L58 104 Z" fill="${sk}"/><path d="M157 122 L174 82 L142 104 Z" fill="${sk}"/><path d="M44 116 L33 92" stroke="${dk}" stroke-width="1.6"/><path d="M156 116 L167 92" stroke="${dk}" stroke-width="1.6"/>`;
     switch (p.face) {
       case 'round': s += `<ellipse cx="100" cy="112" rx="52" ry="51" fill="${sk}"/>`; break;
       case 'square': s += `<path d="M53 82 Q53 56 100 56 Q147 56 147 82 L147 130 Q147 166 100 168 Q53 166 53 130 Z" fill="${sk}"/>`; break;
@@ -243,6 +259,9 @@ const Portrait = (() => {
     // глаза
     if (p.eyes === 'sleepy') {
       s += `<path d="M76 108 Q83 112 90 108" stroke="#1d1d1d" stroke-width="3" fill="none"/><path d="M110 108 Q117 112 124 108" stroke="#1d1d1d" stroke-width="3" fill="none"/>`;
+    } else if (p.eyeGlow) { // нежить и те, кто слишком долго смотрел в Бездну
+      s += `<ellipse cx="83" cy="106" rx="7" ry="7.5" fill="#12161a"/><ellipse cx="117" cy="106" rx="7" ry="7.5" fill="#12161a"/>`;
+      s += `<circle cx="83" cy="106" r="5.5" fill="${p.eyeGlow}" opacity="0.3"/><circle cx="117" cy="106" r="5.5" fill="${p.eyeGlow}" opacity="0.3"/><circle cx="83" cy="106" r="2.6" fill="${p.eyeGlow}"/><circle cx="117" cy="106" r="2.6" fill="${p.eyeGlow}"/>`;
     } else {
       s += `<ellipse cx="83" cy="106" rx="4.5" ry="5.5" fill="#1d1d1d"/><ellipse cx="117" cy="106" rx="4.5" ry="5.5" fill="#1d1d1d"/>`;
       s += `<circle cx="84.5" cy="104" r="1.4" fill="#fff"/><circle cx="118.5" cy="104" r="1.4" fill="#fff"/>`;
@@ -301,10 +320,10 @@ const Portrait = (() => {
         break;
     }
     // причёска: рисуется для овального лица и подгоняется под форму головы
-    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki';
+    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki' && p.hat !== 'circlet';
     let hair = p.hair;
     if (hatOn) {
-      if (['keffiyeh', 'hijab'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
+      if (['keffiyeh', 'hijab', 'hood'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
       else if (p.hat === 'lamahat' || p.hat === 'furhat') hair = hair === 'bald' ? 'none' : 'baldside';
       else if (hair === 'curly' || hair === 'romantic') hair = 'curlyside';
       else if (['bun', 'gelled', 'slick'].includes(hair)) hair = 'short';
@@ -343,6 +362,16 @@ const Portrait = (() => {
           `<path d="M84 30 Q92 24 100 30 Q108 24 116 30 M100 28 V38" stroke="${metal}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="100" cy="41" r="2.4" fill="${metal}"/>` +
           (p.branch === 'ss' ? `<circle cx="100" cy="64" r="4.6" fill="#e8e8e4"/><circle cx="98.2" cy="63.4" r="1" fill="#111"/><circle cx="101.8" cy="63.4" r="1" fill="#111"/>` : `<circle cx="100" cy="64" r="4.6" fill="#101010"/><circle cx="100" cy="64" r="3" fill="#f4f1ea"/><circle cx="100" cy="64" r="1.5" fill="#b3141c"/><path d="M92 66 Q94 71 100 71 Q106 71 108 66" stroke="${metal}" stroke-width="1.4" fill="none"/>`);
       }
+      case 'wizard': { // остроконечная шляпа с полями
+        const band = p.hatBand || '#c9a640';
+        return `<ellipse cx="100" cy="72" rx="80" ry="13" fill="${d}"/><path d="M56 70 Q74 34 98 6 Q104 0 112 10 Q104 12 108 22 Q126 44 144 70 Q100 60 56 70 Z" fill="${c}"/>` +
+          `<path d="M60 64 Q100 54 140 64 L143 70 Q100 60 57 70 Z" fill="${band}"/>` +
+          `<path d="M100 34 L102.2 39.5 L108 40 L103.6 43.6 L105 49.2 L100 46 L95 49.2 L96.4 43.6 L92 40 L97.8 39.5 Z" fill="${band}"/>`;
+      }
+      case 'hood': // капюшон
+        return `<path d="M36 158 Q22 58 100 26 Q178 58 164 158 L146 158 Q152 98 100 72 Q48 98 54 158 Z" fill="${c}"/><path d="M54 158 Q48 98 100 72 Q152 98 146 158" fill="none" stroke="${d}" stroke-width="3"/>`;
+      case 'circlet': // обруч с камнем
+        return `<path d="M50 80 Q100 62 150 80" stroke="${p.hatMetal || '#c9a640'}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M100 58 L106 69 L100 79 L94 69 Z" fill="${p.gem || '#7fe0c0'}" stroke="${p.hatMetal || '#c9a640'}" stroke-width="1.2"/>`;
       case 'gunbo': { // фуражка императорской армии: красный околыш, золотая звезда
         const star = (x, y, r) => `<path d="M${x} ${y - r} L${x + r * 0.3} ${y - r * 0.3} L${x + r} ${y - r * 0.3} L${x + r * 0.45} ${y + r * 0.2} L${x + r * 0.65} ${y + r} L${x} ${y + r * 0.5} L${x - r * 0.65} ${y + r} L${x - r * 0.45} ${y + r * 0.2} L${x - r} ${y - r * 0.3} L${x - r * 0.3} ${y - r * 0.3} Z" fill="#c9a640"/>`;
         return `<path d="M40 68 Q34 26 100 22 Q166 26 160 68 Z" fill="${c}"/><path d="M46 58 Q100 48 154 58 L152 74 Q100 66 48 74 Z" fill="#b3141c"/>` +
@@ -440,6 +469,7 @@ const Portrait = (() => {
   function extras(p) {
     let s = '';
     if (p.cigar) s += `<g transform="rotate(12 120 146)"><rect x="112" y="142" width="38" height="8" rx="3" fill="#6b3e1e"/><rect x="118" y="142" width="6" height="8" fill="#c0392b"/><circle cx="151" cy="146" r="4" fill="#ff6a00"/></g><path d="M160 136 Q168 124 160 114 Q152 104 162 92" stroke="#bbb" stroke-width="2.5" fill="none" opacity="0.7"/>`;
+    if (p.tusks) s += `<path d="M86 152 L84 138 L92 149 Z" fill="#f4f1ea" stroke="#8a8a7a" stroke-width="0.8"/><path d="M114 152 L116 138 L108 149 Z" fill="#f4f1ea" stroke="#8a8a7a" stroke-width="0.8"/>`;
     if (p.sweat) s += `<path d="M150 74 Q156 86 150 92 Q144 86 150 74 Z" fill="#8fd3ff" stroke="#3a8ec2" stroke-width="1"/>`;
     if (p.earring && !['hijab', 'keffiyeh', 'kamilavka', 'helmet'].includes(p.hat)) s += `<circle cx="51" cy="128" r="4" fill="#e2b33c"/><circle cx="149" cy="128" r="4" fill="#e2b33c"/>`;
     if (p.bluetooth) s += `<rect x="146" y="104" width="9" height="18" rx="4" fill="#2a2f36" stroke="#7fd4ff" stroke-width="1"/><path d="M150 122 Q146 134 132 138" stroke="#2a2f36" stroke-width="2.5" fill="none"/><circle cx="151" cy="108" r="1.6" fill="#39e"/>`;

@@ -1352,3 +1352,40 @@ button.dk-card.dk-jp { border-top-color: #8e2a3a; }
 @media (max-width: 760px) { .rl-cards { grid-template-columns: minmax(0, 1fr); } .rl-rod { margin: 0 -6px; } }
 @media (prefers-reduced-motion: reduce) { .rl-wrap, .world-realm .rl-wrap, .rl-scroll, .world-realm .rl-scroll, .sl-body { transition: none; } }
 .rl-main p:last-child { clear: both; }
+
+/* ---------- «Мир, которого нет»: карточка-кнопка и игровая тема Магократии ---------- */
+button.rl-card { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+button.rl-card:hover, button.rl-card:focus-visible { transform: translateY(-2px); outline: none; box-shadow: inset 0 0 0 4px rgba(255, 250, 232, 0.18), inset 0 0 0 5px rgba(90, 70, 30, 0.28), 0 0 0 2px var(--rl-arcane); }
+.rl-card .rl-no, .rl-card .rl-state, .rl-card .rl-p, .rl-card .rl-h3, .rl-go { display: block; }
+.rl-h3 { margin: 4px 0 2px; font: 400 30px/1.05 "Forum", "Old Standard TT", Georgia, serif; color: var(--rl-ink); }
+.rl-card .rl-p { clear: both; font: 15px/1.5 "PT Serif", Georgia, serif; color: var(--rl-ink); }
+.rl-go { margin-top: 12px; font: 400 17px/1 "Forum", Georgia, serif; letter-spacing: 0.08em; color: var(--rl-wine); }
+body[data-era="realm"] { --bg: #15121d; --wood: #1d1928; --panel: #221d30; --panel-2: #2c2640; --fg: #e4dcc4; --muted: #9c93ad; --brass: #c9a85a; --brass-dim: rgba(201, 168, 90, 0.24); --red: #8e2a4a; --green: #6f9a78; --amber: #c08a3a; --f-display: "Forum", "Old Standard TT", Georgia, serif; }
+body[data-era="realm"] .tabs button { letter-spacing: 0.06em; }
+.rm-rank { margin: 2px 0 10px; font: 400 30px/1.1 var(--f-display); }
+.rm-total { display: grid; grid-template-columns: repeat(30, minmax(0, 1fr)); gap: 2px; margin-bottom: 8px; }
+.rm-total i { height: 12px; background: var(--panel-2); border-radius: 1px; } .rm-total i.f { background: var(--brass); }
+.rm-schools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rm-school header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.rm-school header h3 { margin: 0; }
+.rm-circles { display: inline-flex; gap: 4px; flex: none; margin-top: 4px; }
+.rm-circles i { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--brass); } .rm-circles i.f { background: var(--brass); }
+.rm-school .acts { margin: 10px 0 8px; }
+.rm-cap { color: var(--brass); }
+.rm-seats { display: flex; gap: 8px; margin: 8px 0 12px; }
+.rm-seats span { flex: 1; min-width: 0; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 22px; border-radius: 3px; border-bottom: 3px solid var(--red); background: var(--panel-2); }
+.rm-seats span.ok { border-bottom-color: var(--green); } .rm-seats span.toad { border-bottom-color: #6a9a4a; }
+.rm-magi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rm-mage { display: flex; gap: 14px; border-top: 2px solid var(--red); } .rm-mage.ok { border-top-color: var(--green); }
+.rm-face { flex: none; width: 92px; } .rm-face svg { width: 92px; height: auto; display: block; border-radius: 3px; background: var(--panel-2); }
+.rm-mage-b { flex: 1; min-width: 0; } .rm-mage-b header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; } .rm-mage-b h3 { margin: 0; }
+.rm-mage .acts { margin-top: 8px; }
+.rm-np { padding: 22px 26px; background: linear-gradient(180deg, #e9dcb8, #d8c698); color: #2a2118; border-radius: 2px; box-shadow: inset 0 0 40px rgba(110, 80, 30, 0.3); }
+.rm-np-mast { text-align: center; font: 400 40px/1 "Forum", "Old Standard TT", Georgia, serif; letter-spacing: 0.06em; }
+.rm-np-date { margin: 6px 0 14px; padding: 5px 0; text-align: center; border-top: 1px solid #5c4d33; border-bottom: 1px solid #5c4d33; font: 11px/1.3 "PT Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #5c4d33; }
+.rm-np article h3 { margin: 10px 0 4px; font: 400 22px/1.15 "Forum", Georgia, serif; color: #2a2118; } .rm-np article.lead h3 { font-size: 30px; }
+.rm-np article p { margin: 0 0 8px; font: 15.5px/1.5 "PT Serif", Georgia, serif; color: #2a2118; }
+.rm-np-off { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #5c4d33; }
+.rm-np-off b { font: 11px/1 "PT Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #7a2a2a; } .rm-np-off p { margin: 4px 0 0; font: italic 13.5px/1.4 "Old Standard TT", Georgia, serif; color: #2a2118; }
+.rm-np .fx-list { margin-top: 12px; }
+@media (max-width: 900px) { .rm-schools, .rm-magi, .rm-np-off { grid-template-columns: minmax(0, 1fr); } }
