@@ -24,7 +24,10 @@ const isShip = () => !!S && S.era === SHIP;
 // «Вакуум власти»: феодальный дом (js/house.js)
 const HOUSE = 'house';
 const isHouse = () => !!S && S.era === HOUSE;
-const isGloom = () => isDark() || isItal() || isJap() || isRealm() || isBurg() || isCrown() || isShip() || isHouse();
+// «Вакуум власти»: империя тысячи солнц (js/domin.js)
+const DOMIN = 'domin';
+const isDomin = () => !!S && S.era === DOMIN;
+const isGloom = () => isDark() || isItal() || isJap() || isRealm() || isBurg() || isCrown() || isShip() || isHouse() || isDomin();
 
 // ---------- державы ----------
 FLAGS.reich = FLAGS.germany33;
@@ -405,7 +408,7 @@ const moveTextD = line => {
   const t = m && MOVE_D[m[1] === '🤝' ? 'good' : 'bad'][m[2]];
   return t ? `${m[1]} ${m[2]}: ${t}` : Game.eraText(line);
 };
-Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : isRealm() && typeof TR !== 'undefined' ? TR.reduce((a, [f, t]) => a.split(f).join(t), s) : isBurg() && typeof TB !== 'undefined' ? TB.reduce((a, [f, t]) => a.split(f).join(t), s) : isCrown() && typeof TE !== 'undefined' ? TE.reduce((a, [f, t]) => a.split(f).join(t), s) : isShip() && typeof TS !== 'undefined' ? TS.reduce((a, [f, t]) => a.split(f).join(t), s) : isHouse() && typeof TH !== 'undefined' ? TH.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
+Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : isRealm() && typeof TR !== 'undefined' ? TR.reduce((a, [f, t]) => a.split(f).join(t), s) : isBurg() && typeof TB !== 'undefined' ? TB.reduce((a, [f, t]) => a.split(f).join(t), s) : isCrown() && typeof TE !== 'undefined' ? TE.reduce((a, [f, t]) => a.split(f).join(t), s) : isShip() && typeof TS !== 'undefined' ? TS.reduce((a, [f, t]) => a.split(f).join(t), s) : isHouse() && typeof TH !== 'undefined' ? TH.reduce((a, [f, t]) => a.split(f).join(t), s) : isDomin() && typeof TM !== 'undefined' ? TM.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _modalD = Modal.open;
 Modal.open = function (html, ...rest) { return _modalD.call(Modal, Game.eraText(html), ...rest); };
 const _vnPlayD = VN.play;
@@ -441,7 +444,7 @@ Game.advisorAction = function (role, act) {
   if (darkPre() && act === 'act') return Game.darkAdvAct(role);
   const r = _advActD.call(Game, role, act);
   if (r && isGloom() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
-  const advText = isHouse() && typeof ADV_TEXT_H !== 'undefined' ? ADV_TEXT_H : isShip() && typeof ADV_TEXT_S !== 'undefined' ? ADV_TEXT_S : isCrown() && typeof ADV_TEXT_E !== 'undefined' ? ADV_TEXT_E : isBurg() && typeof ADV_TEXT_B !== 'undefined' ? ADV_TEXT_B : isRealm() && typeof ADV_TEXT_R !== 'undefined' ? ADV_TEXT_R : isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
+  const advText = isDomin() && typeof ADV_TEXT_M !== 'undefined' ? ADV_TEXT_M : isHouse() && typeof ADV_TEXT_H !== 'undefined' ? ADV_TEXT_H : isShip() && typeof ADV_TEXT_S !== 'undefined' ? ADV_TEXT_S : isCrown() && typeof ADV_TEXT_E !== 'undefined' ? ADV_TEXT_E : isBurg() && typeof ADV_TEXT_B !== 'undefined' ? ADV_TEXT_B : isRealm() && typeof ADV_TEXT_R !== 'undefined' ? ADV_TEXT_R : isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
   if (r && isGloom() && act === 'act' && advText[role]) { r.text = advText[role]; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
@@ -487,7 +490,7 @@ Game.economyFx = function (id) {
   return r;
 };
 // Требования сил: только бюджетные и свои; общие «указные» требования здесь не к месту
-for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70', 'velentar', 'kislobrod', 'dravenor', 'starship', 'sush'];
+for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70', 'velentar', 'kislobrod', 'dravenor', 'starship', 'sush', 'dominat'];
 FAC_DEMANDS.faith.push({ id: 'dk_gau', kind: 'pay', text: 'Подтвердить привилегии гауляйтеров', fx: { treasury: -8, fac: { liberals: { a: -5 } } }, only: ['reich70'] });
 FAC_DEMANDS.hawks.push({ id: 'dk_ss', kind: 'pay', text: 'Запретить СС вербовку в армейских частях', fx: { fac: { new: { a: -8 } } }, only: ['reich70'] });
 FAC_DEMANDS.oligarchs.push({ id: 'dk_ord', kind: 'act', acts: ['dec:d_orders'], text: 'Разместить военные заказы на заводах концернов', only: ['reich70'] });
@@ -1412,6 +1415,7 @@ UI.actionHandlers.push(id => {
 const KIN_FANTASY = { defense: 'Ваш кузен. Меч носит для красоты, зато носит красиво.', economy: 'Ваш дядя. Считает на пальцах и уверен, что их одиннадцать.', police: 'Ваша родня по матери. Знает все сплетни; половину сочинила сама.', propaganda: 'Ваш племянник. Громкий. Этим его дарования исчерпываются.', foreign: 'Ваш шурин. За границей был однажды, проездом, и рассказывает об этом всем.' };
 const KIN_DARK = { defense: 'Ваш родственник. Предан лично вам. Иных достоинств в личном деле не указано.', economy: 'Ваш родственник. Счёт знает в пределах необходимого. Предан.', police: 'Ваш родственник. Вопросов не задаёт. Ответов тоже не знает.', propaganda: 'Ваш родственник. Говорит то, что велено, и теми же словами.', foreign: 'Ваш родственник. Языков не знает. За границей молчит, что уже немало.' };
 const KIN_BIO = {
+  domin: { defense: 'Ваш племянник. Доспех ему велик, зато начищен до блеска.', economy: 'Ваш кузен. Считает десятину на пальцах. Пальцев у него после службы девять.', police: 'Ваша родня. Ересь видит везде, кроме зеркала.', propaganda: 'Ваш шурин. Проповедует громко и не по теме.', foreign: 'Ваш зять. На окраинах не был: говорит, там сыро.' },
   realm: KIN_FANTASY, burg: KIN_FANTASY, crown: KIN_FANTASY, dark70: KIN_DARK, dark70i: KIN_DARK, dark70j: KIN_DARK,
   ship: { defense: 'Кадет. Вчера из Академии. Оружие держит так, будто оно может обидеться.', economy: 'Кадет. Реактор видел на схеме. Схема была красивая.', police: 'Кадет. Устав знает наизусть. Людей пока не встречал.', propaganda: 'Кадет медслужбы. Анатомию сдал со второго раза, зато честно.', foreign: 'Кадет. Владеет двумя языками; один из них родной.' },
   house: { defense: 'Ваш племянник. Клинок держит уверенно, пока никто не нападает.', economy: 'Ваш кузен. Считать его учили счётчики. Бросили на втором году.', police: 'Ваша родня. Ядов не знает, зато знает всех при дворе, а это почти то же самое.', propaganda: 'Ваш шурин. Поёт. Громко. Просили тише; не умеет.', foreign: 'Ваш зять. При дворе его принимают охотно: он безобиден.' },
@@ -1435,6 +1439,7 @@ Game.fireAdvisor = function (role) {
 // highway: [название, описание, начало, открытие]; print: [название, описание, итог]. {T} — титул в родительном падеже
 const KIN = 'Подрядчик — ваш родич.';
 const GLOOM_ECO = {
+  domin: { highway: ['Собор имени {T}', `Через 3 квартала хозяйство +6. ${KIN}`, 'Собор заложен. Высота по проекту две мили; фундамент уже треснул, это учтено в смете.', 'Освящён собор имени {T}! Родич-подрядчик принёс благодарственную свечу. Свеча включена в счёт.'], print: ['Чрезвычайная десятина', 'Казна +25. Хозяйство −5, народ −2.', 'Десятина собрана дважды. Второй раз — «за прошлый век». Миры заплатили и запомнили.'] },
   house: { highway: ['Караванный тракт имени {T}', `Через 3 квартала хозяйство +6. ${KIN}`, 'Тракт через пески начат. Первый столб вбили вы лично; к утру его занесло.', 'Открыт караванный тракт имени {T}! Родич-подрядчик прислал благодарность и счёт за вывезенный песок.'], print: ['Разбавить монету', 'Казна +25. Хозяйство −5, подданные −2.', 'Монетный двор дома чеканил всю ночь. Солары стали легче. Купцы взвешивают их на ладони и молчат.'] },
   crown: { highway: ['Мост имени {T}', `Через 3 квартала хозяйство +6. ${KIN}`, 'Мост заложен. Первый камень уронили в реку; герольдмейстер объявил это доброй приметой.', 'Открыт мост имени {T}! Подрядчик, ваш шурин, прислал благодарность на гербовом пергаменте.'], print: ['Подмешать меди в монету', 'Казна +25. Хозяйство −5, народ −2.', 'В золотой венец добавили меди. Немного. Менялы заметили к обеду.'] },
   burg: { highway: ['Мостовая имени {T}', `Через 3 квартала хозяйство +6. ${KIN}`, 'Мостить начали с того конца, где живёт подрядчик.', 'Открыта мостовая имени {T}! Шурин-подрядчик прислал пирог.'], print: ['Чеканить гроши полегче', 'Казна +25. Хозяйство −5, горожане −2.', 'Грош стал легче. Торговки пирожками теперь принимают их на вес.'] },

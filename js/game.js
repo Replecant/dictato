@@ -180,7 +180,7 @@ const Game = {
     if (S.era === 'dark70') return (typeof BLOCD !== 'undefined' && BLOCD[c]) || 'neutral';
     if (S.era === 'dark70i') return (typeof BLOCI !== 'undefined' && BLOCI[c]) || 'neutral';
     if (S.era === 'dark70j') return (typeof BLOCJ !== 'undefined' && BLOCJ[c]) || 'neutral';
-    if (S.era === 'realm' || S.era === 'burg' || S.era === 'crown' || S.era === 'ship' || S.era === 'house') return (typeof BLOCR !== 'undefined' && BLOCR[c]) || 'neutral';
+    if (S.era === 'realm' || S.era === 'burg' || S.era === 'crown' || S.era === 'ship' || S.era === 'house' || S.era === 'domin') return (typeof BLOCR !== 'undefined' && BLOCR[c]) || 'neutral';
     if (S.era === '1980') return BLOC80[c] || C.bloc;
     if (S.era === '1905') { const b = BLOC05[c]; if (!b) return 'neutral'; if (typeof b === 'string') return b; const t = Game.eraTime(); return b.find(([until]) => t < until)[1]; }
     if (S.era === '1848') { const b = BLOC48[c]; if (!b) return 'neutral'; if (typeof b === 'string') return b; const t = Game.eraTime(); return b.find(([until]) => t < until)[1]; }
@@ -413,7 +413,7 @@ const Game = {
   // ---------- события ----------
   // выбор к исторической новости бывает только в части регионов
   histChoice(h) { return !!h.choice && (!h.choice.regions || h.choice.regions.includes(S.region)); },
-  histAll() { return S.era === 'house' ? HISTORY_H : S.era === 'ship' ? HISTORY_S : S.era === 'crown' ? HISTORY_E : S.era === 'burg' ? HISTORY_B : S.era === 'realm' ? HISTORY_R : S.era === 'dark70j' ? HISTORY_J : S.era === 'dark70i' ? HISTORY_I : S.era === 'dark70' ? HISTORY_D : S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : S.era === '1980' ? HISTORY_80 : S.era === '1905' ? HISTORY_05 : HISTORY; },
+  histAll() { return S.era === 'domin' ? HISTORY_M : S.era === 'house' ? HISTORY_H : S.era === 'ship' ? HISTORY_S : S.era === 'crown' ? HISTORY_E : S.era === 'burg' ? HISTORY_B : S.era === 'realm' ? HISTORY_R : S.era === 'dark70j' ? HISTORY_J : S.era === 'dark70i' ? HISTORY_I : S.era === 'dark70' ? HISTORY_D : S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : S.era === '1980' ? HISTORY_80 : S.era === '1905' ? HISTORY_05 : HISTORY; },
   historyFor(year, q) {
     const list = Game.histAll();
     return list.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));

@@ -268,13 +268,18 @@ const Scenes = (() => {
         [150, 480, 700].map((x, i) => `<path d="M${x} ${372 + i * 8} q-6 -40 4 -70 q12 28 6 70 Z" fill="#6fb5a8" opacity="0.8"/><circle cx="${x + 3}" cy="${298 + i * 8}" r="9" fill="#c9a85a" opacity="0.85"/>`).join('');
     },
   };
+  // готический собор-дворец Домината: стрельчатые окна, свечи, знамёна
+  const dominB = (p, kind) => `<rect width="${W}" height="${H}" fill="${kind === 'out' ? '#1a1418' : '#120e10'}"/>` +
+    [90, 250, 400, 550, 710].map((x, i) => `<path d="M${x - 44} ${H} V170 Q${x} 60 ${x + 44} 170 V${H} Z" fill="${kind === 'out' ? '#2a2026' : '#1d1719'}" stroke="#4a3a2a" stroke-width="3"/><path d="M${x - 26} 330 V190 Q${x} 110 ${x + 26} 190 V330 Z" fill="${kind === 'alert' ? '#5a1a1e' : i % 2 ? '#3a2a4a' : '#5a3a1a'}" opacity="0.8"/><path d="M${x} 120 V330 M${x - 26} 230 H${x + 26}" stroke="#120e10" stroke-width="3"/>`).join('') +
+    [170, 325, 475, 630].map(x => `<rect x="${x - 14}" y="120" width="28" height="170" fill="#6a1a20"/><path d="M${x - 14} 290 L${x} 310 L${x + 14} 290 Z" fill="#6a1a20"/><path d="M${x - 6} 150 H${x + 6} M${x} 144 V176 M${x - 5} 176 H${x + 5}" stroke="#c9a640" stroke-width="3"/>`).join('') +
+    `<rect x="0" y="390" width="${W}" height="60" fill="#0c090a"/>` + [60, 740].map(x => `<rect x="${x - 4}" y="330" width="8" height="60" fill="#4a3a2a"/><ellipse cx="${x}" cy="322" rx="6" ry="10" fill="#e9a23a"/><ellipse cx="${x}" cy="322" rx="40" ry="46" fill="#e9a23a" opacity="0.08"/>`).join('');
   const SHIP_BG = { night: 'alert', street: 'planet', square: 'planet', village: 'planet', jungle: 'planet', airport: 'planet' };
   let ERA = '1960';
   function svg(bg, region) {
     const p = PAL[region] || PAL.latam;
     ERA = (typeof S !== 'undefined' && S && S.era) || '1960';
     STYLE = (REGIONS[region] && REGIONS[region].style) || 'latam';
-    const b = STYLE === 'ship' ? shipB[SHIP_BG[bg] || 'bridge'] : (ERA === '2000' && modern[bg]) || builders[bg] || builders.office;
+    const b = STYLE === 'domin' ? () => dominB(p, bg === 'night' ? 'alert' : ['street', 'square', 'village'].includes(bg) ? 'out' : 'in') : STYLE === 'ship' ? shipB[SHIP_BG[bg] || 'bridge'] : (ERA === '2000' && modern[bg]) || builders[bg] || builders.office;
     return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${b(p, region)}</svg>`;
   }
   return { svg };

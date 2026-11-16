@@ -130,6 +130,21 @@ const Portrait = (() => {
         s += `<path d="M100 207 L102.5 213 L109 213.5 L104 217.5 L105.5 224 L100 220.5 L94.5 224 L96 217.5 L91 213.5 L97.5 213 Z" fill="${tr}" stroke="${shade(c, -50)}" stroke-width="0.8"/>`;
         break;
       }
+      case 'powerarmor': { // силовой доспех: огромные наплечники с кантом, горжет, печать на груди
+        const st = p.steel || '#3a3f4a', tr = p.trim || '#c9a640';
+        s += `<path d="M70 240 L76 184 L100 198 L124 184 L130 240 Z" fill="${st}"/><path d="M74 186 Q100 204 126 186 L124 176 Q100 190 76 176 Z" fill="${shade(st, -30)}" stroke="${tr}" stroke-width="1.5"/>`;
+        for (const sx of [1, -1]) { const x = 100 - sx * 62; s += `<ellipse cx="${x}" cy="204" rx="44" ry="34" fill="${st}" stroke="${tr}" stroke-width="4"/><ellipse cx="${x}" cy="204" rx="30" ry="22" fill="none" stroke="${shade(st, -35)}" stroke-width="2"/><circle cx="${x - sx * 26}" cy="186" r="3" fill="${tr}"/><circle cx="${x + sx * 22}" cy="184" r="3" fill="${tr}"/>`; }
+        s += `<path d="M92 210 H108 M100 204 V236 M94 236 H106" stroke="${tr}" stroke-width="3.5" stroke-linecap="round"/><path d="M84 214 Q100 206 116 214" fill="none" stroke="${tr}" stroke-width="1.6"/>`;
+        s += `<rect x="112" y="222" width="12" height="16" fill="#e9dcb8"/><path d="M114 226 H122 M114 230 H122 M114 234 H120" stroke="#6a2a2a" stroke-width="1"/><circle cx="118" cy="221" r="3.5" fill="#8e2a2a"/>`;
+        break;
+      }
+      case 'greatcoat': { // шинель: широкие лацканы, эполеты, перевязь
+        const tr = p.trim || '#c9a640';
+        s += `<path d="M78 176 L100 226 L62 240 L40 240 Z" fill="${shade(c, -28)}"/><path d="M122 176 L100 226 L138 240 L160 240 Z" fill="${shade(c, -28)}"/><path d="M78 176 L100 226 L122 176" fill="none" stroke="${tr}" stroke-width="2"/>`;
+        for (const x of [38, 162]) s += `<rect x="${x - 22}" y="196" width="44" height="12" rx="5" fill="${tr}"/>` + [-14, -5, 4, 13].map(d => `<path d="M${x + d} 208 v9" stroke="${tr}" stroke-width="3"/>`).join('');
+        s += `<path d="M52 200 L150 240 L128 240 L46 206 Z" fill="#8e2a2a"/><circle cx="92" cy="232" r="2.6" fill="${tr}"/><circle cx="108" cy="232" r="2.6" fill="${tr}"/>`;
+        break;
+      }
       case 'starsuit': { // форма Флота: тёмный комбинезон, цветная кокетка по отделу, значок
         const dep = p.trim || '#c9a85a';
         s += `<path d="M22 240 Q28 200 78 176 L100 198 L122 176 Q172 200 178 240 L158 240 Q150 214 124 206 L100 216 L76 206 Q50 214 42 240 Z" fill="${dep}"/>`;
@@ -335,7 +350,7 @@ const Portrait = (() => {
         break;
     }
     // причёска: рисуется для овального лица и подгоняется под форму головы
-    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki' && p.hat !== 'circlet' && p.hat !== 'headset';
+    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki' && p.hat !== 'circlet' && p.hat !== 'headset' && p.hat !== 'laurel';
     let hair = p.hair;
     if (hatOn) {
       if (['keffiyeh', 'hijab', 'hood'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
@@ -388,6 +403,18 @@ const Portrait = (() => {
       case 'crown': { // корона: зубцы, камни
         const m = p.hatMetal || '#d9b44a';
         return `<path d="M52 78 L48 38 L68 58 L82 28 L100 54 L118 28 L132 58 L152 38 L148 78 Q100 66 52 78 Z" fill="${m}" stroke="${shade(m, -45)}" stroke-width="1.5"/><path d="M52 78 Q100 66 148 78 L148 86 Q100 74 52 86 Z" fill="${shade(m, -22)}"/><circle cx="100" cy="66" r="5.5" fill="${p.gem || '#a8242a'}"/><circle cx="72" cy="71" r="3.6" fill="#3a6ea8"/><circle cx="128" cy="71" r="3.6" fill="#3a6ea8"/><circle cx="82" cy="27" r="3.2" fill="${m}"/><circle cx="118" cy="27" r="3.2" fill="${m}"/><circle cx="48" cy="37" r="2.6" fill="${m}"/><circle cx="152" cy="37" r="2.6" fill="${m}"/>`;
+      }
+      case 'peaked': { // фуражка с высокой тульёй и кокардой
+        return `<path d="M44 74 Q46 22 100 18 Q154 22 156 74 Q100 62 44 74 Z" fill="${c}"/><path d="M48 76 Q100 62 152 76 L150 88 Q100 76 50 88 Z" fill="#8e2a2a"/><path d="M46 88 Q100 78 154 88 Q150 102 100 98 Q50 102 46 88 Z" fill="#12161a"/><path d="M100 34 L108 48 L100 60 L92 48 Z" fill="${p.hatMetal || '#c9a640'}"/><path d="M84 48 H116" stroke="${p.hatMetal || '#c9a640'}" stroke-width="3"/>`;
+      }
+      case 'mitre': { // высокая митра
+        const m = p.hatMetal || '#c9a640';
+        return `<path d="M56 82 Q52 30 100 -4 Q148 30 144 82 Q100 70 56 82 Z" fill="${c}" stroke="${m}" stroke-width="2.5"/><path d="M100 2 V74 M66 52 H134" stroke="${m}" stroke-width="4"/><path d="M56 82 Q100 70 144 82 L144 90 Q100 78 56 90 Z" fill="${m}"/>`;
+      }
+      case 'laurel': { // золотой лавровый венец
+        const m = p.hatMetal || '#c9a640'; let w = '';
+        for (let i = 0; i < 6; i++) { const y = 96 - i * 9, dx = 6 + i * 4.5; w += `<ellipse cx="${50 + dx}" cy="${y}" rx="9" ry="4" fill="${m}" transform="rotate(${-58 + i * 6} ${50 + dx} ${y})"/><ellipse cx="${150 - dx}" cy="${y}" rx="9" ry="4" fill="${m}" transform="rotate(${58 - i * 6} ${150 - dx} ${y})"/>`; }
+        return w;
       }
       case 'headset': // гарнитура связи: дужка, наушник, микрофон
         return `<path d="M50 106 Q44 50 100 46 Q156 50 150 106" fill="none" stroke="#2a2d33" stroke-width="5"/><rect x="41" y="98" width="14" height="26" rx="5" fill="#2a2d33"/><rect x="145" y="98" width="14" height="26" rx="5" fill="#2a2d33"/><path d="M48 122 Q52 148 80 150" fill="none" stroke="#2a2d33" stroke-width="3"/><circle cx="82" cy="150" r="4.5" fill="${p.gem || '#6fb5a8'}"/>`;
@@ -492,6 +519,7 @@ const Portrait = (() => {
     if (p.cigar) s += `<g transform="rotate(12 120 146)"><rect x="112" y="142" width="38" height="8" rx="3" fill="#6b3e1e"/><rect x="118" y="142" width="6" height="8" fill="#c0392b"/><circle cx="151" cy="146" r="4" fill="#ff6a00"/></g><path d="M160 136 Q168 124 160 114 Q152 104 162 92" stroke="#bbb" stroke-width="2.5" fill="none" opacity="0.7"/>`;
     if (p.tusks) s += `<path d="M86 152 L84 138 L92 149 Z" fill="#f4f1ea" stroke="#8a8a7a" stroke-width="0.8"/><path d="M114 152 L116 138 L108 149 Z" fill="#f4f1ea" stroke="#8a8a7a" stroke-width="0.8"/>`;
     if (p.sweat) s += `<path d="M150 74 Q156 86 150 92 Q144 86 150 74 Z" fill="#8fd3ff" stroke="#3a8ec2" stroke-width="1"/>`;
+    if (p.bionic) s += `<circle cx="117" cy="106" r="11" fill="#2a2d33" stroke="#8a8f96" stroke-width="2"/><circle cx="117" cy="106" r="5" fill="#c1272d"/><circle cx="115" cy="104" r="1.6" fill="#ffb0a0"/><path d="M128 106 Q140 104 148 112" fill="none" stroke="#8a8f96" stroke-width="2.5"/>`;
     if (p.antennae) s += `<path d="M84 62 Q78 44 72 32 M116 62 Q122 44 128 32" fill="none" stroke="${shade(p.skin || '#e8c39e', -25)}" stroke-width="4" stroke-linecap="round"/><circle cx="72" cy="31" r="5" fill="${p.skin || '#e8c39e'}" stroke="${shade(p.skin || '#e8c39e', -35)}" stroke-width="1"/><circle cx="128" cy="31" r="5" fill="${p.skin || '#e8c39e'}" stroke="${shade(p.skin || '#e8c39e', -35)}" stroke-width="1"/>`;
     if (p.earring && !['hijab', 'keffiyeh', 'kamilavka', 'helmet'].includes(p.hat)) s += `<circle cx="51" cy="128" r="4" fill="#e2b33c"/><circle cx="149" cy="128" r="4" fill="#e2b33c"/>`;
     if (p.bluetooth) s += `<rect x="146" y="104" width="9" height="18" rx="4" fill="#2a2f36" stroke="#7fd4ff" stroke-width="1"/><path d="M150 122 Q146 134 132 138" stroke="#2a2f36" stroke-width="2.5" fill="none"/><circle cx="151" cy="108" r="1.6" fill="#39e"/>`;

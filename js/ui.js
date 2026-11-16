@@ -69,7 +69,7 @@ const UI = {
 
   // ---------- настройка ----------
   startSetup(world, land) {
-    if (world === 'dark' && typeof DARK_SETUP !== 'undefined') { UI.setup = JSON.parse(JSON.stringify(land === 'house' && typeof HOUSE_SETUP !== 'undefined' ? HOUSE_SETUP : land === 'ship' && typeof SHIP_SETUP !== 'undefined' ? SHIP_SETUP : land === 'crown' && typeof CROWN_SETUP !== 'undefined' ? CROWN_SETUP : land === 'burg' && typeof BURG_SETUP !== 'undefined' ? BURG_SETUP : land === 'realm' && typeof REALM_SETUP !== 'undefined' ? REALM_SETUP : land === 'jp' && typeof JAP_SETUP !== 'undefined' ? JAP_SETUP : land === 'it' && typeof ITAL_SETUP !== 'undefined' ? ITAL_SETUP : DARK_SETUP)); UI.show('screen-setup'); return UI.renderSetup(); }
+    if (world === 'dark' && typeof DARK_SETUP !== 'undefined') { UI.setup = JSON.parse(JSON.stringify(land === 'domin' && typeof DOMIN_SETUP !== 'undefined' ? DOMIN_SETUP : land === 'house' && typeof HOUSE_SETUP !== 'undefined' ? HOUSE_SETUP : land === 'ship' && typeof SHIP_SETUP !== 'undefined' ? SHIP_SETUP : land === 'crown' && typeof CROWN_SETUP !== 'undefined' ? CROWN_SETUP : land === 'burg' && typeof BURG_SETUP !== 'undefined' ? BURG_SETUP : land === 'realm' && typeof REALM_SETUP !== 'undefined' ? REALM_SETUP : land === 'jp' && typeof JAP_SETUP !== 'undefined' ? JAP_SETUP : land === 'it' && typeof ITAL_SETUP !== 'undefined' ? ITAL_SETUP : DARK_SETUP)); UI.show('screen-setup'); return UI.renderSetup(); }
     UI.setup = { era: '1960', region: 'latam', regime: 'junta', name: 'Хосе Мария Альварадо', title: 'Генералиссимус', country: REGIONS.latam.country,
       look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#1a1410', hat: 'cap', hatColor: '#4b5320', mustache: 'thick', brows: 'bushy', mouth: 'smile', glasses: 'none', outfit: 'military', outfitColor: '#4b5320', medals: 10, sash: '#c1272d' } };
     UI.show('screen-setup');
@@ -122,6 +122,13 @@ const UI = {
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
       outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
+    } : st.era === 'domin' ? {
+      hat: [['Без убора', 'none'], ['Лавровый венец', 'laurel'], ['Фуражка', 'peaked'], ['Митра', 'mitre']],
+      mustache: [['Нет', 'none'], ['Пышные', 'thick'], ['Руль', 'handlebar'], ['Моржовые', 'walrus']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
+      glasses: [['Нет', 'none'], ['Монокль', 'monocle']],
+      outfit: [['Силовой доспех', 'powerarmor'], ['Шинель', 'greatcoat'], ['Ряса', 'robe']],
+      hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Длинные', 'long'], ['Лысина', 'bald']],
     } : st.era === 'house' ? {
       hat: [['Без убора', 'none'], ['Капюшон пустынника', 'hood']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Руль', 'handlebar'], ['Моржовые', 'walrus']],
@@ -251,6 +258,7 @@ const UI = {
       if (st.era === 'dark70i' && typeof italSetupLook === 'function') { italSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'dark70j' && typeof japSetupLook === 'function') { japSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'realm' && typeof realmSetupLook === 'function') { realmSetupLook(st, b.dataset.look); return UI.renderSetup(); }
+      if (st.era === 'domin' && typeof dominSetupLook === 'function') { dominSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'house' && typeof houseSetupLook === 'function') { houseSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'crown' && typeof crownSetupLook === 'function') { crownSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'burg' && typeof burgSetupLook === 'function') { burgSetupLook(st, b.dataset.look); return UI.renderSetup(); }
@@ -461,7 +469,7 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70', agit: 'dark70', colony: 'dark70', cw70: 'dark70', via70: 'dark70i', imp70: 'dark70i', itcw: 'dark70i', sphere70: 'dark70j', party70: 'dark70j', jpcw: 'dark70j', magic: 'realm', council: 'realm', papers: 'burg', quests: 'burg', trade: 'burg', wars: 'crown', brides: 'crown', away: 'ship', sush: 'house', throne: 'house' };
+    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70', agit: 'dark70', colony: 'dark70', cw70: 'dark70', via70: 'dark70i', imp70: 'dark70i', itcw: 'dark70i', sphere70: 'dark70j', party70: 'dark70j', jpcw: 'dark70j', magic: 'realm', council: 'realm', papers: 'burg', quests: 'burg', trade: 'burg', wars: 'crown', brides: 'crown', away: 'ship', sush: 'house', throne: 'house', sectors: 'domin', machine: 'domin', synod: 'domin' };
     const tabOff = t => (!!eraTabs[t] && eraTabs[t] !== S.era) || !!(Game.tabHidden && Game.tabHidden(t));
     if (tabOff(UI.tab)) UI.tab = 'cabinet';
     for (const b of document.querySelectorAll('.tabs button')) { b.hidden = tabOff(b.dataset.tab); b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
@@ -635,7 +643,7 @@ const UI = {
 
   tab_world() {
     const R = REGIONS[S.region];
-    const blocName = S.era === 'house' ? { west: 'Трон', east: 'Великие дома', neutral: 'сами по себе' } : S.era === 'ship' ? { west: 'Содружество', east: 'недруги', neutral: 'сами по себе' } : S.era === 'realm' || S.era === 'burg' || S.era === 'crown' ? { west: 'Светлый союз', east: 'Тёмные земли', neutral: 'сами по себе' } : (ERAS[S.era] || {}).dark ? { latin: 'латинские страны', pact: 'Единый пакт', sphere: 'Сфера сопроцветания', west: 'Свободный мир', neutral: 'нейтралы' } : S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
+    const blocName = S.era === 'domin' ? { west: 'люди', east: 'чужие', neutral: 'сами по себе' } : S.era === 'house' ? { west: 'Трон', east: 'Великие дома', neutral: 'сами по себе' } : S.era === 'ship' ? { west: 'Содружество', east: 'недруги', neutral: 'сами по себе' } : S.era === 'realm' || S.era === 'burg' || S.era === 'crown' ? { west: 'Светлый союз', east: 'Тёмные земли', neutral: 'сами по себе' } : (ERAS[S.era] || {}).dark ? { latin: 'латинские страны', pact: 'Единый пакт', sphere: 'Сфера сопроцветания', west: 'Свободный мир', neutral: 'нейтралы' } : S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
     return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. Дружба со сверхдержавой приносит помощь каждый квартал, если отношения выше 60. Но другая сверхдержава это запомнит.</p>
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c];
@@ -941,6 +949,7 @@ function boot() {
   $('#btn-void').onclick = () => UI.setWorld('void');
   $('#btn-void-ship').onclick = () => UI.startSetup('dark', 'ship');
   $('#btn-void-house').onclick = () => UI.startSetup('dark', 'house');
+  $('#btn-void-domin').onclick = () => UI.startSetup('dark', 'domin');
   $('#btn-void-close').onclick = () => { UI.setWorld(false); $('#btn-void').focus(); };
   $('#btn-folder-close').onclick = () => { UI.setWorld(false); $('#btn-folder').focus(); };
   $('#btn-continue').onclick = () => UI.continueGame();
