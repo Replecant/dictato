@@ -44,12 +44,17 @@ const UI = {
   },
 
   // ---------- титульный экран ----------
-  setWorld(dark) {
-    const main = $('#title-main'), dk = $('#title-dark');
+  // Что открыто на титульном экране: основная игра (false), папка «Тучи над миром» (true) или свиток «Мир, которого нет» ('realm')
+  setWorld(mode) {
+    const dark = mode === true, realm = mode === 'realm';
+    const main = $('#title-main'), dk = $('#title-dark'), rl = $('#title-realm');
     $('#screen-title').classList.toggle('world-dark', dark);
-    main.inert = dark; main.setAttribute('aria-hidden', dark ? 'true' : 'false');
+    $('#screen-title').classList.toggle('world-realm', realm);
+    main.inert = dark || realm; main.setAttribute('aria-hidden', dark || realm ? 'true' : 'false');
     dk.inert = !dark; dk.setAttribute('aria-hidden', dark ? 'false' : 'true');
+    if (rl) { rl.inert = !realm; rl.setAttribute('aria-hidden', realm ? 'false' : 'true'); }
     if (dark) { dk.scrollTop = 0; setTimeout(() => { const b = $('#btn-folder-close'); if (b) b.focus({ preventScroll: true }); }, 60); }
+    if (realm) { rl.scrollTop = 0; setTimeout(() => { const b = $('#btn-realm-close'); if (b) b.focus({ preventScroll: true }); }, 60); }
   },
   title() {
     UI.setWorld(false);
@@ -887,6 +892,8 @@ function boot() {
   $('#btn-dark-jp').onclick = () => UI.startSetup('dark', 'jp');
   // Папка «Диктато 1.2»: обычный экран уезжает в сторону, из картотеки выезжает тёмная папка
   $('#btn-folder').onclick = () => UI.setWorld(true);
+  $('#btn-realm').onclick = () => UI.setWorld('realm');
+  $('#btn-realm-close').onclick = () => { UI.setWorld(false); $('#btn-realm').focus(); };
   $('#btn-folder-close').onclick = () => { UI.setWorld(false); $('#btn-folder').focus(); };
   $('#btn-continue').onclick = () => UI.continueGame();
   $('#btn-begin').onclick = () => UI.beginGame();
