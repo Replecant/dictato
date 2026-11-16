@@ -66,6 +66,9 @@ const Game = {
     return { name: 'Счёт в Швейцарии', short: 'В Швейцарии', to: 'Цюрих', at: 'в Швейцарии', acc: 'ваш счёт в Швейцарии', ins: 'счётом в Швейцарии', dat: 'швейцарскому счёту' };
   },
   // Режим с учётом региональной версии (в Латинской Америке 1840-х у режимов свои названия)
+  // Длина партии: по умолчанию 40 кварталов, у отдельных эпох своя (ERAS[...].turns)
+  lastTurn() { return (((S && ERAS[S.era]) || {}).turns || 40) - 1; },
+  endYear() { const E = ERAS[S.era]; return E.start + (E.turns || 40) / 4; },
   noFemaleMinisters() { return ['1848', '1905', '1930'].includes(S.era); },
   regimeDef(k, region) { const T = REGIME_TYPES[k], rg = region || (S && S.region); return T.byRegion && T.byRegion[rg] ? { ...T, ...T.byRegion[rg] } : T; },
   apTurn() { return Game.diff().ap; },
@@ -120,7 +123,7 @@ const Game = {
   restore(state) { S = state; },
 
   dateLabel(st = S) { return `${['I', 'II', 'III', 'IV'][st.q - 1]} квартал ${st.year}`; },
-  log(text) { S.log.unshift({ d: Game.dateLabel(), text }); if (S.log.length > 200) S.log.length = 200; },
+  log(text) { if (Game.eraText) text = Game.eraText(text); S.log.unshift({ d: Game.dateLabel(), text }); if (S.log.length > 200) S.log.length = 200; },
 
   vars() {
     const R = REGIONS[S.region];
@@ -163,7 +166,7 @@ const Game = {
   leaderAt(cKey) {
     const t = S.year + (S.q - 1) / 4;
     const c = COUNTRIES[cKey];
-    const list = (S.era === '2000' && c.leaders00) || (S.era === '1848' && c.leaders48) || (S.era === '1980' && c.leaders80) || (S.era === '1905' && c.leaders05) || c.leaders;
+    const list = (S.era === 'dark70' && c.leadersD) || (S.era === '2000' && c.leaders00) || (S.era === '1848' && c.leaders48) || (S.era === '1980' && c.leaders80) || (S.era === '1905' && c.leaders05) || c.leaders;
     for (const [until, name] of list) if (t < until) return name;
     return list[list.length - 1][1];
   },
@@ -174,6 +177,7 @@ const Game = {
   // В 1930-е лагеря меняются со временем: Веймарская Германия, Италия до Эфиопии, Япония до Маньчжурии
   blocOf(c) {
     const C = COUNTRIES[c];
+    if (S.era === 'dark70') return (typeof BLOCD !== 'undefined' && BLOCD[c]) || 'neutral';
     if (S.era === '1980') return BLOC80[c] || C.bloc;
     if (S.era === '1905') { const b = BLOC05[c]; if (!b) return 'neutral'; if (typeof b === 'string') return b; const t = Game.eraTime(); return b.find(([until]) => t < until)[1]; }
     if (S.era === '1848') { const b = BLOC48[c]; if (!b) return 'neutral'; if (typeof b === 'string') return b; const t = Game.eraTime(); return b.find(([until]) => t < until)[1]; }
@@ -406,7 +410,7 @@ const Game = {
   // ---------- события ----------
   // выбор к исторической новости бывает только в части регионов
   histChoice(h) { return !!h.choice && (!h.choice.regions || h.choice.regions.includes(S.region)); },
-  histAll() { return S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : S.era === '1980' ? HISTORY_80 : S.era === '1905' ? HISTORY_05 : HISTORY; },
+  histAll() { return S.era === 'dark70' ? HISTORY_D : S.era === '1930' ? HISTORY_30 : S.era === '2000' ? HISTORY_00 : S.era === '1848' ? HISTORY_48 : S.era === '1980' ? HISTORY_80 : S.era === '1905' ? HISTORY_05 : HISTORY; },
   historyFor(year, q) {
     const list = Game.histAll();
     return list.filter(h => h.at[0] === year && h.at[1] === q && (!h.regions || h.regions.includes(S.region)));
@@ -421,6 +425,7 @@ const Game = {
       (!e.cond || e.cond(S)) &&
       !(S.lastEvents || []).includes(e.id) &&
       ((S.seen || {})[e.id] || 0) < 2 &&
+      (S.era !== 'dark70' || e.eras) &&
       (e.eras || e.regions || Game.genDeck().includes(e.id)) &&
       (S.era !== '1848' || e.eras || e.regions || GEN48.includes(e.id)) &&
       (S.era !== '1905' || e.eras || e.regions || (typeof GEN05 !== 'undefined' && GEN05.includes(e.id))) &&
@@ -972,7 +977,7 @@ const Game = {
       occupied: { title: 'Страна оккупирована', text: `Армия держалась, сколько могла. Теперь вы возглавляете правительство в изгнании в Лондоне: три министра, пишущая машинка и радиопередача на родину раз в неделю. Историки ещё решат, были ли вы диктатором или символом сопротивления.` },
       retired: { title: 'Ушёл на покой', text: `Вы добровольно передали власть «временному совету» и поселились в ${ex}. Историки до сих пор спорят, был ли это жест мудрости или хорошо рассчитанный побег.` },
       survived: S.era === '2000' ? { title: 'Пережил нулевые', text: `31 декабря 2009 года. Позади 11 сентября, цветные революции, нефтяной бум и мировой кризис, а вы всё ещё ${T}. Интернет теперь у ${Math.round(S.net)}% граждан, а видео с вашими речами набирают миллионы просмотров, причём не всегда из уважения. Впереди 2010-е. ${S.region === 'mideast00' ? 'Говорят, в регионе ожидается какая-то «весна».' : 'Говорят, следующее десятилетие будет ещё веселее.'}` } : S.era === '1930' ? { title: 'Пережил тридцатые', text: `31 декабря 1939 года. Европа в огне, Китай в огне, мир снова воюет, а вы всё ещё ${T}. Вы пережили Депрессию, «рубашки», путчи и Лигу Наций. ${Game.epilogue30()} Впереди сороковые, и они будут куда страшнее.` } : { title: 'Пережил шестидесятые', text: `31 декабря 1969 года. Вы стоите на балконе дворца, а внизу салют. Десятилетие переворотов, ракетных кризисов и революций позади — а вы всё ещё ${T}. Впереди семидесятые. Говорят, там нефть подорожает.` },
-    }[type];
+    }[type] || { title: '', text: '' };
     const verdicts = [];
     if (S.swiss >= 100) verdicts.push('Самый богатый пенсионер континента');
     if (S.support >= 70) verdicts.push('Любимец народа');

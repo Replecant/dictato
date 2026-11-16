@@ -1,6 +1,7 @@
 // Фоны сцен визуальной новеллы — простые SVG-декорации с региональной палитрой.
 const Scenes = (() => {
   const PAL = {
+    reich70: { sky1: '#8e959b', sky2: '#4e555c', ground: '#3d4144', wall: '#b9b6ae', accent: '#8e1b1b', roof: '#3a3d40', plant: '#2f3d33' },
     latam: { sky1: '#f7c46c', sky2: '#e0704a', ground: '#7a5230', wall: '#e8c9a0', accent: '#0b6e4f', roof: '#b5532d', plant: '#2f7a3a' },
     asia: { sky1: '#bfe3d0', sky2: '#4f9a8a', ground: '#4d6b3a', wall: '#e6dcc0', accent: '#c1272d', roof: '#8e2a2a', plant: '#2e6b44' },
     africa: { sky1: '#fbd37a', sky2: '#d9822b', ground: '#9a5b2a', wall: '#ead2a8', accent: '#1e7a3c', roof: '#6b3e1e', plant: '#5d7a2a' },

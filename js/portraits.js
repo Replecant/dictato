@@ -339,7 +339,7 @@ const Portrait = (() => {
   function svg(p, opts = {}) {
     const era = typeof document !== 'undefined' && document.body ? document.body.dataset.era : '';
     if (era === '1848') p = period48(p);
-    else if (era === '1980') p = period80(p);
+    else if (era === '1980' || era === 'dark70') p = period80(p);
     else if (era === '1905') p = period05(p);
     const bg = opts.bg ? `<rect width="200" height="240" fill="${opts.bg}"/>` : '';
     return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.label || 'портрет'}">${bg}${body(p)}${head(p)}<g transform="${hatFit(p.face)}">${hat(p)}</g>${extras(p)}</svg>`;

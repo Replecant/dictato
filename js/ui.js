@@ -62,7 +62,8 @@ const UI = {
   },
 
   // ---------- настройка ----------
-  startSetup() {
+  startSetup(world) {
+    if (world === 'dark' && typeof DARK_SETUP !== 'undefined') { UI.setup = JSON.parse(JSON.stringify(DARK_SETUP)); UI.show('screen-setup'); return UI.renderSetup(); }
     UI.setup = { era: '1960', region: 'latam', regime: 'junta', name: 'Хосе Мария Альварадо', title: 'Генералиссимус', country: REGIONS.latam.country,
       look: { skin: SKIN.tan, face: 'oval', hair: 'short', hairColor: '#1a1410', hat: 'cap', hatColor: '#4b5320', mustache: 'thick', brows: 'bushy', mouth: 'smile', glasses: 'none', outfit: 'military', outfitColor: '#4b5320', medals: 10, sash: '#c1272d' } };
     UI.show('screen-setup');
@@ -74,7 +75,7 @@ const UI = {
     const defaults = E.defaultNames;
     document.body.dataset.era = st.era;
     const pips = lvl => `<span class="era-diff" title="Сложность: ${ERA_DIFF_WORD[lvl]}">${[1, 2, 3].map(i => `<i class="${i <= lvl ? 'f' : ''}"></i>`).join('')}<span>${ERA_DIFF_WORD[lvl]}</span></span>`;
-    $('#setup-eras').innerHTML = Object.entries(ERAS).sort((a, b) => a[1].start - b[1].start).map(([k, e]) => `
+    $('#setup-eras').innerHTML = Object.entries(ERAS).filter(([, e]) => !!e.dark === (st.world === 'dark')).sort((a, b) => a[1].start - b[1].start).map(([k, e]) => `
       <button class="pick era-pick ${st.era === k ? 'on' : ''}" data-era="${k}" aria-pressed="${st.era === k}">
         <span class="pick-year">${e.name}</span><span class="pick-name">${e.label}</span>${ERA_DIFF[k] ? pips(ERA_DIFF[k].lvl) : ''}
       </button>`).join('');
@@ -115,6 +116,12 @@ const UI = {
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
       outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
+    } : st.era === 'dark70' ? {
+      hat: [['Фуражка', 'cap'], ['Без убора', 'none']],
+      mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick']],
+      glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Большие', 'square']],
+      outfit: [['Мундир', 'military'], ['Костюм', 'suit']],
+      hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === '1980' ? {
       skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
       hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Бейсболка', 'baseball'], ['Без убора', 'none']],
@@ -143,7 +150,7 @@ const UI = {
       <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${(k === 'bluetooth' ? (st.look.bluetooth ? '1' : '') : st.look[k]) === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
     UI.renderSetupPortrait();
     for (const b of document.querySelectorAll('[data-diff]')) b.onclick = () => { st.diff = b.dataset.diff; UI.renderSetup(); };
-    for (const b of document.querySelectorAll('[data-era]')) b.onclick = () => {
+    for (const b of document.querySelectorAll('button[data-era]')) b.onclick = () => {
       if (st.era === b.dataset.era) return;
       st.era = b.dataset.era;
       const E2 = ERAS[st.era];
@@ -216,7 +223,7 @@ const UI = {
       UI.render();
       UI.runCrisis(S.lastReport.crisis).then(end => {
         if (end) return;
-        if (S.turn > LAST_TURN) { Game.ending('survived'); return UI.showEnding(); }
+        if (S.turn > Game.lastTurn()) { Game.ending('survived'); return UI.showEnding(); }
         UI.startQuarter();
       });
       return;
@@ -260,7 +267,8 @@ const UI = {
     ];
     for (const r of Object.keys(ROLES)) lines.push([r, `${ROLES[r].title}. ${S.adv[r].bio}`]);
     lines.push(['police', UI.welcomeLine()]);
-    lines.push(['narrator', `${ERAS[S.era].intro} Ваша задача — дожить до ${ERAS[S.era].start + 10} года у власти. Желательно — с приличным ${Game.bank().ins}.`]);
+    lines.push(['narrator', `${ERAS[S.era].intro} Ваша задача — дожить до ${Game.endYear()} года у власти. Желательно — с приличным ${Game.bank().ins}.`]);
+    if (Game.introScene && Game.introScene()) return VN.play(Game.introScene());
     return VN.play({ title: 'Первое заседание кабинета', bg: 'palace', lines });
   },
 
@@ -330,7 +338,7 @@ const UI = {
     S.phase = rep.crisis ? 'crisis' : 'report'; Game.save();
     await UI.report(rep);
     if (rep.crisis) { const end = await UI.runCrisis(rep.crisis); if (end) return; }
-    if (S.turn > LAST_TURN) { Game.ending('survived'); return UI.showEnding(); }
+    if (S.turn > Game.lastTurn()) { Game.ending('survived'); return UI.showEnding(); }
     UI.render();
     UI.startQuarter();
   },
@@ -392,7 +400,7 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905' };
+    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70' };
     if (eraTabs[UI.tab] && eraTabs[UI.tab] !== S.era) UI.tab = 'cabinet';
     for (const b of document.querySelectorAll('.tabs button')) { b.hidden = !!eraTabs[b.dataset.tab] && eraTabs[b.dataset.tab] !== S.era; b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
     const crb = document.querySelector('.tabs button[data-tab="colorrev"]');
@@ -406,9 +414,9 @@ const UI = {
     const cwb = document.querySelector('.tabs button[data-tab="coldwar"]');
     if (cwb) cwb.classList.toggle('alert', S.era === '1960' && !!S.cw && Math.max(S.cw.sus.us, S.cw.sus.su) >= 50);
     $('#btn-end').disabled = S.phase !== 'hub';
-    $('#btn-end').textContent = S.turn >= LAST_TURN ? `Встретить ${ERAS[S.era].start + 10} год` : 'Завершить квартал';
+    $('#btn-end').textContent = S.turn >= Game.lastTurn() ? `Встретить ${Game.endYear()} год` : 'Завершить квартал';
     const body = $('#tab-body');
-    body.innerHTML = UI['tab_' + UI.tab]();
+    body.innerHTML = Game.eraText ? Game.eraText(UI['tab_' + UI.tab]()) : UI['tab_' + UI.tab]();
     UI.bindTab();
   },
 
@@ -417,7 +425,7 @@ const UI = {
     const cr = Game.riskWord(Game.coupRisk()), rr = Game.riskWord(Game.revRisk());
     const B = Game.budgetCalc();
     const hist = S.statHist;
-    const left = LAST_TURN + 1 - S.turn;
+    const left = Game.lastTurn() + 1 - S.turn;
     const tips = [];
     if (S.treasury < 15) tips.push(['economy', 'Казна почти пуста. Урежьте расходы или найдите кредит. Рынок!']);
     if (S.army < 45) tips.push(['defense', 'Офицеры недовольны. Поднимите бюджет армии или устройте парад.']);
@@ -435,7 +443,7 @@ const UI = {
           <div class="leader-info">
             <div class="eyebrow">${esc(Game.regimeDef(S.regime).name)} · ${esc(Game.bloc())}</div>
             <h2>${esc(S.leader.title)}<br>${esc(S.leader.name)}</h2>
-            <p class="muted">У власти ${(S.turn / 4).toFixed(1).replace('.0', '')} г. До ${ERAS[S.era].start + 10} года осталось кварталов: <b>${left}</b>.</p>
+            <p class="muted">У власти ${(S.turn / 4).toFixed(1).replace('.0', '')} г. До ${Game.endYear()} года осталось кварталов: <b>${left}</b>.</p>
             <div class="risk-row">
               <div class="risk ${cr.c}"><span>Риск переворота</span><b>${cr.w}</b></div>
               <div class="risk ${rr.c}"><span>Риск революции</span><b>${rr.w}</b></div>
@@ -533,10 +541,10 @@ const UI = {
   // ---------- указы ----------
   dtab: 'foreign',
   tab_decrees() {
-    const cat = UI.dtab;
+    const cat = Game.decreeList(UI.dtab).length || UI.dtab === 'economy' ? UI.dtab : 'foreign';
     let items = Game.decreeList(cat).map(d => ({ act: `dec:${cat}:${d.id}`, ...d }));
     if (cat === 'economy') items = [...Game.economyActions().map(a => ({ act: 'eco:' + a.id, ...a })), ...items];
-    return `<div class="dtabs" role="tablist">${Object.entries(DECREE_TABS).map(([k, n]) => `<button class="${k === cat ? 'on' : ''}" data-dtab="${k}" role="tab" aria-selected="${k === cat}">${n}</button>`).join('')}</div>
+    return `<div class="dtabs" role="tablist">${Object.entries(DECREE_TABS).filter(([k]) => Game.decreeList(k).length || k === 'economy').map(([k, n]) => `<button class="${k === cat ? 'on' : ''}" data-dtab="${k}" role="tab" aria-selected="${k === cat}">${n}</button>`).join('')}</div>
       <p class="lede">Каждый указ стоит один приказ. Осталось приказов: <b>${S.ap}</b>. Повторяемые указы слабеют, если издавать их слишком часто.</p>
       <div class="proj dec-grid">${items.map(a => `<div class="proj-item dec ${a.used ? 'used' : ''} ${cat === 'absurd' ? 'absurd' : ''}">
         <div class="dec-main"><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p>${a.used ? '' : UI.decreeEffects(a.act)}</div>
@@ -565,7 +573,7 @@ const UI = {
 
   tab_world() {
     const R = REGIONS[S.region];
-    const blocName = S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
+    const blocName = S.era === 'dark70' ? { pact: 'Единый пакт', sphere: 'Сфера сопроцветания', west: 'Свободный мир', neutral: 'нейтралы' } : S.era === '1930' ? { west: 'демократии', east: 'Коминтерн', axis: 'Ось', neutral: 'нейтралы' } : { west: 'Запад', east: 'Восток', neutral: 'нейтралы' };
     return `<p class="lede">Ваш курс: <b>${Game.bloc()}</b>. Дружба со сверхдержавой приносит помощь каждый квартал, если отношения выше 60. Но другая сверхдержава это запомнит.</p>
       <div class="grid">${R.countries.map(c => {
         const C = COUNTRIES[c], v = S.rel[c];
@@ -666,6 +674,7 @@ const UI = {
     const yrs = Math.round(S.turn / 4 * 10) / 10;
     const start = ERAS[S.era].start;
     const me = { name: `${S.leader.title} ${S.leader.name}`, land: S.country, span: `${start}–${S.year}`, years: yrs, note: `Это вы. Сложность: ${Game.diff().name}.`, me: true };
+    if (ERAS[S.era].dark) return '';
     const real = DICTATOR_CLUB[S.era] || DICTATOR_CLUB['1960'];
     const list = [...real, me].sort((a, b) => b.years - a.years || (a.me ? 1 : -1));
     const rank = list.indexOf(me) + 1;
@@ -856,6 +865,7 @@ const Charts = {
 // ---------- запуск ----------
 function boot() {
   $('#btn-new').onclick = () => UI.startSetup();
+  $('#btn-dark-de').onclick = () => UI.startSetup('dark');
   // Тумблер миров: обычная папка уезжает в сторону, из картотеки выезжает тёмная папка «Мрак 1970-го»
   $('#world-switch').onclick = () => UI.setWorld($('#world-switch').getAttribute('aria-checked') !== 'true');
   $('#btn-continue').onclick = () => UI.continueGame();

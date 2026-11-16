@@ -107,7 +107,7 @@ Object.assign(Game, {
   isPillar(f) { return (S.pillars || []).includes(f); },
   makeLeader(f, bias) {
     const R = REGIONS[S.region], st = R.style, pool = NAME_POOLS[S.region] || NAME_POOLS[st] || NAME_POOLS.latam;
-    const female = f === 'liberals' || f === 'new' ? Math.random() < 0.3 : f === 'left' ? Math.random() < 0.15 : false;
+    const female = ((LEADER_STYLE[S.region] || {})[f] || {}).male ? false : f === 'liberals' || f === 'new' ? Math.random() < 0.3 : f === 'left' ? Math.random() < 0.15 : false;
     const used = new Set(Object.values(S.fl || {}).map(x => x.leader && x.leader.last).filter(Boolean));
     const free = pool.last.filter(l => !used.has(l));
     const first = pick(female ? pool.f : pool.m), base0 = pick(free.length ? free : pool.last);
@@ -375,7 +375,7 @@ Game.quarterHooks.push(rep => {
   const nf = NEW_FACTIONS[S.era];
   if (nf && S.fac.new) {
     const N = S.fac.new;
-    N.s = clamp(N.s + (S.era === '2000' ? (S.net || 0) / 40 : S.era === '1930' ? (S.economy < 45 ? 1 : 0.3) + Game.war().level / 200 : 0.5 + S.fac.liberals.s / 200));
+    N.s = clamp(N.s + (nf.grow ? nf.grow(S) : S.era === '2000' ? (S.net || 0) / 40 : S.era === '1930' ? (S.economy < 45 ? 1 : 0.3) + Game.war().level / 200 : 0.5 + S.fac.liberals.s / 200));
   }
 });
 Game.coupHooks.push(() => {
