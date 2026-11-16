@@ -13,7 +13,12 @@
 <body>
 <!--APP-->
 <main id="screen-title" class="screen title-screen">
-  <div class="title-wrap">
+  <button class="world-switch" id="world-switch" type="button" role="switch" aria-checked="false" aria-label="Переключить мир: наш мир или «Мрак 1970-го»">
+    <span class="ws-label ws-a">Наш мир</span>
+    <span class="ws-plate" aria-hidden="true"><span class="ws-lever"></span><span class="ws-lamp"></span></span>
+    <span class="ws-label ws-b">Мрак 1970-го</span>
+  </button>
+  <div class="title-wrap" id="title-main">
     <div class="title-portraits" id="title-portraits" aria-hidden="true"></div>
     <div class="title-text">
       <p class="eyebrow">Визуальная новелла · симулятор правителя · от Весны народов до эпохи интернета</p>
@@ -27,6 +32,39 @@
       <p class="fine">Все страны-герои, правители и министры вымышлены. Великие державы и мировые события — настоящие.</p>
     </div>
   </div>
+  <section class="dk-folder" id="title-dark" aria-hidden="true" inert>
+    <div class="dk-tab" aria-hidden="true">Дело № 1970 · альтернативная история</div>
+    <div class="dk-sheet">
+      <div class="dk-stamp" aria-hidden="true">Секретно</div>
+      <p class="dk-eyebrow">Папка из другого шкафа · мир, которого не было</p>
+      <h1 class="dk-logo">МРАК <span>1970-го</span></h1>
+      <p class="dk-tagline">Мир, где победил Третий рейх. Война кончилась двадцать пять лет назад. Победители поделили карту и с тех пор боятся друг друга больше, чем побеждённых. Вожди стареют, преемники считают дни, а лозунги на стенах никто не решается перекрасить. Здесь шутят тише.</p>
+      <div class="dk-cards">
+        <article class="dk-card">
+          <p class="dk-no">Лист 1</p>
+          <h2>Германия</h2>
+          <p class="dk-state">Великогерманский рейх</p>
+          <p>Берлин перестроен в мраморе, и мрамор уже трещит. Фюрер третий год не показывается на публике. Партия, армия и охранные отряды готовят каждый своего преемника.</p>
+        </article>
+        <article class="dk-card">
+          <p class="dk-no">Лист 2</p>
+          <h2>Италия</h2>
+          <p class="dk-state">Итальянская империя</p>
+          <p>Младший победитель, который устал быть младшим. Империя от Ниццы до Могадишо держится на ливийской нефти, воскресных парадах и на том, что Берлин пока занят собой.</p>
+        </article>
+        <article class="dk-card">
+          <p class="dk-no">Лист 3</p>
+          <h2>Япония</h2>
+          <p class="dk-state">Сфера сопроцветания</p>
+          <p>Океан от Сингапура до Гавайев. Армия и флот воюют друг с другом за бюджет упорнее, чем когда-то с Америкой. Сто народов «сопроцветают» по расписанию из Токио.</p>
+        </article>
+      </div>
+      <div class="dk-foot">
+        <button class="dk-btn" type="button" disabled>Открыть дело · скоро</button>
+        <p class="dk-fine">Раздел в разработке: пока готова только обложка. Это антиутопия. Мир показан мрачным намеренно — как предупреждение, а не как мечта.</p>
+      </div>
+    </div>
+  </section>
 </main>
 
 <main id="screen-setup" class="screen setup" hidden>
