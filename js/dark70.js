@@ -114,6 +114,9 @@ function npcD(key) {
     worker: { name: 'Заводской уполномоченный', look: LD({ face: 'square', hair: 'short', hairColor: '#333', mustache: 'thick', ...DARK_SUIT('#4a4640', { tie: 'none' }) }) },
     student: { name: 'Студент', look: LD({ face: 'long', hair: 'short', hairColor: '#5a4a3a', glasses: 'round', ...DARK_SUIT('#3a3d44', { tie: 'none' }) }) },
     colonel: { name: 'Полковник караульного полка', look: LD({ face: 'square', hair: 'short', hairColor: '#555', brows: 'angry', ...DARK_LOOK('#5d665c', { medals: 2 }) }) },
+    kanzlei: { name: 'Начальник рейхсканцелярии', look: LD({ face: 'long', hair: 'combover', hairColor: '#8a8a8a', glasses: 'round', ...DARK_PARTEI({ medals: 2 }) }) },
+    reporter: { name: 'Корреспондент римской газеты', look: { skin: SKIN.tan, face: 'oval', hair: 'curly', hairColor: '#2a2018', mustache: 'pencil', brows: 'normal', mouth: 'smile', ...DARK_SUIT('#3a3530', { tie: '#5a2a2a', pin: false }) } },
+    bishop: { name: 'Епископ', look: LD({ face: 'round', hair: 'bald', hairColor: '#aaa', glasses: 'round', outfit: 'robe', outfitColor: '#1d1d1d', trim: '#6a2a5a', hat: 'none' }) },
     rebel: { name: 'Человек из толпы', look: LD({ face: 'oval', hair: 'short', hairColor: '#333', brows: 'angry', ...DARK_SUIT('#4a4640', { tie: 'none' }) }) },
     italy_amb: { name: 'Посол Италии', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'normal', mouth: 'flat', ...DARK_SUIT('#26282d') } },
     japan_amb: { name: 'Посол Японии', look: { skin: SKIN.light, face: 'oval', hair: 'short', hairColor: '#111', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'round', ...DARK_SUIT('#1d1e22') } },
@@ -163,6 +166,7 @@ Game.vars = function () {
   const v = _varsD.call(Game);
   if (!isDark()) return v;
   const U = S.suc || {};
+  if (U.rivals && U.phase !== 'rule') { const k = Game.sucTop()[0], n = RIVALS_D[k].name; v.rivTop = n[0].toUpperCase() + n.slice(1); v.rivTopShort = RIVALS_D[k].short; }
   v.addr = U.phase === 'rule' ? 'мой фюрер'
     : { partei70: 'господин рейхсляйтер', heer70: 'господин фельдмаршал', techno70: 'господин рейхсминистр' }[S.regime];
   return v;
@@ -847,6 +851,12 @@ Game.coupScene = function (role) {
   if (!isDark()) return _coupD.call(Game, role);
   const U = Game.suc();
   if (U.phase === 'wait') return Game.sucSummonsScene();
+  if (U.phase === 'war') return {
+    title: 'Измена на фронте', bg: 'night', crisis: true,
+    lines: [['narrator', `${S.adv.defense.name} перешёл к противнику и увёл с собой два полка. Карты, шифры и расположение ваших частей — у них.`]],
+    choices: [{ text: 'Перестроить оборону', fx: { sucCtrl: -12, army: -4 }, res: 'Фронт удержали, отдав предместья. Командовать теперь будет тот, кому вы ещё можете верить.' }],
+    after: () => { Game.fireAdvisor('defense'); return null; },
+  };
   const sc = _coupD.call(Game, role);
   const ssLed = S.fac.new && S.fac.new.a < 35;
   sc.title = ssLed ? 'Ночь охранных отрядов' : 'Путч генералов';
@@ -872,6 +882,47 @@ Game.revolutionScene = function () {
     ['defense', 'Части ждут приказа, {addr}. Но в оцеплении сыновья тех, кто на площади.'],
   ];
   if (sc.choices[2]) { sc.choices[2].text = 'Улететь в Мадрид'; sc.choices[2].res = 'Самолёт взлетел, когда толпа вошла в правительственный квартал.'; }
+  return sc;
+};
+// Ультиматум силы Рейха: претенденту — «определитесь, с нами вы или нет», Фюреру — требование под угрозой
+const ULT_PRE = {
+  hawks: ['Армии нужно знать, с кем вы. Дайте слово, что после «дня икс» дивизии СС будут подчинены штабу, — или мы найдём другого кандидата.', { fac: { new: { a: -8 } }, sucExpo: 4 }, () => ({ sucReady: -8, sucRival: { [Game.sucTop()[0]]: 4 } }), 'Генерал вышел, не попрощавшись. Через неделю ваших офицеров перестали приглашать в штаб армии резерва.'],
+  oligarchs: ['Концерны платят тем, кто их слышит. Подтвердите квоты и заказы — или взносы пойдут в другую приёмную.', { fac: { left: { a: -6 } } }, () => ({ treasury: -10, sucRival: { [Game.sucTop()[0]]: 3 } }), 'Взносы прекратились в тот же месяц. Говорят, у вашего соперника появился новый фонд.'],
+  left: ['Заводы ждут твёрдых норм снабжения. Обещайте их при свидетелях — или уполномоченные скажут рабочим, что вы такой же, как остальные.', { fac: { oligarchs: { a: -6 } }, sucExpo: 3 }, () => ({ support: -4, sucAuth: -1 }), 'На заводских собраниях вашу фамилию теперь произносят с той же интонацией, что и остальные.'],
+  liberals: ['Нам нужно знать, будет ли пересмотр дел. Скажите «да» хотя бы здесь, в этой комнате.', { fac: { new: { a: -8 } }, sucExpo: 5 }, () => ({ sucAuth: -1 }), 'Он ушёл молча. В министерствах о вас больше не говорят «этот — другой».'],
+  faith: ['Гауляйтеры хотят гарантий: каждый остаётся в своём гау, никого не трогают. Подпишите — или сенат вспомнит, что у него есть и другие кандидаты.', { fac: { liberals: { a: -5 } }, sucExpo: 3 }, () => ({ sucRival: { [Game.sucTop()[0]]: 5 } }), 'Двенадцать гауляйтеров в тот же вечер ужинали у вашего соперника.'],
+  new: ['Рейхсфюрер хочет знать, намерены ли вы и дальше стоять у него на пути. Ответ нужен сейчас.', { fac: { hawks: { a: -8 }, liberals: { a: -6 } }, sucRival: { ss: 3 } }, () => ({ sucExpo: 10 }), 'СС передала в канцелярию всё, что у неё на вас накопилось. Накопилось немало.'],
+};
+const ULT_RULE = {
+  hawks: ['Армии нужны деньги и ясность. Повысьте жалованье офицерам и уберите СС из гарнизонов — или армия решит вопрос сама.', 'Генералы перестали отвечать на звонки из рейхсканцелярии. В штабах идут совещания, о которых вам не докладывают.'],
+  oligarchs: ['Снизьте налоги и уберите уполномоченных Трудового фронта с заводов. Иначе производство встанет «по техническим причинам».', 'За неделю встали три комбината — «по техническим причинам». Деньги концернов уходят в Цюрих.'],
+  left: ['Нормы, жильё и конец ночным арестам на заводах. Или завтра встанет Рур.', 'Рур встал. За ним Силезия. Уполномоченные разводят руками: рабочие «устали».'],
+  liberals: ['Пересмотр дел и конец цензуры в институтах. На вас смотрит мир, и ваши собственные инженеры — тоже.', 'Сто профессоров подали в отставку в один день. Американское радио читает их письмо третьи сутки.'],
+  faith: ['Гауляйтеры требуют вернуть полномочия, отнятые центром. Иначе гау перестанут выполнять распоряжения Берлина.', 'Распоряжения из Берлина в гау теперь «изучают». Изучают долго.'],
+  new: ['СС требует подтвердить её права: свой суд, свои дивизии, свои заводы. Иначе охранные отряды сочтут себя свободными от присяги.', 'Охранные отряды выведены из подчинения имперским комиссарам. Официально — «для учений».'],
+};
+const _facUltD = Game.facUltScene;
+Game.facUltScene = function (f) {
+  const sc = _facUltD.call(Game, f);
+  if (!isDark()) return sc;
+  const name = Game.leader(f).name, sp = sc.lines[1][0];
+  if (darkPre()) {
+    const [ask, give, ignore, ignoreText] = ULT_PRE[f] || ULT_PRE.new;
+    sc.lines = [['narrator', `${name} пришёл без приглашения. Двое его людей остались в приёмной.`], [sp, ask], ['police', 'Если откажете, они пойдут к вашему сопернику. Если уступите, остальные решат, что на вас можно давить.']];
+    sc.choices = [
+      { text: 'Дать слово', fx: Game.mergeFxD({ fac: { [f]: { a: 25 } } }, give), res: `${name} получил, за чем пришёл. Остальные скоро узнают, что вам можно ставить условия.` },
+      { text: 'Откупиться из своих фондов', adv: ['economy'], req: S => S.treasury >= 20, reqText: 'нужно 20 млн', fx: { treasury: -20, fac: { [f]: { a: 18 } } }, res: 'Конверт был толстым. Разговор отложен — до следующего раза.' },
+      { text: 'Отказать', fx: () => Game.mergeFxD({ fac: { [f]: { a: -8, s: 3 } } }, ignore()), res: ignoreText },
+    ];
+    return sc;
+  }
+  const [ask, ignoreText] = ULT_RULE[f] || ULT_RULE.new;
+  sc.lines = [['narrator', `${name} явился в рейхсканцелярию без вызова. Караул его пропустил.`], [sp, ask], ['police', 'Если откажете, они ударят по самому больному. Если уступите, остальные решат, что на Фюрера можно давить.']];
+  const [c0, c1, c2, c3] = sc.choices;
+  c0.res = `${name} уходит с тем, за чем пришёл. Остальные внимательно смотрят, чем это кончится.`;
+  c1.text = 'Откупиться из личного фонда'; c1.res = 'Конверт был толстым. Требование отложено — до следующего раза.';
+  c2.win.res = 'Его взяли у выхода из рейхсканцелярии. Те, кто стоял за ним, затихли.'; c2.lose.res = 'Арест сделал из него знамя. Его фамилию пишут мелом на стенах казарм и цехов.';
+  c3.text = 'Отказать'; c3.res = ignoreText;
   return sc;
 };
 const _betrayD = Game.betrayalScene;
