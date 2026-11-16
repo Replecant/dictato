@@ -181,19 +181,136 @@ const TD = [
   ['Казна в минусе! Армии задерживают жалованье, банки требуют проценты.', 'Фонды в минусе. Гарнизонам задерживают жалованье.'],
   ['Счёт в Швейцарии', 'Личный фонд'],
   ['Новое требование движения ', 'Новое требование: '],
+  ['пришёл к власти. Режим:', 'вступил в борьбу за преемство. Опора:'],
+  ['Подарить виллу', 'Наградить деньгами'],
+  ['переговоры с движениями, проекты, визиты, поручения советникам', 'переговоры с силами Рейха, распоряжения, визиты, поручения штабу'],
+  ['Проекты и указы — на вкладке «Указы».', 'Распоряжения — на вкладке «Распоряжения».'],
+  ['Армия ниже 45 и злые «ястребы» — к перевороту. Народ ниже 30 и сильные левые — к революции.', 'Армия ниже 45 и недовольные вермахт или СС — к путчу. Народ ниже 30 — к всеобщей стачке.'],
+  ['Деньги «нужд дворца» уходят на', 'Часть расходов канцелярии уходит на'],
+  ['⏳ У власти', '⏳ Прошло'], ['>Новый режим<', '>Новая партия<'], ['★ Оценка историков', '★ Итог'],
   ['Ночью во дворце зазвонил телефон', 'Ночью зазвонил телефон'],
   ['во дворце, без приглашения', 'у вас, без приглашения'],
   ['Остальные движения внимательно смотрят, что ещё можно у вас выпросить', 'Остальные внимательно смотрят, чем это кончится'],
   ['в посольстве недовольны', 'союзник недоволен'],
 ];
 // Вкладка сил: те же механики, другие слова
-const TD_FAC = [['у движения', 'у силы'], ['каждого движения', 'каждой силы'], ['не больше двух движений', 'не больше двух сил'], ['Движения действуют сами', 'Силы действуют сами'], ['Требования движений', 'Требования сил'],
+const TD_FAC = [['опора режима', 'ваша опора'], ['>легально<', '>действует<'], ['>под запретом<', '>вне закона<'], ['Сейчас никто ничего не требует. Наслаждайтесь тишиной.', 'Сейчас никто ничего не просит.'],
+  ['Трус', 'Осторожный'], ['Торгаш', 'Продажный'], ['Горлопан', 'Резкий'], ['Фанатик', 'Убеждённый'], ['Позёр', 'Тщеславный'], ['Прагматик', 'Расчётливый'], ['Мучеников из трусов не выходит.', ''], ['Охотно идёт во власть: места в правительстве и министерский пост доступны раньше.', 'Охотно идёт на сделку: обещанные посты и место в вашем штабе доступны раньше.'], ['Обожает внимание: переговоры работают лучше, а орден на грудь творит чудеса.', 'Любит внимание: переговоры с ним идут легче.'], ['Арест превратит лидера в мученика.', 'Тронуть его — сделать из него знамя.'], ['Движение под ним растёт быстрее', 'Сила под ним растёт быстрее'], ['Арест превратит лидера в мученика.', 'Его арест сделает из него знамя.'],
+  ['у движения', 'у силы'], ['каждого движения', 'каждой силы'], ['не больше двух движений', 'не больше двух сил'], ['Движения действуют сами', 'Силы действуют сами'], ['Требования движений', 'Требования сил'],
   ['движение крепнет', 'сила крепнет'], ['движение пару кварталов', 'она пару кварталов'], ['молебны', 'собрания'], ['проповеди', 'жалобы в партийный суд'], ['Опора режима', 'Ваша опора'],
   ['Сделать лидера министром', 'Взять лидера в штаб'], ['Места в правительстве', 'Обещать посты'], ['Запретить', 'Объявить вне закона'], ['Легально', 'Действует'], ['ЛЕГАЛЬНО', 'ДЕЙСТВУЕТ']];
 const _tabFacD = UI.tab_factions;
-UI.tab_factions = function () { const h = _tabFacD.call(UI); return isDark() ? TD_FAC.reduce((a, [f, t]) => a.split(f).join(t), h) : h; };
+UI.tab_factions = function () {
+  let h = _tabFacD.call(UI);
+  if (!isDark()) return h;
+  if (darkPre()) {
+    h = h.replace(/^[\s\S]*?(?=<section class="card dem-summary">)/, `<p class="lede">Шесть сил, которые в «день икс» решат, кто станет главой Рейха. <b>Сила</b> — сколько у них людей и влияния, <b>одобрение</b> — насколько они готовы видеть преемником вас. Вы не можете им приказывать: только договариваться, платить и обещать. На двух из них можно опереться: их одобрение растёт само, переговоры идут легче, остальные ревнуют.</p>
+      <p class="lede">Силы действуют сами: довольные помогают деньгами и людьми, недовольные вредят, а доведённые до края приходят с ультиматумом. Сейчас вы опираетесь на: <b>${(S.pillars || []).map(f => Game.facDef(f).name).join(' и ') || 'никого'}</b>.</p>`);
+    h = h.replace(/<p class="muted small">Одновременно[\s\S]*?<\/p>/, '<p class="muted small">Силы просят у претендента обещаний и услуг: одновременно не больше двух просьб, на ответ даётся 5–8 кварталов. Выполнили — одобрение +18. Не ответили — одобрение падает на 12, а сила крепнет.</p>');
+    h = h.split('<span class="chip legal">легально</span>').join('').split('Требования движений').join('Чего от вас хотят');
+  }
+  return TD_FAC.reduce((a, [f, t]) => a.split(f).join(t), h);
+};
+const _tabWorldD = UI.tab_world;
+UI.tab_world = function () {
+  const h = _tabWorldD.call(UI);
+  if (!darkPre()) return h;
+  return h.replace(/^<p class="lede">[\s\S]*?<\/p>/, '<p class="lede">Вы не глава Рейха: договоров не подписываете и послов не высылаете. Но столицы пакта присматриваются к претендентам. Кто был с ними вежлив до «дня икс», тому Рим поможет, если дело дойдёт до оружия, а Мадрид даст убежище, если всё кончится плохо. Здесь — ваши личные отношения с ними.</p>');
+};
+// Проекты советников в этой версии отключены — убираем и пустой раздел о них
+const _tabAdvD = UI.tab_advisors;
+UI.tab_advisors = function () { const h = _tabAdvD.call(UI); return isDark() ? h.replace(/^[\s\S]*?(?=<p class="lede">)/, '') : h; };
+const _tabCabD = UI.tab_cabinet;
+UI.tab_cabinet = function () {
+  if (!darkPre()) return _tabCabD.call(UI);
+  const U = Game.suc(), war = U.phase === 'war' && U.war && !U.war.over, B = Game.budgetCalc(), cr = Game.riskWord(Game.coupRisk());
+  const my = Game.sucScore() + Game.sucPactBonus(), [topK, top] = Game.sucTop(), ss = U.rivals.ss.infl;
+  const tips = [];
+  if (war) tips.push(['defense', 'Война решается гарнизонами и деньгами. Каждый квартал без победы разрушает то, за что мы воюем.']);
+  if (!war && U.expo >= 45) tips.push(['police', 'За вами смотрят. Пропустите квартал или идите на доклад к Фюреру, пока вас не вызвали самого.']);
+  if (!war && ss >= 55) tips.push(['police', 'Феллер слишком силён. Даже если сенат назовёт вас, СС не подчинится. Нужны материалы в партийный суд.']);
+  if (!war && my < top.infl) tips.push(['propaganda', `В сенате вы пока не первый: впереди ${RIVALS_D[topK].short}. У партии треть голосов — начинать надо с гауляйтеров.`]);
+  if (!war && U.ready < 20) tips.push(['defense', 'Если дело дойдёт до оружия, нам нечем ответить. В гарнизонах столицы нет ни одного нашего командира.']);
+  if (S.treasury < 10) tips.push(['economy', 'Фонды на исходе. Нужны взносы концернов или сбор средств.']);
+  if (!tips.length) tips.push(['police', 'В канцелярии тихо. Списки ведут, но вашей фамилии в первой десятке нет.']);
+  const tip = tips[0];
+  return `<div class="cab">
+      <section class="card leader-card">
+        <div class="leader-portrait">${Portrait.svg(S.leader.look)}</div>
+        <div class="leader-info">
+          <div class="eyebrow">Претендент · ${esc(Game.regimeDef(S.regime).name)}</div>
+          <h2>${esc(S.leader.title)}<br>${esc(S.leader.name)}</h2>
+          <p class="muted">${war ? `Гражданская война, ${U.war.q + 1}-й квартал. Под вашим контролем ${Math.round(U.war.ctrl)}% Рейха.` : `Фюрер ${healthWord(U.health)}. По оценке вашего врача, ему осталось кварталов: <b>${Math.max(1, Math.min(23 - S.turn, Math.round(U.health / 3)))}</b>.`} Партия идёт до ${Game.endYear()} года.</p>
+          <div class="risk-row">
+            <div class="risk ${war ? 'ok' : cr.c}"><span>Риск ареста</span><b>${war ? 'война' : cr.w}</b></div>
+            <div class="risk ${my >= top.infl ? 'ok' : 'high'}"><span>Вес в сенате</span><b>${my} против ${Math.round(top.infl)}</b></div>
+            <div class="risk ${B.net < 0 ? 'high' : 'ok'}"><span>Фонды за квартал</span><b>${B.net >= 0 ? '+' : '−'}${Math.abs(B.net).toFixed(0)} млн</b></div>
+          </div>
+        </div>
+      </section>
+      <section class="card tip-card">
+        <div class="mini-portrait">${Portrait.svg(S.adv[tip[0]].look)}</div>
+        <div><div class="eyebrow">${ROLES[tip[0]].title} · ${esc(S.adv[tip[0]].name)}</div><p class="quote">«${esc(tip[1])}»</p></div>
+      </section>
+      <section class="card chart-card">
+        <div class="eyebrow">Положение в Рейхе</div>
+        ${Charts.lines(S.statHist, [['support', 'Народ', 'var(--c-support)'], ['army', 'Армия', 'var(--c-army)'], ['economy', 'Хозяйство', 'var(--c-economy)'], ['fear', 'Страх', 'var(--c-fear)']])}
+        <p class="muted small">Этим вы пока не управляете: хозяйство, армия и страх — в руках канцелярии. Вы получите их вместе с властью — в том состоянии, в каком они будут.</p>
+      </section>
+      <section class="card help-card">
+        <div class="eyebrow">Как вести борьбу</div>
+        <ul>
+          <li>Каждый квартал у вас <b>${Game.apTurn()} приказа</b> своим людям: агитация, интриги, разговоры с силами Рейха, поручения штабу.</li>
+          <li><b>«Агитация»</b> поднимает одобрение сил. Из него складывается ваш вес в сенате партии.</li>
+          <li><b>«Преемник»</b> — расклад в сенате и интриги: материалы на соперников, союз, свои офицеры в гарнизонах.</li>
+          <li>Подозрения канцелярии выше 55 — и вас вызовут для объяснений. Помогают доклад у Фюрера, проверка окружения и квартал тишины.</li>
+          <li>Бюджета и распоряжений у вас нет. Они появятся вместе с властью.</li>
+        </ul>
+        <button class="btn ghost small" data-act="retire">Выйти из борьбы…</button>
+        <div class="confirm" id="retire-confirm" hidden><p>Сдать дела и уехать в поместье? Партия на этом закончится.</p><button class="btn danger small" data-act="retire-yes">Да, выйти</button> <button class="btn ghost small" data-act="retire-no">Остаться</button></div>
+      </section>
+    </div>`;
+};
+// Шапка претендента: не показатели державы, а его собственное положение
+Game.statsHtml = () => {
+  if (!darkPre()) return '';
+  const U = Game.suc(), war = U.phase === 'war' && U.war && !U.war.over, my = Game.sucScore() + Game.sucPactBonus(), [topK, top] = Game.sucTop();
+  const tile = (ic, name, val, pct, lvl, unit = '') => `<div class="stat ${lvl}" title="${name}"><span class="stat-ic" aria-hidden="true">${ic}</span><span class="stat-name">${name}</span><b class="stat-val">${val}${unit}</b><span class="bar"><span style="width:${clamp(pct)}%"></span></span></div>`;
+  return [
+    tile('💰', 'Ваши фонды', Math.round(S.treasury), S.treasury / 1.5, S.treasury < 0 ? 'bad' : '', '<small> млн</small>'),
+    tile('⚖️', 'Вес в сенате', my, my, my >= top.infl ? 'good' : 'warn'),
+    tile('🎯', `Соперник: ${RIVALS_D[topK].short}`, Math.round(top.infl), top.infl, ''),
+    war ? tile('🗺️', 'Контроль над Рейхом', Math.round(U.war.ctrl), U.war.ctrl, U.war.ctrl >= 60 ? 'good' : U.war.ctrl >= 35 ? 'warn' : 'bad', '<small> %</small>') : tile('👁️', 'Подозрения', Math.round(U.expo), U.expo, U.expo >= 55 ? 'bad' : U.expo >= 35 ? 'warn' : 'good'),
+    tile('🪖', 'Гарнизоны', Math.round(U.ready), U.ready, U.ready >= 25 ? 'good' : 'warn'),
+    war ? tile('⏳', 'Квартал войны', U.war.q + 1, (U.war.q + 1) * 10, U.war.q >= 7 ? 'bad' : '') : tile('🩺', 'Фюрер', `<span class="stat-txt">${healthWord(U.health)}</span>`, U.health, ''),
+  ].join('');
+};
 const _renderD = UI.render;
-UI.render = function () { _renderD.call(UI); const b = document.querySelector('.tabs button[data-tab="factions"]'); if (b) b.textContent = isDark() ? 'Силы Рейха' : 'Движения'; const d = document.querySelector('.tabs button[data-tab="decrees"]'); if (d) d.textContent = isDark() ? 'Распоряжения' : 'Указы'; };
+UI.render = function () {
+  _renderD.call(UI);
+  const pre = darkPre(), set = (t, dark, base) => { const b = document.querySelector(`.tabs button[data-tab="${t}"]`); if (b) b.textContent = isDark() ? dark : base; };
+  set('cabinet', pre ? 'Штаб' : 'Канцелярия', 'Кабинет'); set('factions', 'Силы Рейха', 'Движения'); set('decrees', 'Распоряжения', 'Указы');
+  set('world', pre ? 'Союзники' : 'Мир', 'Мир'); set('advisors', pre ? 'Ваши люди' : 'Штаб', 'Советники'); set('log', 'Хроника', 'Летопись');
+};
+// Экран создания: вы не «приходите к власти», вы вступаете в борьбу
+const DIFF_D = { easy: ['Передышка', 'Три приказа в квартал, больше средств, соперники осторожнее.'], normal: ['Как было бы', 'Два приказа в квартал. Соперники и канцелярия действуют в полную силу.'], hard: ['Без права на ошибку', 'Мало средств, соперники сильнее, люди штаба ненадёжны. Итог ×1,4.'] };
+const SETUP_BASE = {};
+const _renderSetupD = UI.renderSetup;
+UI.renderSetup = function () {
+  _renderSetupD.call(UI);
+  const dark = UI.setup && UI.setup.world === 'dark', root = document.querySelector('#screen-setup');
+  const heads = [...root.querySelectorAll('.sec-h')], h1 = root.querySelector('h1'), go = document.querySelector('#btn-begin');
+  if (!SETUP_BASE.h1) { SETUP_BASE.h1 = h1.textContent; SETUP_BASE.heads = heads.map(h => h.textContent); SETUP_BASE.go = go.textContent; SETUP_BASE.country = root.querySelector('label[for="setup-country"]').textContent; }
+  h1.textContent = dark ? 'Дело № 1: Германия' : SETUP_BASE.h1;
+  const names = dark ? ['Эпоха', '1. Страна', '2. Кто вы: на что опираетесь', '3. Имя и облик', '4. Сложность'] : SETUP_BASE.heads;
+  heads.forEach((h, i) => { h.textContent = names[i]; });
+  heads[0].closest('.setup-sec').hidden = dark;
+  for (const el of [root.querySelector('label[for="setup-country"]'), root.querySelector('#setup-country')]) el.hidden = dark;
+  root.querySelector('label[for="setup-title"]').textContent = dark ? 'Звание' : 'Титул';
+  go.textContent = dark ? 'Открыть дело' : SETUP_BASE.go;
+  if (dark) for (const m of root.querySelectorAll('#setup-regions .pick-meta')) m.textContent = 'Великогерманский рейх · 1970–1984';
+  if (dark) for (const b of root.querySelectorAll('[data-diff]')) { const d = DIFF_D[b.dataset.diff]; if (d) { b.querySelector('.pick-name').textContent = d[0]; b.querySelector('.pick-desc').textContent = d[1]; } }
+};
 // Самостоятельные ходы сил в квартальной сводке
 const MOVE_D = {
   good: { 'Трудовой фронт': 'заводы перевыполнили план, уполномоченные отметили вашу роль.', 'Реформисты': 'для вас подготовили записку о сокращении расходов. Дельную.', 'Партийный аппарат': 'гауляйтеры собрали взносы и передали их в ваше распоряжение.', 'Концерны': 'заказ сдан досрочно и без доплаты.', 'Вермахт': 'штаб армии резерва провёл учения и пригласил вас на разбор.', 'СС': 'вам переданы сведения о ваших противниках. Бесплатно такого не бывает.' },
@@ -220,8 +337,26 @@ const ADV_TEXT_D = {
   foreign: 'Поездка завершена. Союзники заверили в дружбе и записали всё, что услышали.',
 };
 const _advActD = Game.advisorAction;
+Game.darkAdvAct = function (role) {
+  const A = S.adv[role], cost = { defense: 6, police: 4, propaganda: 4, foreign: 5 }[role] || 0;
+  if (S.treasury < cost || !Game.spend()) return null;
+  Game.noteDeal('adv:' + role);
+  const k = A.comp * [1, 1, 0.6, 0.35, 0.2][Math.min(Game.dealInfo('adv:' + role).n, 4)], r = v => Math.max(1, Math.round(v * k));
+  const [fx, text] = {
+    defense: [{ treasury: -6, sucReady: r(5), fac: { hawks: { a: r(3) } }, sucExpo: 3 }, 'Ужин в офицерском собрании. Три командира полков теперь знают вас в лицо.'],
+    economy: [{ treasury: r(10), fac: { oligarchs: { a: -2 } } }, 'Взносы собраны. Расписок никто не просил.'],
+    police: [{ treasury: -4, sucExpo: -r(7) }, 'Двоих из вашей приёмной перевели в провинцию. Докладывать о вас стало некому.'],
+    propaganda: [{ treasury: -4, sucAuth: Math.max(1, Math.round(1.5 * k)), sucExpo: 2 }, 'Заметка вышла на второй полосе. Без эпитетов.'],
+    foreign: [{ treasury: -5, rel: { italy: r(5), spain: r(4) } }, 'Послы приняли приглашение. Говорили о погоде и запоминали каждое слово.'],
+  }[role];
+  const changes = Game.apply(fx);
+  Game.log(`${ROLES[role].action}. ${text}`);
+  return { text, changes };
+};
 Game.advisorAction = function (role, act) {
+  if (darkPre() && act === 'act') return Game.darkAdvAct(role);
   const r = _advActD.call(Game, role, act);
+  if (r && isDark() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
   if (r && isDark() && act === 'act' && ADV_TEXT_D[role]) { r.text = ADV_TEXT_D[role]; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
@@ -312,7 +447,21 @@ Game.pickDemand = function (c) {
   try { return _pickDemandD.call(Game, c); } finally { DEMANDS.splice(0, DEMANDS.length, ...all); }
 };
 const _countryActsD = Game.countryActions;
-Game.countryActions = function (c) { const a = _countryActsD.call(Game, c); return isDark() ? a.filter(x => !['aid', 'arms'].includes(x.id)) : a; };
+Game.countryActions = function (c) {
+  const a = _countryActsD.call(Game, c);
+  if (!isDark()) return a;
+  if (darkPre()) return a.filter(x => x.id === 'visit').map(x => ({ ...x, name: 'Встреча с послом' }));
+  return a.filter(x => !['aid', 'arms'].includes(x.id));
+};
+const _countryActD = Game.countryAction;
+Game.countryAction = function (c, act) {
+  const r = _countryActD.call(Game, c, act);
+  if (r && isDark() && act === 'visit' && r.text) { r.text = darkPre() ? `Встреча с послом (${Game.cName(c)}) состоялась. Он слушал внимательно и ничего не обещал.` : `Визит состоялся: ${Game.cName(c)}.`; if (S.log[0]) S.log[0].text = r.text; }
+  return r;
+};
+// Претендент не может ни запретить силу, ни арестовать её лидера, ни раздавать ордена
+const _facActsD = Game.factionActions;
+Game.factionActions = function (f) { const a = _facActsD.call(Game, f); return darkPre() ? a.filter(x => !['ban', 'arrest', 'legalize', 'medal'].includes(x.id)) : a; };
 
 // ---------- преемство ----------
 const RIVALS_D = {
@@ -684,7 +833,21 @@ Game.budgetEffects = function () {
 };
 // Бюджет и распоряжения появляются только у главы Рейха; агитация — только у претендента
 Game.tabHidden = t => isDark() && ((['budget', 'decrees'].includes(t) && Game.suc().phase !== 'rule') || (t === 'agit' && Game.suc().phase === 'rule'));
-const darkNames = () => { if (!isDark()) return; STAT_NAMES.treasury = Game.suc().phase === 'rule' ? 'Казна Рейха' : 'Ваши фонды'; };
+const darkPre = () => isDark() && Game.suc().phase !== 'rule';
+// Пока вы претендент, ваши люди делают для вас другое, чем министры для главы государства
+const ROLES_W = {
+  defense: { title: 'Военный референт', action: 'Разговор с командирами', actionDesc: 'Ваш человек сводит вас с командирами полков. Растут готовность гарнизонов и одобрение вермахта. −6 млн.' },
+  economy: { title: 'Хозяйственный референт', action: 'Сбор средств', actionDesc: 'Концерны и банки дают тому, на кого ставят. Фонды растут, директора ждут ответных услуг.' },
+  police: { title: 'Связной в полиции', action: 'Проверка окружения', actionDesc: 'Кто из ваших людей докладывает не только вам. Подозрения канцелярии снижаются. −4 млн.' },
+  propaganda: { title: 'Референт по печати', action: 'Заметка в печати', actionDesc: 'Ваше имя в хронике дня, без громких слов. Личный авторитет растёт. −4 млн.' },
+  foreign: { title: 'Референт по внешним делам', action: 'Ужин с послами пакта', actionDesc: 'Рим и Мадрид присматриваются к претендентам. Отношения улучшаются. −5 млн.' },
+};
+const darkNames = () => {
+  if (!isDark()) return;
+  const pre = Game.suc().phase !== 'rule';
+  STAT_NAMES.treasury = pre ? 'Ваши фонды' : 'Казна Рейха';
+  for (const r of Object.keys(ROLES_D)) Object.assign(ROLES[r], pre ? ROLES_W[r] : ROLES_D[r]);
+};
 
 // ---------- финалы ----------
 Game.endingHooks.push((type, E, verdicts) => {

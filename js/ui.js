@@ -393,7 +393,8 @@ const UI = {
     $('#hdr-ap').innerHTML = `<span class="ap-label">Приказы</span>` + Array.from({ length: Game.apTurn() }, (_, i) => `<span class="pip ${i < S.ap ? 'on' : ''}" aria-hidden="true"></span>`).join('') + `<span class="sr">${S.ap} из ${Game.apTurn()}</span>`;
     const stats = ['treasury', 'economy', 'support', 'army', 'fear', ...(S.era === '2000' ? ['net'] : []), 'swiss'];
     $('#stats').classList.toggle('seven', stats.length === 7);
-    $('#stats').innerHTML = stats.map(k => {
+    const ownStats = Game.statsHtml && Game.statsHtml();
+    $('#stats').innerHTML = ownStats || stats.map(k => {
       const v = S[k];
       const money = k === 'treasury' || k === 'swiss';
       const pct = money ? clamp(k === 'swiss' ? v : v / 2, 0, 100) : v;
@@ -692,7 +693,8 @@ const UI = {
     const F = S.final || Game.ending(S.over || 'survived');
     Game.save();
     UI.show('screen-end');
-    $('#end-body').innerHTML = `
+    const endHtml = h => (Game.eraText ? Game.eraText(h) : h);
+    $('#end-body').innerHTML = endHtml(`
       <div class="end-portrait">${Portrait.svg(S.leader.look)}</div>
       <div class="end-text">
         <div class="eyebrow">${esc(S.country)} · ${Game.dateLabel()}</div>
@@ -709,7 +711,7 @@ const UI = {
         </div>
         ${UI.clubTable(F.score)}
         <button class="btn big" id="btn-again">Новый режим</button>
-      </div>`;
+      </div>`);
     $('#btn-again').onclick = () => { Game.clearSave(); UI.startSetup(); };
   },
 };

@@ -1215,4 +1215,7 @@ body[data-era="dark70"] .eyebrow { color: #a04a40; }
 .dk-np-off b { font: 700 12px/1.2 "PT Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
 .dk-np-off p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; }
 .dk-np .fx-list { margin-top: 12px; }
-
+.stat-txt { font: 600 13px/1.15 var(--f-display); letter-spacing: 0.03em; text-transform: uppercase; display: inline-block; }
+body[data-era="dark70"] .tip-card { background: var(--panel); color: var(--fg); }
+body[data-era="dark70"] .tip-card .eyebrow { color: #a04a40; }
+body[data-era="dark70"] .quote { color: var(--fg); }
