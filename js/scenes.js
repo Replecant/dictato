@@ -246,12 +246,34 @@ const Scenes = (() => {
       return builders.stadium(p, r) + `<rect x="300" y="20" width="200" height="90" fill="#0d0f13"/><rect x="306" y="26" width="188" height="78" fill="#163a66"/><text x="400" y="78" text-anchor="middle" font-size="34" fill="#fff" font-family="Arial" font-weight="bold">2 : 1</text>`;
     },
   };
+  // «Вакуум власти»: мостик, коридор по тревоге и чужая планета вместо дворцов и улиц
+  const stars = n => Array.from({ length: n }, (_, i) => `<circle cx="${(i * 137 + 53) % 800}" cy="${(i * 89 + 31) % 260}" r="${i % 5 === 0 ? 1.8 : 1}" fill="#cfe3dc" opacity="${0.35 + (i % 4) * 0.15}"/>`).join('');
+  const shipB = {
+    bridge() {
+      return `<rect width="${W}" height="${H}" fill="#0c1318"/><rect x="120" y="40" width="560" height="230" rx="18" fill="#05080b" stroke="#2f4a4c" stroke-width="4"/><g><svg x="124" y="44" width="552" height="222" viewBox="0 0 800 260" preserveAspectRatio="xMidYMid slice"><rect width="800" height="260" fill="#070c12"/>${stars(46)}<circle cx="610" cy="150" r="54" fill="#3a5a6a"/><path d="M560 150 Q610 130 660 150 Q610 172 560 150 Z" fill="#6fb5a8" opacity="0.35"/></svg></g>` +
+        `<path d="M0 ${H} L0 330 Q400 280 800 330 L800 ${H} Z" fill="#141f27"/><path d="M0 330 Q400 280 800 330" fill="none" stroke="#2f4a4c" stroke-width="3"/>` +
+        [70, 210, 590, 730].map((x, i) => `<rect x="${x - 46}" y="${350 - (i === 1 || i === 2 ? 18 : 0)}" width="92" height="70" rx="6" fill="#0e171d" stroke="#2f4a4c" stroke-width="2"/>` + [0, 1, 2].map(j => `<rect x="${x - 36 + j * 26}" y="${362 - (i === 1 || i === 2 ? 18 : 0)}" width="18" height="8" rx="2" fill="${['#6fb5a8', '#c9a85a', '#9a2f3a'][(i + j) % 3]}" opacity="0.85"/>`).join('')).join('') +
+        `<rect x="350" y="352" width="100" height="98" rx="10" fill="#1a2730" stroke="#c9a85a" stroke-width="2"/><rect x="336" y="372" width="18" height="50" rx="5" fill="#0e171d"/><rect x="446" y="372" width="18" height="50" rx="5" fill="#0e171d"/>`;
+    },
+    alert() {
+      return `<rect width="${W}" height="${H}" fill="#140a0c"/>` + [0, 1, 2, 3].map(i => `<path d="M${i * 70} 0 L${i * 70} ${H} M${800 - i * 70} 0 L${800 - i * 70} ${H}" stroke="#3a1a1e" stroke-width="${16 - i * 3}"/>`).join('') +
+        `<path d="M210 0 L330 110 L470 110 L590 0 M210 ${H} L330 330 L470 330 L590 ${H}" fill="none" stroke="#5a2a2e" stroke-width="4"/><rect x="330" y="110" width="140" height="220" fill="#0a0506" stroke="#5a2a2e" stroke-width="4"/><path d="M400 110 V330" stroke="#5a2a2e" stroke-width="3"/>` +
+        [40, 760].map(x => `<rect x="${x - 14}" y="60" width="28" height="12" rx="4" fill="#c1272d"/><ellipse cx="${x}" cy="120" rx="70" ry="90" fill="#c1272d" opacity="0.12"/>`).join('');
+    },
+    planet(p) {
+      return `<defs><linearGradient id="psky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2244"/><stop offset="1" stop-color="#8a5a6a"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#psky)"/>${stars(22)}` +
+        `<circle cx="640" cy="92" r="52" fill="#e9c9a0" opacity="0.9"/><circle cx="560" cy="60" r="16" fill="#cfe3dc" opacity="0.8"/><ellipse cx="640" cy="92" rx="86" ry="12" fill="none" stroke="#e9c9a0" stroke-width="3" opacity="0.5" transform="rotate(-14 640 92)"/>` +
+        `<path d="M0 300 L90 220 L160 280 L250 190 L340 290 L800 300 L800 450 L0 450 Z" fill="#4a3a4e"/><path d="M0 340 Q200 300 400 334 T800 320 L800 450 L0 450 Z" fill="#6a4a4a"/><path d="M0 390 Q260 360 520 392 T800 380 L800 450 L0 450 Z" fill="#7a5a4e"/>` +
+        [150, 480, 700].map((x, i) => `<path d="M${x} ${372 + i * 8} q-6 -40 4 -70 q12 28 6 70 Z" fill="#6fb5a8" opacity="0.8"/><circle cx="${x + 3}" cy="${298 + i * 8}" r="9" fill="#c9a85a" opacity="0.85"/>`).join('');
+    },
+  };
+  const SHIP_BG = { night: 'alert', street: 'planet', square: 'planet', village: 'planet', jungle: 'planet', airport: 'planet' };
   let ERA = '1960';
   function svg(bg, region) {
     const p = PAL[region] || PAL.latam;
     ERA = (typeof S !== 'undefined' && S && S.era) || '1960';
-    const b = (ERA === '2000' && modern[bg]) || builders[bg] || builders.office;
     STYLE = (REGIONS[region] && REGIONS[region].style) || 'latam';
+    const b = STYLE === 'ship' ? shipB[SHIP_BG[bg] || 'bridge'] : (ERA === '2000' && modern[bg]) || builders[bg] || builders.office;
     return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${b(p, region)}</svg>`;
   }
   return { svg };

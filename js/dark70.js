@@ -18,7 +18,10 @@ const isBurg = () => !!S && S.era === BURG;
 // Третья держава — империя (js/crown.js)
 const CROWN = 'crown';
 const isCrown = () => !!S && S.era === CROWN;
-const isGloom = () => isDark() || isItal() || isJap() || isRealm() || isBurg() || isCrown();
+// «Вакуум власти»: корабль исследователей (js/ship.js)
+const SHIP = 'ship';
+const isShip = () => !!S && S.era === SHIP;
+const isGloom = () => isDark() || isItal() || isJap() || isRealm() || isBurg() || isCrown() || isShip();
 
 // ---------- державы ----------
 FLAGS.reich = FLAGS.germany33;
@@ -399,7 +402,7 @@ const moveTextD = line => {
   const t = m && MOVE_D[m[1] === '🤝' ? 'good' : 'bad'][m[2]];
   return t ? `${m[1]} ${m[2]}: ${t}` : Game.eraText(line);
 };
-Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : isRealm() && typeof TR !== 'undefined' ? TR.reduce((a, [f, t]) => a.split(f).join(t), s) : isBurg() && typeof TB !== 'undefined' ? TB.reduce((a, [f, t]) => a.split(f).join(t), s) : isCrown() && typeof TE !== 'undefined' ? TE.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
+Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : isRealm() && typeof TR !== 'undefined' ? TR.reduce((a, [f, t]) => a.split(f).join(t), s) : isBurg() && typeof TB !== 'undefined' ? TB.reduce((a, [f, t]) => a.split(f).join(t), s) : isCrown() && typeof TE !== 'undefined' ? TE.reduce((a, [f, t]) => a.split(f).join(t), s) : isShip() && typeof TS !== 'undefined' ? TS.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _modalD = Modal.open;
 Modal.open = function (html, ...rest) { return _modalD.call(Modal, Game.eraText(html), ...rest); };
 const _vnPlayD = VN.play;
@@ -435,7 +438,7 @@ Game.advisorAction = function (role, act) {
   if (darkPre() && act === 'act') return Game.darkAdvAct(role);
   const r = _advActD.call(Game, role, act);
   if (r && isGloom() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
-  const advText = isCrown() && typeof ADV_TEXT_E !== 'undefined' ? ADV_TEXT_E : isBurg() && typeof ADV_TEXT_B !== 'undefined' ? ADV_TEXT_B : isRealm() && typeof ADV_TEXT_R !== 'undefined' ? ADV_TEXT_R : isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
+  const advText = isShip() && typeof ADV_TEXT_S !== 'undefined' ? ADV_TEXT_S : isCrown() && typeof ADV_TEXT_E !== 'undefined' ? ADV_TEXT_E : isBurg() && typeof ADV_TEXT_B !== 'undefined' ? ADV_TEXT_B : isRealm() && typeof ADV_TEXT_R !== 'undefined' ? ADV_TEXT_R : isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
   if (r && isGloom() && act === 'act' && advText[role]) { r.text = advText[role]; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
@@ -481,7 +484,7 @@ Game.economyFx = function (id) {
   return r;
 };
 // Требования сил: только бюджетные и свои; общие «указные» требования здесь не к месту
-for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70', 'velentar', 'kislobrod', 'dravenor'];
+for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70', 'velentar', 'kislobrod', 'dravenor', 'starship'];
 FAC_DEMANDS.faith.push({ id: 'dk_gau', kind: 'pay', text: 'Подтвердить привилегии гауляйтеров', fx: { treasury: -8, fac: { liberals: { a: -5 } } }, only: ['reich70'] });
 FAC_DEMANDS.hawks.push({ id: 'dk_ss', kind: 'pay', text: 'Запретить СС вербовку в армейских частях', fx: { fac: { new: { a: -8 } } }, only: ['reich70'] });
 FAC_DEMANDS.oligarchs.push({ id: 'dk_ord', kind: 'act', acts: ['dec:d_orders'], text: 'Разместить военные заказы на заводах концернов', only: ['reich70'] });
