@@ -130,6 +130,13 @@ const Portrait = (() => {
         s += `<path d="M100 207 L102.5 213 L109 213.5 L104 217.5 L105.5 224 L100 220.5 L94.5 224 L96 217.5 L91 213.5 L97.5 213 Z" fill="${tr}" stroke="${shade(c, -50)}" stroke-width="0.8"/>`;
         break;
       }
+      case 'ermine': { // императорская мантия: горностаевый воротник и цепь
+        const fur = '#efe9da', gold = p.trim || '#d9b44a';
+        s += `<path d="M24 240 Q30 198 80 172 L100 212 L86 240 Z" fill="${fur}" stroke="#cfc6ae" stroke-width="1.2"/><path d="M176 240 Q170 198 120 172 L100 212 L114 240 Z" fill="${fur}" stroke="#cfc6ae" stroke-width="1.2"/>`;
+        for (const [x, y] of [[44, 222], [58, 204], [74, 190], [70, 226], [86, 208], [126, 190], [142, 204], [156, 222], [130, 226], [114, 208]]) s += `<path d="M${x} ${y} l2.4 7 l-4.8 0 Z" fill="#1a1a1a"/>`;
+        s += `<path d="M78 180 Q100 222 122 180" fill="none" stroke="${gold}" stroke-width="3.2"/><circle cx="100" cy="204" r="6.5" fill="${gold}" stroke="${shade(gold, -50)}" stroke-width="1.2"/><circle cx="100" cy="204" r="2.6" fill="${p.gem || '#a8242a'}"/>`;
+        break;
+      }
       case 'plate': { // латы: горжет, наплечники, заклёпки
         const st = p.steel || '#9aa0a6';
         s += `<path d="M76 184 Q100 204 124 184 L128 202 Q100 222 72 202 Z" fill="${st}" stroke="${shade(st, -45)}" stroke-width="1.5"/>`;
@@ -370,6 +377,10 @@ const Portrait = (() => {
       }
       case 'hood': // капюшон
         return `<path d="M36 158 Q22 58 100 26 Q178 58 164 158 L146 158 Q152 98 100 72 Q48 98 54 158 Z" fill="${c}"/><path d="M54 158 Q48 98 100 72 Q152 98 146 158" fill="none" stroke="${d}" stroke-width="3"/>`;
+      case 'crown': { // корона: зубцы, камни
+        const m = p.hatMetal || '#d9b44a';
+        return `<path d="M52 78 L48 38 L68 58 L82 28 L100 54 L118 28 L132 58 L152 38 L148 78 Q100 66 52 78 Z" fill="${m}" stroke="${shade(m, -45)}" stroke-width="1.5"/><path d="M52 78 Q100 66 148 78 L148 86 Q100 74 52 86 Z" fill="${shade(m, -22)}"/><circle cx="100" cy="66" r="5.5" fill="${p.gem || '#a8242a'}"/><circle cx="72" cy="71" r="3.6" fill="#3a6ea8"/><circle cx="128" cy="71" r="3.6" fill="#3a6ea8"/><circle cx="82" cy="27" r="3.2" fill="${m}"/><circle cx="118" cy="27" r="3.2" fill="${m}"/><circle cx="48" cy="37" r="2.6" fill="${m}"/><circle cx="152" cy="37" r="2.6" fill="${m}"/>`;
+      }
       case 'circlet': // обруч с камнем
         return `<path d="M50 80 Q100 62 150 80" stroke="${p.hatMetal || '#c9a640'}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M100 58 L106 69 L100 79 L94 69 Z" fill="${p.gem || '#7fe0c0'}" stroke="${p.hatMetal || '#c9a640'}" stroke-width="1.2"/>`;
       case 'gunbo': { // фуражка императорской армии: красный околыш, золотая звезда
