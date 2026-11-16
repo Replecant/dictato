@@ -6,7 +6,10 @@ const isDark = () => !!S && S.era === DARK;
 // Вторая страна версии — Италия (js/italy70.js). Общий слой без шуток работает для обеих.
 const DARK_I = 'dark70i';
 const isItal = () => !!S && S.era === DARK_I;
-const isGloom = () => isDark() || isItal();
+// Третья страна — Япония (js/japan70.js)
+const DARK_J = 'dark70j';
+const isJap = () => !!S && S.era === DARK_J;
+const isGloom = () => isDark() || isItal() || isJap();
 
 // ---------- державы ----------
 FLAGS.reich = FLAGS.germany33;
@@ -387,7 +390,7 @@ const moveTextD = line => {
   const t = m && MOVE_D[m[1] === '🤝' ? 'good' : 'bad'][m[2]];
   return t ? `${m[1]} ${m[2]}: ${t}` : Game.eraText(line);
 };
-Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
+Game.eraText = s => (typeof s !== 'string' ? s : isDark() ? TD.reduce((a, [f, t]) => a.split(f).join(t), s) : isItal() && typeof TI !== 'undefined' ? TI.reduce((a, [f, t]) => a.split(f).join(t), s) : isJap() && typeof TJ !== 'undefined' ? TJ.reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _modalD = Modal.open;
 Modal.open = function (html, ...rest) { return _modalD.call(Modal, Game.eraText(html), ...rest); };
 const _vnPlayD = VN.play;
@@ -423,7 +426,7 @@ Game.advisorAction = function (role, act) {
   if (darkPre() && act === 'act') return Game.darkAdvAct(role);
   const r = _advActD.call(Game, role, act);
   if (r && isGloom() && act === 'gift') { r.text = `${S.adv[role].name} получил конверт. Вопросов он не задал.`; if (S.log[0]) S.log[0].text = r.text; }
-  const advText = isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
+  const advText = isJap() && typeof ADV_TEXT_J !== 'undefined' ? ADV_TEXT_J : isItal() && typeof ADV_TEXT_I !== 'undefined' ? ADV_TEXT_I : ADV_TEXT_D;
   if (r && isGloom() && act === 'act' && advText[role]) { r.text = advText[role]; if (S.log[0]) S.log[0].text = r.text; }
   return r;
 };
@@ -465,11 +468,11 @@ Game.economyActions = function () {
 const _ecoFxD = Game.economyFx;
 Game.economyFx = function (id) {
   const r = _ecoFxD.call(Game, id);
-  if (isGloom() && id === 'transfer') { r.text = 'Перевод прошёл.'; if (r.risk) r.risk.text = isItal() ? 'О переводе узнали в партийной контрольной комиссии.' : 'О переводе узнали в партийном суде.'; }
+  if (isGloom() && id === 'transfer') { r.text = 'Перевод прошёл.'; if (r.risk) r.risk.text = isJap() ? 'О переводе узнали в особой высшей полиции.' : isItal() ? 'О переводе узнали в партийной контрольной комиссии.' : 'О переводе узнали в партийном суде.'; }
   return r;
 };
 // Требования сил: только бюджетные и свои; общие «указные» требования здесь не к месту
-for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70'];
+for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (d.kind !== 'budget' || d.id === 'b_net' || d.id === 'b_media') d.except = [...(d.except || []), 'reich70', 'italy70', 'japan70'];
 FAC_DEMANDS.faith.push({ id: 'dk_gau', kind: 'pay', text: 'Подтвердить привилегии гауляйтеров', fx: { treasury: -8, fac: { liberals: { a: -5 } } }, only: ['reich70'] });
 FAC_DEMANDS.hawks.push({ id: 'dk_ss', kind: 'pay', text: 'Запретить СС вербовку в армейских частях', fx: { fac: { new: { a: -8 } } }, only: ['reich70'] });
 FAC_DEMANDS.oligarchs.push({ id: 'dk_ord', kind: 'act', acts: ['dec:d_orders'], text: 'Разместить военные заказы на заводах концернов', only: ['reich70'] });

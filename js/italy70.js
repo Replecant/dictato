@@ -237,12 +237,12 @@ Object.assign(Game, {
     return S.it;
   },
   // Кто сменит Гитлера в этой партии
-  fuhrerKey() { const I = Game.it(); if (!I.fuhrer || !FUHRERS[I.fuhrer]) I.fuhrer = pick(Object.keys(FUHRERS)); return I.fuhrer; },
+  fuhrerKey() { const I = isJap() ? Game.jp() : Game.it(); if (!I.fuhrer || !FUHRERS[I.fuhrer]) I.fuhrer = pick(Object.keys(FUHRERS)); return I.fuhrer; },
   fuhrerNew() { return FUHRERS[Game.fuhrerKey()]; },
   fuhrerChanged() { return Game.eraTime() >= FUHRER_AT; },
 });
 const _leaderAtI = Game.leaderAt;
-Game.leaderAt = function (c) { return isItal() && c === 'reich' && Game.fuhrerChanged() ? `фюрер ${Game.fuhrerNew().name}` : _leaderAtI.call(Game, c); };
+Game.leaderAt = function (c) { return (isItal() || isJap()) && c === 'reich' && Game.fuhrerChanged() ? `фюрер ${Game.fuhrerNew().name}` : _leaderAtI.call(Game, c); };
 
 // ============================================================
 // ИМПЕРИЯ: владения

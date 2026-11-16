@@ -1272,3 +1272,30 @@ button.dk-card.dk-it:focus-visible { box-shadow: 0 0 0 2px #2f6b4a; }
 .via-clash { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--red); background: rgba(154, 42, 34, 0.12); }
 .via-clash p { margin: 3px 0 0; }
 @media (max-width: 900px) { .via-opts { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- «Тучи над миром», Япония ---------- */
+button.dk-card.dk-jp { border-top-color: #8e2a3a; }
+.jp-seals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 8px 0 10px; }
+.jp-seal { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; padding: 10px 12px; background: var(--panel-2); border-left: 3px solid var(--green); border-radius: 3px; }
+.jp-seal.warn { border-left-color: var(--amber); } .jp-seal.bad { border-left-color: var(--red); }
+.jp-seal-ic { font-size: 22px; line-height: 1; }
+.jp-seal b { display: block; font-family: var(--f-display); letter-spacing: 0.05em; text-transform: uppercase; font-size: 15px; font-weight: 600; }
+.jp-seal div > span { display: block; font-size: 12.5px; color: var(--muted); }
+.jp-seal.bad div > span { color: #d0766c; }
+.jp-seal .meter { grid-column: 1 / -1; }
+.jp-seal .meter .meter-l { display: none; }
+.jp-diet { display: flex; gap: 2px; height: 30px; margin: 8px 0 12px; border-radius: 2px; overflow: hidden; }
+.jp-diet span { min-width: 0; display: flex; align-items: center; justify-content: center; font: 12px/1 var(--f-mono); color: #0c0d0e; }
+.jp-diet span.ok { background: #8fa387; } .jp-diet span.no { background: #6a4a46; color: #d5d1c6; }
+.jp-cliques { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.jp-cl.ok { border-top: 2px solid var(--green); } .jp-cl:not(.ok) { border-top: 2px solid var(--red); }
+.jp-cl .acts { margin: 10px 0 8px; }
+.jp-dials { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.jp-dial header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 10px; }
+.jp-dial header h3 { margin: 0; }
+.jp-dial-row { display: flex; gap: 4px; margin-bottom: 10px; }
+.jp-pos { flex: 1; min-width: 0; padding: 9px 6px; background: var(--panel-2); border: 1px solid var(--brass-dim); border-radius: 2px; color: var(--fg); font: 12px/1.2 var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.jp-pos:hover:not(:disabled) { border-color: var(--brass); }
+.jp-pos:disabled { cursor: default; opacity: 0.45; }
+.jp-pos.on { opacity: 1; background: var(--brass); color: #0c0d0e; border-color: var(--brass); font-weight: 700; }
+@media (max-width: 900px) { .jp-seals, .jp-cliques, .jp-dials { grid-template-columns: minmax(0, 1fr); } .jp-dial-row { flex-wrap: wrap; } }

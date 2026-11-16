@@ -122,6 +122,47 @@ const Portrait = (() => {
         if (br !== 'heer') s += `<path d="M163 212 L190 220 L192 240 L160 240 Z" fill="#b3141c"/><circle cx="177" cy="229" r="7" fill="#fff"/><g transform="rotate(45 177 229)" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M177 225 V233 M173 229 H181"/><path d="M177 225 H180.2 M181 229 V232.2 M177 233 H173.8 M173 229 V225.8"/></g>`;
         break;
       }
+      case 'gunpuku': { // мундир императорской армии: отложной воротник, красные петлицы со звёздами
+        const metal = '#c9a640', tab = '#b3141c';
+        s += `<path d="M100 200 L100 240" stroke="${d}" stroke-width="2"/>` + [210, 222, 234].map(y => `<circle cx="100" cy="${y}" r="2.7" fill="${metal}"/>`).join('');
+        s += `<path d="M79 184 Q100 198 121 184 L124 200 Q100 215 76 200 Z" fill="${d}"/>`;
+        s += `<path d="M78 189 L94 198 L93 207 L77 198 Z" fill="${tab}" stroke="${metal}" stroke-width="0.8"/><path d="M122 189 L106 198 L107 207 L123 198 Z" fill="${tab}" stroke="${metal}" stroke-width="0.8"/>`;
+        s += `<path d="M79 194 L92 202 M121 194 L108 202" stroke="${metal}" stroke-width="1.6"/><circle cx="85" cy="197.5" r="1.5" fill="#fff5c8"/><circle cx="115" cy="197.5" r="1.5" fill="#fff5c8"/>`;
+        // нагрудные карманы и портупея
+        s += [[54, 214], [122, 214]].map(([x, y]) => `<path d="M${x} ${y} H${x + 24} L${x + 12} ${y + 7} Z" fill="${shade(c, -22)}"/><circle cx="${x + 12}" cy="${y + 5}" r="1.5" fill="${metal}"/>`).join('');
+        s += `<path d="M150 198 L112 240 L104 240 L143 196 Z" fill="#4a3320"/>`;
+        break;
+      }
+      case 'kaigun': { // тёмно-синий китель флота: стоячий воротник, чёрная тесьма, якоря на воротнике
+        const metal = '#c9a640', braid = shade(c, -45);
+        s += `<path d="M80 184 Q100 196 120 184 L122 198 Q100 210 78 198 Z" fill="${shade(c, -18)}" stroke="${braid}" stroke-width="2"/>`;
+        s += `<path d="M100 204 V240" stroke="${braid}" stroke-width="6"/><path d="M100 204 V240" stroke="${shade(c, 14)}" stroke-width="1"/>`;
+        s += `<path d="M20 222 Q60 208 96 212 M180 222 Q140 208 104 212" stroke="${braid}" stroke-width="2.2" fill="none"/>`;
+        // якорь с цветком сакуры на воротнике
+        s += [87, 113].map(x => `<path d="M${x} 189 V197 M${x - 3} 191.5 H${x + 3} M${x - 3.5} 194.5 Q${x} 199.5 ${x + 3.5} 194.5" stroke="${metal}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`).join('');
+        // погоны с галуном
+        s += `<rect x="22" y="197" width="36" height="9" rx="2" fill="${metal}" transform="rotate(13 40 201)"/><rect x="142" y="197" width="36" height="9" rx="2" fill="${metal}" transform="rotate(-13 160 201)"/>`;
+        s += `<path d="M26 200 L54 206 M146 206 L174 200" stroke="${shade(c, -30)}" stroke-width="2"/>`;
+        break;
+      }
+      case 'montsuki': { // парадное кимоно с гербами и накидкой хаори
+        s += `<path d="M84 188 L100 214 L116 188 Z" fill="${shade(p.skin, -28)}"/>`;
+        s += `<path d="M77 186 L100 226 L123 186 L117 184 L100 214 L83 184 Z" fill="#f4f1ea"/>`;
+        s += `<path d="M70 189 L100 238 L130 189 L123 186 L100 226 L77 186 Z" fill="${shade(c, 26)}"/>`;
+        s += `<path d="M62 193 L88 240 M138 193 L112 240" stroke="${shade(c, -45)}" stroke-width="3" fill="none"/>`;
+        // гербы на груди
+        s += [56, 144].map(x => `<circle cx="${x}" cy="216" r="6" fill="none" stroke="#f4f1ea" stroke-width="1.5"/><path d="M${x} 211.5 V220.5 M${x - 4.5} 216 H${x + 4.5}" stroke="#f4f1ea" stroke-width="1.2"/><circle cx="${x}" cy="216" r="1.8" fill="#f4f1ea"/>`).join('');
+        // шнур хаори
+        s += `<path d="M90 238 Q100 229 110 238" stroke="#f4f1ea" stroke-width="2.4" fill="none"/><circle cx="100" cy="233" r="3.2" fill="#f4f1ea"/>`;
+        break;
+      }
+      case 'kokumin': { // «народная форма» 1940 года: гражданский китель защитного цвета
+        s += `<path d="M79 184 Q100 198 121 184 L124 200 Q100 215 76 200 Z" fill="${d}"/><path d="M81 185 Q100 197 119 185" stroke="#f4f1ea" stroke-width="2.4" fill="none"/>`;
+        s += `<path d="M100 206 L100 240" stroke="${shade(c, -45)}" stroke-width="1.6"/>` + [214, 225, 236].map(y => `<circle cx="100" cy="${y}" r="2.3" fill="${shade(c, -60)}"/>`).join('');
+        s += [[52, 212], [124, 212]].map(([x, y]) => `<rect x="${x}" y="${y}" width="24" height="18" rx="2" fill="${shade(c, -8)}" stroke="${shade(c, -45)}" stroke-width="1.1"/><path d="M${x} ${y} H${x + 24} L${x + 12} ${y + 7} Z" fill="${shade(c, -24)}"/>`).join('');
+        if (p.pin) s += `<circle cx="64" cy="204" r="3.4" fill="#f4f1ea" stroke="#c9a640" stroke-width="0.9"/><circle cx="64" cy="204" r="1.5" fill="#bc002d"/>`; // значок Ассоциации
+        break;
+      }
       case 'orbace': { // чёрная форма иерархов партии и милиции: чёрная рубашка, чёрный галстук, «чёрное пламя» на воротнике
         const metal = p.metal || '#c9a640';
         s += `<path d="M84 189 L100 232 L116 189 Z" fill="#0a0a0b"/><path d="M96.5 196 L103.5 196 L106 228 L100 237 L94 228 Z" fill="#232327"/><path d="M96.5 196 L103.5 196 L102 203 L98 203 Z" fill="#303035"/>`;
@@ -260,7 +301,7 @@ const Portrait = (() => {
         break;
     }
     // причёска: рисуется для овального лица и подгоняется под форму головы
-    const hatOn = p.hat && p.hat !== 'none';
+    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki';
     let hair = p.hair;
     if (hatOn) {
       if (['keffiyeh', 'hijab'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
@@ -302,6 +343,27 @@ const Portrait = (() => {
           `<path d="M84 30 Q92 24 100 30 Q108 24 116 30 M100 28 V38" stroke="${metal}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="100" cy="41" r="2.4" fill="${metal}"/>` +
           (p.branch === 'ss' ? `<circle cx="100" cy="64" r="4.6" fill="#e8e8e4"/><circle cx="98.2" cy="63.4" r="1" fill="#111"/><circle cx="101.8" cy="63.4" r="1" fill="#111"/>` : `<circle cx="100" cy="64" r="4.6" fill="#101010"/><circle cx="100" cy="64" r="3" fill="#f4f1ea"/><circle cx="100" cy="64" r="1.5" fill="#b3141c"/><path d="M92 66 Q94 71 100 71 Q106 71 108 66" stroke="${metal}" stroke-width="1.4" fill="none"/>`);
       }
+      case 'gunbo': { // фуражка императорской армии: красный околыш, золотая звезда
+        const star = (x, y, r) => `<path d="M${x} ${y - r} L${x + r * 0.3} ${y - r * 0.3} L${x + r} ${y - r * 0.3} L${x + r * 0.45} ${y + r * 0.2} L${x + r * 0.65} ${y + r} L${x} ${y + r * 0.5} L${x - r * 0.65} ${y + r} L${x - r * 0.45} ${y + r * 0.2} L${x - r} ${y - r * 0.3} L${x - r * 0.3} ${y - r * 0.3} Z" fill="#c9a640"/>`;
+        return `<path d="M40 68 Q34 26 100 22 Q166 26 160 68 Z" fill="${c}"/><path d="M46 58 Q100 48 154 58 L152 74 Q100 66 48 74 Z" fill="#b3141c"/>` +
+          `<path d="M54 72 Q100 80 146 72 Q143 83 100 87 Q57 83 54 72 Z" fill="#141414"/><path d="M66 77 Q100 83 134 77" stroke="#fff" stroke-opacity="0.22" stroke-width="2" fill="none"/>` +
+          `<path d="M52 70 Q100 77 148 70" stroke="#4a3320" stroke-width="2.6" fill="none"/>` + star(100, 44, 8);
+      }
+      case 'kaigunbo': { // фуражка флота: чёрный околыш, якорь в венке
+        const metal = p.hatMetal || '#c9a640';
+        return `<path d="M36 66 Q30 22 100 18 Q170 22 164 66 Q100 54 36 66 Z" fill="${c}"/><path d="M46 60 Q100 50 154 60 L152 74 Q100 66 48 74 Z" fill="#0b0d14"/>` +
+          `<path d="M52 72 Q100 80 148 72 Q146 84 100 88 Q54 84 52 72 Z" fill="#101010"/><path d="M64 77 Q100 83 136 77" stroke="#fff" stroke-opacity="0.2" stroke-width="2" fill="none"/>` +
+          `<path d="M50 70 Q100 77 150 70" stroke="${metal}" stroke-width="2.4" fill="none"/>` +
+          `<path d="M100 34 V50 M94 39 H106 M92 45 Q100 55 108 45" stroke="${metal}" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="100" cy="32" r="2.2" fill="${metal}"/>` +
+          `<path d="M88 36 Q84 46 92 54 M112 36 Q116 46 108 54" stroke="${metal}" stroke-width="1.4" fill="none"/>`;
+      }
+      case 'eboshi': // высокая чёрная придворная шапка со шнурами
+        return `<path d="M64 150 L60 70 M136 150 L140 70" stroke="#e8e2d0" stroke-width="1.6" fill="none"/>` +
+          `<path d="M58 72 Q52 18 92 4 Q134 8 142 72 Q100 60 58 72 Z" fill="#131315"/><path d="M92 6 Q104 30 100 62" stroke="#2c2c30" stroke-width="2" fill="none"/>` +
+          `<path d="M58 72 Q100 60 142 72 L141 62 Q100 50 59 62 Z" fill="#0a0a0b"/>`;
+      case 'hachimaki': // белая повязка с красным кругом
+        return `<path d="M46 68 Q100 50 154 68 L154 80 Q100 62 46 80 Z" fill="#f4f1ea"/><circle cx="100" cy="63" r="6.5" fill="#bc002d"/>` +
+          `<path d="M152 72 L168 92 M152 76 L162 100" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round"/>`;
       case 'fez70': // чёрная феска милиции: кисть на шнуре и золотая фасция
         return `<path d="M64 70 L72 20 L128 20 L136 70 Q100 62 64 70 Z" fill="${c}"/><ellipse cx="100" cy="20" rx="28" ry="4.5" fill="${shade(c, 18)}"/>` +
           `<path d="M100 19 Q130 20 140 54" stroke="#0a0a0b" stroke-width="2.2" fill="none"/><path d="M136 52 L144 52 L146 78 L134 78 Z" fill="#0a0a0b"/><path d="M137 60 V78 M140 60 V78 M143 60 V78" stroke="#2c2c30" stroke-width="0.8"/>` +
