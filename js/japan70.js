@@ -15,7 +15,10 @@ const JP_NAVY = (extra = {}) => ({ outfit: 'kaigun', outfitColor: '#1d2538', hat
 const JP_KIMONO = (extra = {}) => ({ outfit: 'montsuki', outfitColor: '#2a2a31', hat: 'none', glasses: 'none', beard: 'none', cigar: false, tie: 'none', medals: 0, sash: '', pin: false, ...extra });
 const JP_KOKU = (extra = {}) => ({ outfit: 'kokumin', outfitColor: '#6f7150', hat: 'none', glasses: 'none', beard: 'none', cigar: false, tie: 'none', medals: 0, sash: '', pin: true, ...extra });
 const JP_SUIT = (color = '#26282d', extra = {}) => ({ outfit: 'suit', outfitColor: color, hat: 'none', glasses: 'none', beard: 'none', cigar: false, tie: '#2a2a2a', medals: 0, sash: '', pin: false, ...extra });
-const LJ = o => ({ skin: SKIN.light, brows: 'normal', mouth: 'flat', mustache: 'none', glasses: 'none', ...o });
+// Тон кожи: тёплый, между светлым и смуглым из общей палитры, с небольшим разбросом между людьми
+SKIN.east = '#e2b184';
+const JP_SKINS = ['#e3b68a', '#deac7e', '#d8a475'];
+const LJ = o => ({ skin: SKIN.east, brows: 'normal', mouth: 'flat', mustache: 'none', glasses: 'none', ...o });
 
 // ---------- кто вы: откуда пришёл премьер ----------
 Object.assign(REGIME_TYPES, {
@@ -54,7 +57,7 @@ function japSetupLook(st, key) {
 }
 
 // ---------- страна ----------
-NAME_POOLS.japan = { m: ['Хидэо', 'Тадаси', 'Сигэру', 'Масао', 'Ёсио', 'Кэйдзо', 'Горо', 'Сюнсукэ', 'Такэси', 'Исаму'], f: ['Сэцуко', 'Фумико', 'Харуэ'], last: ['Мидзуно', 'Арима', 'Катаяма', 'Уэда', 'Нагаи', 'Кувабара', 'Хираока', 'Сонода', 'Цукамото', 'Одагири', 'Морисита', 'Тагава'] };
+NAME_POOLS.japan = { m: ['Хидэо', 'Сигэру', 'Ёсио', 'Кэйдзо', 'Такэси', 'Исаму', 'Дзиро', 'Тосио', 'Минору', 'Харуо'], f: ['Сэцуко', 'Фумико', 'Харуэ'], last: ['Кувабара', 'Хираока', 'Сонода', 'Цукамото', 'Одагири', 'Морисита', 'Тагава', 'Ногами', 'Эндо', 'Фунабаси'] };
 RELATIVES_BY_STYLE.japan = { defense: 'Кузен Сабуро', economy: 'Шурин Кэйдзо', police: 'Дядюшка Гэндзо', propaganda: 'Племянник Юкио', foreign: 'Зять Хидэо' };
 REGIONS[JAP] = {
   name: 'Япония', short: 'Япония',
@@ -67,7 +70,7 @@ REGIONS[JAP] = {
   countries: ['reich', 'usa', 'italy'],
   relInit: { reich: 40, usa: 22, italy: 45 },
   flag: FLAGS.japan,
-  leaderSkin: 'light', era: 'dark70j', style: 'japan', faithStyle: 'yokusan', exile: 'Шанхае', critters: 'подданных',
+  leaderSkin: 'east', era: 'dark70j', style: 'japan', faithStyle: 'yokusan', exile: 'Шанхае', critters: 'подданных',
   factions: {
     left: { name: 'Трудовые общества', short: 'Трудовые общества', icon: '🔧', desc: 'Общества служения отечеству на заводах и союзы арендаторов в деревне. Стачек нет с тридцать восьмого года. Рис по карточкам есть с сорок первого.' },
     liberals: { name: 'Двор', short: 'Двор', icon: '👑', desc: 'Хранитель печати, старейшины, палата пэров. Его величество не правит и не ошибается. Он назначает премьера по совету двора и может выразить «обеспокоенность». После этого кабинеты уходят сами.' },
@@ -76,11 +79,11 @@ REGIONS[JAP] = {
     hawks: { name: 'Армия', short: 'Армия', icon: '⚔️', desc: 'Сто дивизий от Маньчжурии до Бирмы. Военный министр — действующий генерал; если армия его отзовёт и не назовёт другого, кабинет падёт. Она уже делала так девять раз.' },
   },
   advisors: {
-    defense: { name: 'Генерал Кодзо Мидзуно', bio: 'Военный министр. В кабинете он представляет армию, а не наоборот.', look: LJ({ face: 'square', hair: 'short', hairColor: '#8a8a8a', mustache: 'thick', ...JP_ARMY({ medals: 5 }) }) },
-    economy: { name: 'Сюнсукэ Арима', bio: 'Министр финансов. Тридцать лет делит бюджет между армией и флотом. Остального бюджета не видел никогда.', look: LJ({ face: 'long', hair: 'combover', hairColor: '#6a6a6a', glasses: 'round', brows: 'worried', ...JP_SUIT('#33363b') }) },
-    police: { name: 'Горо Катаяма', bio: 'Министр внутренних дел. Особая высшая полиция докладывает ему о чужих мыслях. О своих он молчит.', look: LJ({ face: 'oval', hair: 'slick', hairColor: '#2a2a2a', brows: 'angry', ...JP_KOKU() }) },
-    propaganda: { name: 'Масао Уэда', bio: 'Глава Информационного бюро. Решает, что напечатают все газеты империи. Газет шестьсот, текст один.', look: LJ({ face: 'round', hair: 'bald', hairColor: '#777', glasses: 'square', ...JP_KOKU() }) },
-    foreign: { name: 'Барон Тадаси Нагаи', bio: 'Министр иностранных дел. Служил в Берлине и Вашингтоне. Знает, что обе столицы считают Японию третьей.', look: LJ({ face: 'long', hair: 'slick', hairColor: '#b0b0b0', mustache: 'pencil', ...JP_KIMONO() }) },
+    defense: { name: 'Генерал Кодзо Мидзуно', bio: 'Военный министр. В кабинете он представляет армию, а не наоборот.', look: LJ({ skin: JP_SKINS[2], face: 'square', hair: 'short', hairColor: '#8a8a8a', mustache: 'thick', ...JP_ARMY({ medals: 5 }) }) },
+    economy: { name: 'Сюнсукэ Арима', bio: 'Министр финансов. Тридцать лет делит бюджет между армией и флотом. Остального бюджета не видел никогда.', look: LJ({ skin: JP_SKINS[0], face: 'long', hair: 'combover', hairColor: '#6a6a6a', glasses: 'round', brows: 'worried', ...JP_SUIT('#33363b') }) },
+    police: { name: 'Горо Катаяма', bio: 'Министр внутренних дел. Особая высшая полиция докладывает ему о чужих мыслях. О своих он молчит.', look: LJ({ skin: JP_SKINS[1], face: 'oval', hair: 'slick', hairColor: '#2a2a2a', brows: 'angry', ...JP_KOKU() }) },
+    propaganda: { name: 'Масао Уэда', bio: 'Глава Информационного бюро. Решает, что напечатают все газеты империи. Газет шестьсот, текст один.', look: LJ({ skin: JP_SKINS[2], face: 'round', hair: 'bald', hairColor: '#777', glasses: 'square', ...JP_KOKU() }) },
+    foreign: { name: 'Барон Тадаси Нагаи', bio: 'Министр иностранных дел. Служил в Берлине и Вашингтоне. Знает, что обе столицы считают Японию третьей.', look: LJ({ skin: JP_SKINS[0], face: 'long', hair: 'slick', hairColor: '#b0b0b0', mustache: 'pencil', ...JP_KIMONO() }) },
   },
 };
 REGION_TALK[JAP] = { addr: 'господин премьер-министр', sir: 'господин', lady: 'госпожа', holiday_acc: 'День основания империи', holiday_dat: 'Дню основания империи', gringo: 'американцы', haven: 'Шанхай', exileTo: 'Шанхай', canteen: 'рис по карточкам', fruit_adj: 'Имперский', locale: 'Японии', pay_in_kind: 'Рисом.', vegas: 'горячие источники для отличившихся', rebel: 'Человек из толпы', meeting: 'в чайном доме' };
@@ -117,14 +120,16 @@ function npcJ(key) {
     student: { name: 'Студент', look: LJ({ face: 'long', hair: 'short', hairColor: '#1a1a1a', glasses: 'round', brows: 'angry', ...JP_SUIT('#2a2d33', { tie: 'none', hat: 'hachimaki' }) }) },
     priest: { name: 'Настоятель святилища', look: LJ({ face: 'long', hair: 'bald', hairColor: '#aaa', outfit: 'robe', outfitColor: '#e8e4d8', trim: '#8e1b1b', hat: 'eboshi' }) },
     governor: { name: 'Командующий экспедиционной армией', look: LJ({ face: 'round', hair: 'bald', hairColor: '#888', mustache: 'thick', ...JP_ARMY({ medals: 5 }) }) },
-    nanking: { name: 'Председатель нанкинского правительства', look: LJ({ skin: SKIN.light, face: 'round', hair: 'slick', hairColor: '#555', glasses: 'round', ...JP_SUIT('#3a3d44', { tie: '#2a2a2a' }) }) },
+    nanking: { name: 'Председатель нанкинского правительства', look: LJ({ skin: '#dba878', face: 'round', hair: 'slick', hairColor: '#555', glasses: 'round', ...JP_SUIT('#3a3d44', { tie: '#2a2a2a' }) }) },
     elder: { name: 'Староста деревни', look: LJ({ skin: SKIN.tan, face: 'long', hair: 'short', hairColor: '#999', beard: 'goatee', mustache: 'thick', brows: 'worried', outfit: 'robe', outfitColor: '#4a4640', trim: '#2a2a2a', hat: 'none' }) },
     reich_amb: { name: 'Посол Рейха', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#b9b0a0', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'none', ...DARK_PARTEI({ medals: 2 }) } },
     usa_amb: { name: 'Поверенный в делах США', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#b89a5a', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'none', ...JP_SUIT('#2a3340', { tie: '#3a2a2a' }) } },
     reporter: { name: 'Редактор «Токийского вестника»', look: LJ({ face: 'oval', hair: 'slick', hairColor: '#2a2018', glasses: 'round', ...JP_SUIT('#3a3530', { tie: '#5a2a2a' }) }) },
     rebel: { name: 'Человек из толпы', look: LJ({ face: 'oval', hair: 'short', hairColor: '#333', brows: 'angry', ...JP_KOKU({ pin: false, outfitColor: '#5c5a4a' }) }) },
   };
-  return M[key] || null;
+  const keys = Object.keys(M), n = M[key];
+  if (n && !['reich_amb', 'usa_amb', 'nanking', 'elder'].includes(key)) n.look = { ...n.look, skin: JP_SKINS[keys.indexOf(key) % JP_SKINS.length] };
+  return n || null;
 }
 
 // ---------- эпоха ----------
@@ -139,7 +144,7 @@ ERAS[DARK_J] = {
 };
 const JAP_SETUP = {
   world: 'dark', era: DARK_J, region: JAP, regime: 'kuge70', name: JP_NAMES.kuge70, title: 'Премьер-министр', country: REGIONS[JAP].country, diff: 'normal',
-  look: { skin: SKIN.light, face: 'oval', hair: 'slick', hairColor: '#3a3a3a', mustache: 'pencil', brows: 'normal', mouth: 'flat', ...JP_KIMONO({ glasses: 'round' }) },
+  look: { skin: SKIN.east, face: 'oval', hair: 'slick', hairColor: '#2a2a2a', mustache: 'pencil', brows: 'normal', mouth: 'flat', ...JP_KIMONO({ glasses: 'round' }) },
 };
 
 // ---------- роли и тексты ----------
