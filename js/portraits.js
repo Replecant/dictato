@@ -130,12 +130,21 @@ const Portrait = (() => {
         s += `<path d="M100 207 L102.5 213 L109 213.5 L104 217.5 L105.5 224 L100 220.5 L94.5 224 L96 217.5 L91 213.5 L97.5 213 Z" fill="${tr}" stroke="${shade(c, -50)}" stroke-width="0.8"/>`;
         break;
       }
-      case 'powerarmor': { // силовой доспех: огромные наплечники с кантом, горжет, печать на груди
-        const st = p.steel || '#3a3f4a', tr = p.trim || '#c9a640';
-        s += `<path d="M70 240 L76 184 L100 198 L124 184 L130 240 Z" fill="${st}"/><path d="M74 186 Q100 204 126 186 L124 176 Q100 190 76 176 Z" fill="${shade(st, -30)}" stroke="${tr}" stroke-width="1.5"/>`;
-        for (const sx of [1, -1]) { const x = 100 - sx * 62; s += `<ellipse cx="${x}" cy="204" rx="44" ry="34" fill="${st}" stroke="${tr}" stroke-width="4"/><ellipse cx="${x}" cy="204" rx="30" ry="22" fill="none" stroke="${shade(st, -35)}" stroke-width="2"/><circle cx="${x - sx * 26}" cy="186" r="3" fill="${tr}"/><circle cx="${x + sx * 22}" cy="184" r="3" fill="${tr}"/>`; }
-        s += `<path d="M92 210 H108 M100 204 V236 M94 236 H106" stroke="${tr}" stroke-width="3.5" stroke-linecap="round"/><path d="M84 214 Q100 206 116 214" fill="none" stroke="${tr}" stroke-width="1.6"/>`;
-        s += `<rect x="112" y="222" width="12" height="16" fill="#e9dcb8"/><path d="M114 226 H122 M114 230 H122 M114 234 H120" stroke="#6a2a2a" stroke-width="1"/><circle cx="118" cy="221" r="3.5" fill="#8e2a2a"/>`;
+      case 'powerarmor': { // силовой доспех: высокий горжет, купола наплечников с кантом, кираса с солнечной печатью
+        const st = p.steel || '#3a3f4a', tr = p.trim || '#c9a640', dk = shade(st, -38), lt = shade(st, 26);
+        s += `<path d="M52 240 L60 190 Q100 176 140 190 L148 240 Z" fill="${st}"/><path d="M74 196 Q100 186 126 196 L122 240 L78 240 Z" fill="${lt}" opacity="0.35"/>`;
+        s += `<path d="M82 240 V206 M118 240 V206" stroke="${dk}" stroke-width="3"/>`;
+        for (const sx of [1, -1]) {
+          const X = v => (sx === 1 ? v : 200 - v);
+          s += `<path d="M${X(-8)} 240 Q${X(-14)} 168 ${X(40)} 156 Q${X(82)} 158 ${X(88)} 212 L${X(88)} 240 Z" fill="${st}" stroke="${dk}" stroke-width="1.5"/>`;
+          s += `<path d="M${X(-10)} 232 Q${X(-14)} 168 ${X(40)} 156 Q${X(82)} 158 ${X(88)} 212" fill="none" stroke="${tr}" stroke-width="7" stroke-linecap="round"/>`;
+          s += `<path d="M${X(8)} 232 Q${X(8)} 184 ${X(42)} 176 Q${X(68)} 178 ${X(72)} 214" fill="none" stroke="${dk}" stroke-width="2"/>`;
+          s += `<path d="M${X(14)} 196 Q${X(30)} 176 ${X(54)} 180" fill="none" stroke="${lt}" stroke-width="3" opacity="0.5" stroke-linecap="round"/>`;
+          for (const [rx, ry] of [[-4, 208], [8, 174], [40, 160], [72, 172], [86, 204]]) s += `<circle cx="${X(rx)}" cy="${ry}" r="2.4" fill="${shade(tr, -45)}"/>`;
+        }
+        s += `<path d="M66 204 Q62 166 100 170 Q138 166 134 204 Q100 218 66 204 Z" fill="${dk}" stroke="${tr}" stroke-width="2.5"/><path d="M74 198 Q100 208 126 198" fill="none" stroke="${lt}" stroke-width="2" opacity="0.5"/>`;
+        s += [0, 45, 90, 135, 180, 225, 270, 315].map(a => `<path d="M100 226 L100 211" stroke="${tr}" stroke-width="3" stroke-linecap="round" transform="rotate(${a} 100 226)"/>`).join('') + `<circle cx="100" cy="226" r="7.5" fill="${tr}" stroke="${shade(tr, -50)}" stroke-width="1.2"/><circle cx="100" cy="226" r="3" fill="${dk}"/>`;
+        s += `<circle cx="150" cy="196" r="5" fill="#8e2a2a" stroke="#5a1a1a" stroke-width="1"/><path d="M146 200 L143 226 L149 222 L154 228 L154 200 Z" fill="#e9dcb8"/><path d="M147 206 H152 M146.5 211 H152 M146 216 H152" stroke="#6a2a2a" stroke-width="1"/>`;
         break;
       }
       case 'greatcoat': { // шинель: широкие лацканы, эполеты, перевязь
@@ -356,7 +365,8 @@ const Portrait = (() => {
       if (['keffiyeh', 'hijab', 'hood'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
       else if (p.hat === 'lamahat' || p.hat === 'furhat') hair = hair === 'bald' ? 'none' : 'baldside';
       else if (hair === 'curly' || hair === 'romantic') hair = 'curlyside';
-      else if (['bun', 'gelled', 'slick'].includes(hair)) hair = 'short';
+      else if (['bun', 'gelled', 'slick', 'mohawk', 'flattop', 'topknot', 'tonsure', 'undercut'].includes(hair)) hair = 'short';
+      else if (hair === 'braids') hair = 'long';
       else if (hair === 'combover') hair = 'baldside';
       else if (hair === 'bald') hair = 'baldside';
     }
@@ -372,6 +382,12 @@ const Portrait = (() => {
       case 'gelled': s += `<path d="M53 98 Q50 60 70 56 L76 42 L84 56 L92 38 L100 54 L110 38 L116 55 L126 42 L130 58 Q150 62 147 98 Q140 74 100 72 Q60 74 53 98 Z" fill="${hc}"/>`; break;
       case 'bun': s += `<path d="M53 100 Q50 56 100 52 Q150 56 147 100 Q141 72 100 70 Q59 72 53 100 Z" fill="${hc}"/><circle cx="100" cy="44" r="16" fill="${hc}"/>`; break;
       case 'long': s += `<path d="M50 160 Q40 60 100 50 Q160 60 150 160 Q146 100 138 84 Q100 70 62 84 Q54 100 50 160 Z" fill="${hc}"/>`; break;
+      case 'mohawk': s += `<path d="M55 96 Q53 60 100 58 Q147 60 145 96 Q140 78 100 76 Q60 78 55 96 Z" fill="${hc}" opacity="0.35"/><path d="M88 78 Q84 34 92 22 L96 34 L100 16 L104 34 L108 22 Q116 34 112 78 Q100 70 88 78 Z" fill="${hc}"/>`; break;
+      case 'flattop': s += `<path d="M53 98 L57 54 Q100 44 143 54 L147 98 Q141 76 100 74 Q59 76 53 98 Z" fill="${hc}"/><path d="M57 54 Q100 44 143 54" fill="none" stroke="${shade(hc, 35)}" stroke-width="2"/>`; break;
+      case 'topknot': s += `<path d="M55 96 Q53 60 100 58 Q147 60 145 96 Q140 78 100 76 Q60 78 55 96 Z" fill="${hc}" opacity="0.4"/><path d="M84 74 Q86 56 100 54 Q114 56 116 74 Q100 68 84 74 Z" fill="${hc}"/><circle cx="100" cy="44" r="11" fill="${hc}"/><rect x="92" y="52" width="16" height="4" rx="2" fill="${shade(hc, 45)}"/>`; break;
+      case 'tonsure': s += `<path d="M52 104 Q46 66 72 58 Q84 70 100 72 Q116 70 128 58 Q154 66 148 104 Q144 84 130 76 Q100 88 70 76 Q56 84 52 104 Z" fill="${hc}"/>`; break;
+      case 'undercut': s += `<path d="M55 98 Q54 70 62 62 L138 62 Q146 70 145 98 Q140 80 100 78 Q60 80 55 98 Z" fill="${hc}" opacity="0.4"/><path d="M60 70 Q58 44 104 42 Q146 44 142 66 Q120 58 96 64 Q76 68 60 70 Z" fill="${hc}"/>`; break;
+      case 'braids': s += `<path d="M50 120 Q40 60 100 50 Q160 60 150 120 Q146 96 138 84 Q100 70 62 84 Q54 96 50 120 Z" fill="${hc}"/>` + [0, 1, 2, 3, 4].map(i => `<ellipse cx="${52 - (i % 2) * 3}" cy="${124 + i * 13}" rx="7" ry="8" fill="${hc}" stroke="${shade(hc, -30)}" stroke-width="0.8"/><ellipse cx="${148 + (i % 2) * 3}" cy="${124 + i * 13}" rx="7" ry="8" fill="${hc}" stroke="${shade(hc, -30)}" stroke-width="0.8"/>`).join(''); break;
       case 'curlyside': s += `<path d="M53 98 Q50 56 100 52 Q150 56 147 98 Q141 72 100 70 Q59 72 53 98 Z" fill="${hc}"/>` + [[56, 96], [58, 84], [144, 96], [142, 84]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${hc}"/>`).join(''); break;
       case 'romantic': s += `<path d="M52 102 Q46 60 78 50 Q96 40 120 46 Q152 54 149 100 Q146 80 134 72 Q138 86 127 92 Q126 75 108 70 Q112 82 100 87 Q95 72 82 72 Q64 78 60 96 Q56 98 52 102 Z" fill="${hc}"/>` + [[53, 100], [147, 100]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${hc}"/>`).join(''); break;
       case 'baldside': s += `<path d="M52 106 Q49 90 57 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M148 106 Q151 90 143 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/>`; break;
@@ -411,10 +427,10 @@ const Portrait = (() => {
         const m = p.hatMetal || '#c9a640';
         return `<path d="M56 82 Q52 30 100 -4 Q148 30 144 82 Q100 70 56 82 Z" fill="${c}" stroke="${m}" stroke-width="2.5"/><path d="M100 2 V74 M66 52 H134" stroke="${m}" stroke-width="4"/><path d="M56 82 Q100 70 144 82 L144 90 Q100 78 56 90 Z" fill="${m}"/>`;
       }
-      case 'laurel': { // золотой лавровый венец
+      case 'laurel': { // золотой лавровый венец: две ветви по вискам, сходятся надо лбом
         const m = p.hatMetal || '#c9a640'; let w = '';
-        for (let i = 0; i < 6; i++) { const y = 96 - i * 9, dx = 6 + i * 4.5; w += `<ellipse cx="${50 + dx}" cy="${y}" rx="9" ry="4" fill="${m}" transform="rotate(${-58 + i * 6} ${50 + dx} ${y})"/><ellipse cx="${150 - dx}" cy="${y}" rx="9" ry="4" fill="${m}" transform="rotate(${58 - i * 6} ${150 - dx} ${y})"/>`; }
-        return w;
+        for (let i = 0; i < 6; i++) { const t = i / 5, x = 56 + t * 32, y = 96 - t * 38 - Math.sin(t * Math.PI) * 6, a = -70 + t * 45; w += `<ellipse cx="${x}" cy="${y}" rx="8" ry="3.6" fill="${m}" stroke="${shade(m, -45)}" stroke-width="0.6" transform="rotate(${a} ${x} ${y})"/><ellipse cx="${200 - x}" cy="${y}" rx="8" ry="3.6" fill="${m}" stroke="${shade(m, -45)}" stroke-width="0.6" transform="rotate(${-a} ${200 - x} ${y})"/>`; }
+        return w + `<circle cx="100" cy="56" r="3.5" fill="${p.gem || '#8e2a2a'}" stroke="${m}" stroke-width="1.2"/>`;
       }
       case 'headset': // гарнитура связи: дужка, наушник, микрофон
         return `<path d="M50 106 Q44 50 100 46 Q156 50 150 106" fill="none" stroke="#2a2d33" stroke-width="5"/><rect x="41" y="98" width="14" height="26" rx="5" fill="#2a2d33"/><rect x="145" y="98" width="14" height="26" rx="5" fill="#2a2d33"/><path d="M48 122 Q52 148 80 150" fill="none" stroke="#2a2d33" stroke-width="3"/><circle cx="82" cy="150" r="4.5" fill="${p.gem || '#6fb5a8'}"/>`;
