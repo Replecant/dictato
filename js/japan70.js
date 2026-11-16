@@ -125,10 +125,14 @@ function npcJ(key) {
     reich_amb: { name: 'Посол Рейха', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#b9b0a0', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'none', ...DARK_PARTEI({ medals: 2 }) } },
     usa_amb: { name: 'Поверенный в делах США', look: { skin: SKIN.light, face: 'square', hair: 'short', hairColor: '#b89a5a', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'none', ...JP_SUIT('#2a3340', { tie: '#3a2a2a' }) } },
     reporter: { name: 'Редактор «Токийского вестника»', look: LJ({ face: 'oval', hair: 'slick', hairColor: '#2a2018', glasses: 'round', ...JP_SUIT('#3a3530', { tie: '#5a2a2a' }) }) },
+    manchu: { name: 'Премьер Маньчжоу-го', look: LJ({ skin: '#dba878', face: 'long', hair: 'bald', hairColor: '#999', mustache: 'thick', beard: 'goatee', glasses: 'round', outfit: 'robe', outfitColor: '#2a3340', trim: '#8e6a1b', hat: 'none' }) },
+    jakarta: { name: 'Глава правительства Индонезии', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#1a1a1a', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'none', ...JP_SUIT('#e6e4dc', { tie: '#2a2a2a' }) } },
+    italy_amb: { name: 'Посол Италии', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'normal', mouth: 'flat', glasses: 'none', ...JP_SUIT('#26282d', { pin: 'fascio' }) } },
+    mother: { name: 'Вдова из общества матерей', look: LJ({ face: 'round', hair: 'bun', hairColor: '#8a8a8a', brows: 'worried', earring: false, outfit: 'robe', outfitColor: '#3a3a44', trim: '#e8e4d8', hat: 'none' }) },
     rebel: { name: 'Человек из толпы', look: LJ({ face: 'oval', hair: 'short', hairColor: '#333', brows: 'angry', ...JP_KOKU({ pin: false, outfitColor: '#5c5a4a' }) }) },
   };
   const keys = Object.keys(M), n = M[key];
-  if (n && !['reich_amb', 'usa_amb', 'nanking', 'elder'].includes(key)) n.look = { ...n.look, skin: JP_SKINS[keys.indexOf(key) % JP_SKINS.length] };
+  if (n && !['reich_amb', 'usa_amb', 'nanking', 'elder', 'manchu', 'jakarta', 'italy_amb'].includes(key)) n.look = { ...n.look, skin: JP_SKINS[keys.indexOf(key) % JP_SKINS.length] };
   return n || null;
 }
 
@@ -192,6 +196,7 @@ Game.vars = function () {
   v.addr = 'господин премьер-министр';
   const FN = Game.fuhrerNew(); v.fuhrerNew = FN.name; v.fuhrerNewShort = FN.short; v.fuhrerNewWho = FN.who; v.fuhrer = Game.fuhrerChanged() ? FN.short : 'Гитлер';
   const hot = Game.sphHot(); if (hot) { v.sphHot = SPH[hot].name; v.sphHotIn = SPH[hot].loc; }
+  const gone = Game.sphGone(); if (gone) v.sphGone = SPH[gone].name;
   return v;
 };
 const _renderJ = UI.render;
@@ -248,7 +253,7 @@ Object.assign(Game, {
       const f = JP_SVC[svc], other = svc === 'army' ? 'new' : 'hawks', who = svc === 'army' ? 'Военный министр' : 'Морской министр', sp = svc === 'army' ? 'defense' : 'npc:navymin';
       const step = svc === 'army' ? -1 : 1, D = Game.jpDials();
       J.gave = J.gave || { army: 0, navy: 0 };
-      const n = J.gave[svc], price = 10 + 6 * n, gain = Math.max(8, 22 - 5 * n), full = D.budget === step * 2;
+      const n = J.gave[svc], price = 10 + 6 * n, gain = Math.max(8, 22 - 5 * n), full = D.budget === step * 2, tired = n >= 3;
       return {
         title: svc === 'army' ? 'Армия отзывает министра' : 'Флот отзывает министра', bg: 'office', crisis: true,
         lines: [
@@ -257,7 +262,7 @@ Object.assign(Game, {
           ['npc:keeper', n ? 'Его величество осведомлён. Двор отмечает, что это происходит не в первый раз: каждая уступка обходится кабинету дороже прежней.' : 'Его величество осведомлён. Двор ждёт, как вы намерены поступить.'],
         ],
         choices: [
-          { text: `Уступить: пересмотреть бюджет в пользу ${JP_SVC_NAME[svc]}`, req: S => S.treasury >= price && !full, reqText: full ? 'бюджет уже целиком у них: уступать нечем' : `нужно ${price} млн`, fx: { treasury: -price, fac: { [f]: { a: gain }, [other]: { a: -9 } }, jpDial: ['budget', clamp(D.budget + step, -2, 2)], jpGave: svc }, res: `${who} забрал прошение об отставке. Бюджет переписали за ночь. ${svc === 'army' ? 'Адмиралы' : 'Генералы'} прочли новую роспись и сделали выводы.` },
+          { text: `Уступить: пересмотреть бюджет в пользу ${JP_SVC_NAME[svc]}`, req: S => S.treasury >= price && !full && !tired, reqText: tired ? 'три уступки уже были: теперь им нужен не бюджет, а другой кабинет' : full ? 'бюджет уже целиком у них: уступать нечем' : `нужно ${price} млн`, fx: { treasury: -price, fac: { [f]: { a: gain }, [other]: { a: -9 } }, jpDial: ['budget', clamp(D.budget + step, -2, 2)], jpGave: svc }, res: `${who} забрал прошение об отставке. Бюджет переписали за ночь. ${svc === 'army' ? 'Адмиралы' : 'Генералы'} прочли новую роспись и сделали выводы.` },
           { text: 'Просить повеления трона', adv: ['foreign'], req: () => court.a >= 50, reqText: 'одобрение двора ≥ 50', chance: () => clamp(0.3 + (court.a - 50) / 80 + (S.support - 50) / 300, 0.25, 0.85),
             win: { fx: { fac: { [f]: { a: 14 }, liberals: { a: -10 } } }, res: `Хранитель печати передал: его величество «желает, чтобы кабинет продолжал работу». ${svc === 'army' ? 'Генеральный штаб' : 'Морской штаб'} назвал нового министра к вечеру. Двор запомнил, что его попросили вмешаться.` },
             lose: { fx: { end: 'resigned', jpFall: svc }, res: 'Хранитель печати ответил, что трон не вмешивается в дела кабинета. Это и был ответ.' } },
@@ -306,6 +311,7 @@ Object.assign(Game, {
   sphIncome() { return Math.round(Object.keys(SPH).reduce((a, k) => a + Game.sphYield(k), 0) * 10) / 10; },
   sphUpkeep() { return Object.keys(SPH).reduce((a, k) => a + (Game.sphHeld(k) ? 1 + (Game.sph()[k].unrest >= 60 ? 1 : 0) : 0), 0); },
   sphHot() { return Object.keys(SPH).filter(k => Game.sphHeld(k)).sort((a, b) => Game.sph()[b].unrest - Game.sph()[a].unrest)[0] || null; },
+  sphGone() { return Object.keys(SPH).find(k => !Game.sphHeld(k)) || null; },
   sphCount() { return Object.keys(SPH).filter(k => Game.sphHeld(k)).length; },
   sphActions(k) {
     const T = Game.sph()[k], D = SPH[k];

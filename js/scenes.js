@@ -2,6 +2,8 @@
 const Scenes = (() => {
   const PAL = {
     reich70: { sky1: '#8e959b', sky2: '#4e555c', ground: '#3d4144', wall: '#b9b6ae', accent: '#8e1b1b', roof: '#3a3d40', plant: '#2f3d33' },
+    italy70: { sky1: '#b9b2a0', sky2: '#7a6f62', ground: '#5a5347', wall: '#cfc4ad', accent: '#2f6b4a', roof: '#8a4a35', plant: '#3a4a34' },
+    japan70: { sky1: '#a9b0b3', sky2: '#5f676d', ground: '#4a4d48', wall: '#d2cbb9', accent: '#8e2a3a', roof: '#3b3f44', plant: '#34463a' },
     latam: { sky1: '#f7c46c', sky2: '#e0704a', ground: '#7a5230', wall: '#e8c9a0', accent: '#0b6e4f', roof: '#b5532d', plant: '#2f7a3a' },
     asia: { sky1: '#bfe3d0', sky2: '#4f9a8a', ground: '#4d6b3a', wall: '#e6dcc0', accent: '#c1272d', roof: '#8e2a2a', plant: '#2e6b44' },
     africa: { sky1: '#fbd37a', sky2: '#d9822b', ground: '#9a5b2a', wall: '#ead2a8', accent: '#1e7a3c', roof: '#6b3e1e', plant: '#5d7a2a' },
@@ -35,7 +37,7 @@ const Scenes = (() => {
     return s;
   }
   function palms(p, n, y, scale = 1) {
-    if (STYLE === 'europe' || STYLE === 'german' || STYLE === 'himal') return firs(p, n, y, scale);
+    if (STYLE === 'europe' || STYLE === 'german' || STYLE === 'himal' || STYLE === 'japan') return firs(p, n, y, scale); // в Японии — сосны
     if (STYLE === 'steppe') return poplars(p, n, y, scale);
     if (STYLE === 'italy') return poplars({ ...p, plant: '#2e4a2a' }, n, y, scale); // кипарисы
     let s = '';
