@@ -13,6 +13,11 @@ COUNTRIES.usa.leadersD = [[1973.05, 'президент Никсон'], [9999, '
 COUNTRIES.spain.leadersD = [[1975.9, 'каудильо Франко'], [9999, 'адмирал Карреро Бланко']];
 const BLOCD = { italy: 'pact', spain: 'pact', japan: 'sphere', usa: 'west' };
 
+// Одежда эпохи: мундир Рейха (вермахт, партия, СС), фуражка с высокой тульёй, штатский костюм с партийным значком
+const DARK_LOOK = (color, extra = {}) => { const ss = color === '#17181a', c = ss ? '#141416' : '#5d665c'; return { outfit: 'tunic70', branch: ss ? 'ss' : 'heer', outfitColor: c, hat: 'schirm', hatColor: c, hatBand: ss ? '#0c0c0d' : '#2c3a30', hatMetal: '#c9ccd0', glasses: 'none', beard: 'none', cigar: false, tie: 'none', ...extra }; };
+const DARK_SUIT = (color, extra = {}) => ({ outfit: 'suit', outfitColor: color, hat: 'none', glasses: 'none', beard: 'none', cigar: false, tie: '#2a2a2a', medals: 0, pin: true, ...extra });
+const DARK_PARTEI = (extra = {}) => ({ outfit: 'tunic70', branch: 'partei', outfitColor: '#7a5a36', hat: 'none', hatColor: '#7a5a36', hatBand: '#5a3f22', hatMetal: '#c9a640', glasses: 'none', beard: 'none', cigar: false, tie: 'none', medals: 1, ...extra });
+
 // ---------- режимы: с какой опорой вы входите в борьбу ----------
 Object.assign(REGIME_TYPES, {
   partei70: {
@@ -34,10 +39,15 @@ Object.assign(REGIME_TYPES, {
 Object.assign(DEFAULT_PILLARS, { partei70: ['faith', 'left'], heer70: ['hawks', 'oligarchs'], techno70: ['oligarchs', 'liberals'] });
 REGIME_TITLES.reich70 = { partei70: 'Рейхсляйтер', heer70: 'Генерал-фельдмаршал', techno70: 'Рейхсминистр' };
 REGIME_SETUP_LOOK.reich70 = {
-  partei70: { outfit: 'military', outfitColor: '#6b5232', hat: 'none', medals: 1, tie: 'none' },
-  heer70: { outfit: 'military', outfitColor: '#5a6258', hat: 'cap', hatColor: '#5a6258', medals: 5, tie: 'none' },
-  techno70: { outfit: 'suit', outfitColor: '#2a2d33', hat: 'none', medals: 0, tie: '#3a3a3a' },
+  partei70: DARK_PARTEI({ cross: false, pin: false }),
+  heer70: DARK_LOOK('#5d665c', { medals: 5, cross: true, pin: false }),
+  techno70: DARK_SUIT('#2a2d33', { tie: '#3a3a3a', branch: '', cross: false }),
 };
+function darkSetupLook(st, key) {
+  const L = st.look, mil = st.regime === 'heer70';
+  if (key === 'outfit') Object.assign(L, L.outfit === 'tunic70' ? (mil ? DARK_LOOK('#5d665c', { medals: 5, cross: true, hat: L.hat, glasses: L.glasses }) : DARK_PARTEI({ hat: L.hat, glasses: L.glasses })) : DARK_SUIT('#2a2d33', { tie: '#3a3a3a', branch: '', cross: false, hat: L.hat, glasses: L.glasses }));
+  if (key === 'hat' && L.hat === 'schirm') Object.assign(L, L.outfit === 'tunic70' && L.branch === 'partei' ? { hatColor: '#7a5a36', hatBand: '#5a3f22', hatMetal: '#c9a640' } : { hatColor: '#5d665c', hatBand: '#2c3a30', hatMetal: '#c9ccd0' });
+}
 for (const k of ['partei70', 'heer70', 'techno70']) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK.reich70[k], glasses: 'none', sash: '', mustache: 'none', hair: 'short', bluetooth: false };
 REGION_TITLES.reich70 = ['Рейхсляйтер', 'Генерал-фельдмаршал', 'Рейхсминистр'];
 Object.assign(TITLE_FORMS, {
@@ -67,7 +77,7 @@ REGIONS.reich70 = {
     hawks: { name: 'Вермахт', short: 'Вермахт', icon: '⚔️', desc: 'Генералитет помнит победу и считает её своей. Четверть века гарнизонной службы на Востоке научила офицеров не доверять ни партии, ни СС.' },
   },
   advisors: {
-    defense: { name: 'Генерал-лейтенант Отто Брандис', bio: 'Ваш человек в штабе армии резерва. Знает, какой гарнизон чей.', look: LD({ face: 'square', hair: 'short', hairColor: '#8a8a8a', hat: 'cap', hatColor: '#5a6258', outfit: 'military', outfitColor: '#5a6258', medals: 4 }) },
+    defense: { name: 'Генерал-лейтенант Отто Брандис', bio: 'Ваш человек в штабе армии резерва. Знает, какой гарнизон чей.', look: LD({ face: 'square', hair: 'short', hairColor: '#8a8a8a', ...DARK_LOOK('#5d665c', { medals: 4 }) }) },
     economy: { name: 'Статс-секретарь Гюнтер Маас', bio: 'Двадцать лет сводит баланс, который не сходится. Знает настоящие цифры.', look: LD({ face: 'long', hair: 'combover', hairColor: '#6a6a6a', glasses: 'round', brows: 'worried', outfit: 'suit', outfitColor: '#33363b', tie: '#2a2a2a' }) },
     police: { name: 'Криминальдиректор Йозеф Реттих', bio: 'Ваш источник в государственной полиции. Работает на вас, пока это безопаснее, чем не работать.', look: LD({ face: 'oval', hair: 'slick', hairColor: '#2a2a2a', brows: 'angry', outfit: 'suit', outfitColor: '#1f2023', tie: '#1a1a1a' }) },
     propaganda: { name: 'Главный редактор Курт Лемке', bio: 'Тридцать лет пишет передовицы. Давно не читает их сам.', look: LD({ face: 'round', hair: 'bald', hairColor: '#777', glasses: 'square', outfit: 'suit', outfitColor: '#3a3530', tie: '#4a2a2a' }) },
@@ -79,14 +89,12 @@ FAITH_TALK.party = { priest_open: '', heavens: 'партии', faith_quip: 'Па
 FAITH_TITLE.party = 'Гауляйтер';
 PAPERS.reich70 = ['Имперский обозреватель', 'листовки подполья'];
 
-const DARK_LOOK = (color, extra = {}) => ({ outfit: 'military', outfitColor: color, hat: 'cap', hatColor: color, glasses: 'none', beard: 'none', cigar: false, tie: 'none', ...extra });
-const DARK_SUIT = (color, extra = {}) => ({ outfit: 'suit', outfitColor: color, hat: 'none', glasses: 'none', beard: 'none', cigar: false, tie: '#2a2a2a', medals: 0, ...extra });
 LEADER_STYLE.reich70 = {
   left: { male: true, title: 'Уполномоченный', look: DARK_SUIT('#4a4640', { mustache: 'thick', tie: 'none' }) },
   liberals: { male: true, title: 'Статс-секретарь', look: DARK_SUIT('#30343a', { glasses: 'round', mustache: 'none' }) },
-  faith: { male: true, title: 'Гауляйтер', look: { outfit: 'military', outfitColor: '#6b5232', hat: 'none', hair: 'combover', hairColor: '#777', glasses: 'none', beard: 'none', mustache: 'none', medals: 1, cigar: false, trim: '' } },
+  faith: { male: true, title: 'Гауляйтер', look: { hair: 'combover', hairColor: '#777', mustache: 'none', trim: '', ...DARK_PARTEI() } },
   oligarchs: { male: true, title: 'Директор', look: DARK_SUIT('#1d1e22', { mustache: 'none', glasses: 'square' }) },
-  hawks: { male: true, title: 'Генерал-полковник', look: DARK_LOOK('#5a6258', { medals: 5, mustache: 'none' }) },
+  hawks: { male: true, title: 'Генерал-полковник', look: DARK_LOOK('#5d665c', { medals: 5, mustache: 'none', cross: true }) },
   new: { male: true, title: 'Обергруппенфюрер', look: DARK_LOOK('#17181a', { medals: 2, mustache: 'none' }) },
 };
 NEW_FACTIONS[DARK] = {
@@ -100,12 +108,12 @@ function npcD(key) {
   const M = {
     doctor: { name: 'Профессор Морелль-младший, лейб-медик', look: LD({ face: 'round', hair: 'bald', hairColor: '#999', glasses: 'round', brows: 'worried', outfit: 'suit', outfitColor: '#d8d8d2', tie: 'none' }) },
     ss: { name: 'Штандартенфюрер СС', look: LD({ face: 'long', hair: 'short', hairColor: '#c9b48a', brows: 'angry', ...DARK_LOOK('#17181a', { medals: 1 }) }) },
-    gauleiter: { name: 'Гауляйтер', look: LD({ face: 'round', hair: 'combover', hairColor: '#777', outfit: 'military', outfitColor: '#6b5232', medals: 1 }) },
-    general: { name: 'Генерал-полковник', look: LD({ face: 'square', hair: 'short', hairColor: '#999', ...DARK_LOOK('#5a6258', { medals: 5 }) }) },
+    gauleiter: { name: 'Гауляйтер', look: LD({ face: 'round', hair: 'combover', hairColor: '#777', ...DARK_PARTEI() }) },
+    general: { name: 'Генерал-полковник', look: LD({ face: 'square', hair: 'short', hairColor: '#999', ...DARK_LOOK('#5d665c', { medals: 5 }) }) },
     director: { name: 'Директор концерна', look: LD({ face: 'round', hair: 'bald', hairColor: '#888', glasses: 'square', ...DARK_SUIT('#1d1e22') }) },
     worker: { name: 'Заводской уполномоченный', look: LD({ face: 'square', hair: 'short', hairColor: '#333', mustache: 'thick', ...DARK_SUIT('#4a4640', { tie: 'none' }) }) },
     student: { name: 'Студент', look: LD({ face: 'long', hair: 'short', hairColor: '#5a4a3a', glasses: 'round', ...DARK_SUIT('#3a3d44', { tie: 'none' }) }) },
-    colonel: { name: 'Полковник караульного полка', look: LD({ face: 'square', hair: 'short', hairColor: '#555', brows: 'angry', ...DARK_LOOK('#5a6258', { medals: 2 }) }) },
+    colonel: { name: 'Полковник караульного полка', look: LD({ face: 'square', hair: 'short', hairColor: '#555', brows: 'angry', ...DARK_LOOK('#5d665c', { medals: 2 }) }) },
     rebel: { name: 'Человек из толпы', look: LD({ face: 'oval', hair: 'short', hairColor: '#333', brows: 'angry', ...DARK_SUIT('#4a4640', { tie: 'none' }) }) },
     italy_amb: { name: 'Посол Италии', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'normal', mouth: 'flat', ...DARK_SUIT('#26282d') } },
     japan_amb: { name: 'Посол Японии', look: { skin: SKIN.light, face: 'oval', hair: 'short', hairColor: '#111', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'round', ...DARK_SUIT('#1d1e22') } },
@@ -116,7 +124,7 @@ function npcD(key) {
 
 // ---------- эпоха ----------
 ERAS[DARK] = {
-  name: '1970-е', label: 'Мрак 1970-го', start: 1970, turns: 48, dark: true,
+  name: '1970-е', label: 'Мрак 1970-го', start: 1970, turns: 60, dark: true,
   blurb: 'Мир, где победил Третий рейх. Фюрер умирает, и четыре силы делят наследство, пока он ещё дышит.',
   regions: ['reich70'], regimes: ['partei70', 'heer70', 'techno70'], titles: ['Рейхсляйтер'],
   intro: '',
@@ -126,7 +134,7 @@ ERAS[DARK] = {
 };
 const DARK_SETUP = {
   world: 'dark', era: DARK, region: 'reich70', regime: 'partei70', name: 'Вальтер Хартунг', title: 'Рейхсляйтер', country: REGIONS.reich70.country, diff: 'normal',
-  look: { skin: SKIN.light, face: 'oval', hair: 'short', hairColor: '#6a6a6a', hat: 'none', hatColor: '#5a6258', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'none', beard: 'none', outfit: 'military', outfitColor: '#6b5232', medals: 1, sash: '', tie: 'none' },
+  look: { skin: SKIN.light, face: 'oval', hair: 'short', hairColor: '#6a6a6a', mustache: 'none', brows: 'normal', mouth: 'flat', sash: '', ...DARK_PARTEI() },
 };
 
 // ---------- роли и общие тексты без шуток ----------
@@ -140,9 +148,10 @@ const ROLES_D = {
 const _eraLookD = Game.eraLook;
 Game.eraLook = function () {
   _eraLookD.call(Game);
+  STAT_NAMES.treasury = 'Казна';
   if (!isDark()) return;
   for (const r of Object.keys(ROLES_D)) Object.assign(ROLES[r], ROLES_D[r]);
-  STAT_NAMES.swiss = 'Личный фонд';
+  STAT_NAMES.swiss = 'Личный фонд'; darkNames();
   SLIDERS.spend.find(d => d.k === 'palace').hint = 'Уходит в ваш личный фонд в Цюрихе';
 };
 const _bankD = Game.bank;
@@ -265,6 +274,28 @@ FAC_DEMANDS.oligarchs.push({ id: 'dk_ord', kind: 'act', acts: ['dec:d_orders'], 
 FAC_DEMANDS.left.push({ id: 'dk_rat', kind: 'act', acts: ['dec:d_rations'], text: 'Повысить нормы по карточкам', only: ['reich70'] });
 FAC_DEMANDS.liberals.push({ id: 'dk_amn', kind: 'act', acts: ['dec:d_amnesty'], text: 'Начать пересмотр дел осуждённых', only: ['reich70'], cond: S => !S.used.includes('dec:d_amnesty') });
 FAC_DEMANDS.new.push({ id: 'dk_pol', kind: 'budget', k: 'police', op: '>=', v: 65, text: 'Поднять бюджет тайной полиции до 65% и выше', eras: [DARK] });
+// Пока вы претендент, силы требуют не бюджета, а обещаний и услуг
+const dkWaitD = S => !!S.suc && S.suc.phase !== 'rule';
+const promD = (f, id, text, fx) => FAC_DEMANDS[f].push({ id, kind: 'pay', text, fx, only: ['reich70'], promise: true, cond: dkWaitD });
+promD('faith', 'dkp_g1', 'Обещать гауляйтерам, что гау останутся за ними', { sucExpo: 3, fac: { liberals: { a: -4 } } });
+promD('faith', 'dkp_g2', 'Оплатить партийный съезд', { treasury: -10 });
+promD('hawks', 'dkp_h1', 'Обещать армии главенство над дивизиями СС', { sucExpo: 3, fac: { new: { a: -6 } } });
+promD('hawks', 'dkp_h2', 'Выбить пенсии ветеранам Восточного похода', { treasury: -8 });
+promD('oligarchs', 'dkp_o1', 'Обещать концернам заказы после «дня икс»', { fac: { left: { a: -3 } } });
+promD('oligarchs', 'dkp_o2', 'Закрыть дело о хищениях на «Остверке»', { sucAuth: -1, fac: { liberals: { a: -4 } } });
+promD('left', 'dkp_l1', 'Обещать рабочим твёрдые нормы снабжения', { fac: { oligarchs: { a: -3 } } });
+promD('left', 'dkp_l2', 'Оплатить дома отдыха Трудового фронта', { treasury: -8 });
+promD('liberals', 'dkp_r1', 'Обещать пересмотр дел осуждённых', { sucExpo: 5, fac: { new: { a: -6 } } });
+promD('liberals', 'dkp_r2', 'Взять под защиту профессора, уволенного за лекцию', { sucExpo: 4 });
+promD('new', 'dkp_s1', 'Обещать СС сохранить её полномочия', { fac: { hawks: { a: -6 }, liberals: { a: -6 } } });
+promD('new', 'dkp_s2', 'Передать СС списки неблагонадёжных из вашего ведомства', { fear: 2, sucAuth: -1, fac: { liberals: { a: -8 } } });
+const _pickFacD = Game.pickFacDemand;
+Game.pickFacDemand = function (f) {
+  if (!isDark() || Game.suc().phase === 'rule') return _pickFacD.call(Game, f);
+  const all = FAC_DEMANDS[f] || [], keep = all.filter(d => d.promise);
+  FAC_DEMANDS[f] = keep;
+  try { return _pickFacD.call(Game, f); } finally { FAC_DEMANDS[f] = all; }
+};
 // Требования держав
 DEMANDS.push(
   { id: 'dk_oil', countries: ['italy'], eras: [DARK], text: () => 'Поставлять Италии уголь по твёрдой цене', fx: () => ({ treasury: -6, rel: { italy: 12 }, fac: { oligarchs: { a: -4 } } }) },
@@ -275,6 +306,7 @@ DEMANDS.push(
 const _pickDemandD = Game.pickDemand;
 Game.pickDemand = function (c) {
   if (!isDark()) return _pickDemandD.call(Game, c);
+  if (Game.suc().phase !== 'rule') return null; // претенденту державы требований не предъявляют
   const keep = DEMANDS.filter(d => d.eras && d.eras.includes(DARK));
   const all = DEMANDS.splice(0, DEMANDS.length, ...keep);
   try { return _pickDemandD.call(Game, c); } finally { DEMANDS.splice(0, DEMANDS.length, ...all); }
@@ -284,10 +316,10 @@ Game.countryActions = function (c) { const a = _countryActsD.call(Game, c); retu
 
 // ---------- преемство ----------
 const RIVALS_D = {
-  ss: { name: 'рейхсфюрер СС Конрад Феллер', short: 'Феллер', fac: 'new', role: 'СС', desc: 'Лагеря, собственные дивизии и собственный суд. Если победит он, остальным не жить.' },
-  partei70: { name: 'рейхсляйтер Вильгельм Крайс', short: 'Крайс', fac: 'faith', role: 'Партийная канцелярия', desc: 'Двадцать лет ставит подпись под каждым назначением. Гауляйтеры обязаны ему должностями.' },
-  heer70: { name: 'генерал-фельдмаршал Эрих фон Траутен', short: 'фон Траутен', fac: 'hawks', role: 'Вермахт', desc: 'Командующий армией резерва. Считает, что партия проела победу.' },
-  techno70: { name: 'рейхсминистр Альбрехт Хольм', short: 'Хольм', fac: 'oligarchs', role: 'Министерство вооружений', desc: 'За ним концерны и молодые чиновники. Говорит о «рационализации» и имеет в виду больше, чем говорит.' },
+  ss: { look: LD({ face: 'long', hair: 'short', hairColor: '#b9b0a0', glasses: 'round', ...DARK_LOOK('#17181a', { medals: 3 }) }), name: 'рейхсфюрер СС Конрад Феллер', short: 'Феллер', fac: 'new', role: 'СС', desc: 'Лагеря, собственные дивизии и собственный суд. Если победит он, остальным не жить.' },
+  partei70: { look: LD({ face: 'round', hair: 'combover', hairColor: '#8a8a8a', ...DARK_PARTEI() }), name: 'рейхсляйтер Вильгельм Крайс', short: 'Крайс', fac: 'faith', role: 'Партийная канцелярия', desc: 'Двадцать лет ставит подпись под каждым назначением. Гауляйтеры обязаны ему должностями.' },
+  heer70: { look: LD({ face: 'square', hair: 'short', hairColor: '#a0a0a0', mustache: 'pencil', ...DARK_LOOK('#5d665c', { medals: 6, cross: true }) }), name: 'генерал-фельдмаршал Эрих фон Траутен', short: 'фон Траутен', fac: 'hawks', role: 'Вермахт', desc: 'Командующий армией резерва. Считает, что партия проела победу.' },
+  techno70: { look: LD({ face: 'oval', hair: 'slick', hairColor: '#4a4038', ...DARK_SUIT('#2a2d33', { tie: '#3a3a3a' }) }), name: 'рейхсминистр Альбрехт Хольм', short: 'Хольм', fac: 'oligarchs', role: 'Министерство вооружений', desc: 'За ним концерны и молодые чиновники. Говорит о «рационализации» и имеет в виду больше, чем говорит.' },
 };
 const SUC_W = { faith: 0.34, hawks: 0.2, oligarchs: 0.14, left: 0.12, new: 0.12, liberals: 0.08 };
 const healthWord = h => (h > 45 ? 'работает с документами' : h > 30 ? 'не принимает посетителей' : h > 15 ? 'не встаёт с постели' : 'при смерти');
@@ -296,7 +328,7 @@ Object.assign(Game, {
     if (!S.suc) {
       const others = ['partei70', 'heer70', 'techno70'].filter(k => k !== S.regime);
       const hard = { easy: -5, normal: 0, hard: 5 }[S.diff] || 0;
-      S.suc = { phase: 'wait', health: 46, expo: 12, auth: 0, ready: S.regime === 'heer70' ? 25 : 8, pact: null, visitAt: -9, summons: -9, war: null, course: null, hadWar: false,
+      S.suc = { phase: 'wait', health: 62, expo: 12, auth: 0, ready: S.regime === 'heer70' ? 25 : 8, pact: null, visitAt: -9, summons: -9, war: null, course: null, hadWar: false,
         kompAt: {},
         rivals: { ss: { infl: 52 + hard, base: 52 + hard }, [others[0]]: { infl: 48 + hard, base: 48 + hard }, [others[1]]: { infl: 44 + hard, base: 44 + hard } } };
     }
@@ -315,7 +347,6 @@ Object.assign(Game, {
   sucActions() {
     const U = Game.suc(), acts = [];
     if (U.phase === 'wait') {
-      acts.push({ id: 'recruit', name: 'Обойти гауляйтеров', desc: 'Личные встречи, обещания должностей после «дня икс». Партия запомнит. Канцелярия тоже.', cost: '−8 млн', ok: S.treasury >= 8, fx: { treasury: -8, fac: { faith: { a: 6 } }, sucExpo: 6 } });
       acts.push({ id: 'visit', name: 'Доклад у Фюрера', desc: 'Показаться в рейхсканцелярии, пока туда ещё пускают. Снимает подозрения; если повезёт, он назовёт вас при свидетелях.', cost: S.turn - U.visitAt < 3 ? 'не чаще раза в три квартала' : '', ok: S.turn - U.visitAt >= 3, odds: clamp(0.3 + U.health / 200, 0.3, 0.6), fx: { sucExpo: -8 }, win: { sucAuth: 5 } });
       acts.push({ id: 'garrison', name: 'Расставить своих офицеров', desc: 'Командиры караульных полков и гарнизонов столицы. Нужны, если дело дойдёт до оружия.', cost: '−10 млн', ok: S.treasury >= 10, fx: { treasury: -10, sucReady: 10, fac: { hawks: { a: 3 } }, sucExpo: 8 } });
       acts.push({ id: 'quiet', name: 'Залечь на дно', desc: 'Квартал без встреч и поездок. Подозрения слабеют, о вас начинают забывать.', cost: '', ok: U.expo > 5, fx: { sucExpo: -15, sucAuth: -2 } });
@@ -356,6 +387,33 @@ Object.assign(Game, {
     Game.log(text);
     return { text, changes };
   },
+  // Агитация: претендент завоёвывает силы Рейха. Повторы в течение двух лет дают всё меньше.
+  agitActions() {
+    const U = Game.suc(), top = Game.sucTop()[0], m = id => Game.dealInfo('agit:' + id).mult, r = (v, id) => Math.max(1, Math.round(v * m(id)));
+    const eff = id => (Game.dealInfo('agit:' + id).n ? ` · эффект ${Math.round(m(id) * 100)}%` : '');
+    const L = [
+      { id: 'gau', name: 'Объезд гау', desc: 'Личные встречи с гауляйтерами, обещания должностей после «дня икс». Партия запомнит. Канцелярия тоже.', cost: 8, fx: { treasury: -8, fac: { faith: { a: r(6, 'gau') } }, sucExpo: 5 } },
+      { id: 'garr', name: 'Смотр гарнизонов', desc: 'Офицерские собрания, разговоры после ужина. Армия привыкает видеть в вас своего.', cost: 8, fx: { treasury: -8, fac: { hawks: { a: r(6, 'garr') } }, sucReady: 3, sucExpo: 5 } },
+      { id: 'konz', name: 'Совещание с директорами', desc: 'Концернам обещаны заказы и сырьё. Директора платят взносами, рабочие — подозрением.', cost: 4, fx: { treasury: -4, fac: { oligarchs: { a: r(6, 'konz') }, left: { a: -2 } }, sucExpo: 2 } },
+      { id: 'werk', name: 'Выступление на заводе', desc: 'Цех, трибуна из ящиков, уполномоченные Трудового фронта в первом ряду.', cost: 5, fx: { treasury: -5, support: 1, fac: { left: { a: r(6, 'werk') }, oligarchs: { a: -1 } }, sucExpo: 3 } },
+      { id: 'semi', name: 'Закрытый семинар', desc: 'Молодые статс-секретари и инженеры. Говорят о «рационализации» и слушают, что вы ответите. СС ведёт список участников.', cost: 0, fx: { fac: { liberals: { a: r(7, 'semi') }, new: { a: -3 } }, sucExpo: 5 } },
+      { id: 'press', name: 'Статья в «Обозревателе»', desc: 'Передовица за вашей подписью. Имя привыкают видеть рядом со словом «будущее».', cost: 5, fx: { treasury: -5, sucAuth: r(2, 'press'), sucExpo: 4 } },
+      { id: 'film', name: 'Хроника и портреты', desc: 'Вы в киножурнале перед каждым сеансом. Страна узнаёт вас в лицо. Канцелярия — тоже.', cost: 10, fx: { treasury: -10, support: r(3, 'film'), sucAuth: 1, sucExpo: 6 } },
+      { id: 'rumor', name: `Слухи о сопернике: ${RIVALS_D[top].short}`, desc: 'Разговоры в приёмных и офицерских казино. Дёшево и недоказуемо. Иногда слух возвращается к тому, кто его пустил.', cost: 0, odds: 0.7, fx: { sucExpo: 2 }, win: { sucRival: { [top]: -3 } }, lose: { sucAuth: -1 } },
+    ];
+    return L.map(a => ({ ...a, cost: (a.cost ? `−${a.cost} млн` : '') + eff(a.id), ok: !a.cost || S.treasury >= a.cost }));
+  },
+  agitAction(id) {
+    const a = Game.agitActions().find(x => x.id === id);
+    if (!a || !a.ok || !Game.spend()) return null;
+    Game.noteDeal('agit:' + id);
+    let fx = { ...a.fx }, text = `${a.name}. `;
+    if (a.odds !== undefined) { const ok = Math.random() < a.odds; fx = Game.mergeFxD(fx, ok ? a.win : a.lose); text += ok ? 'Слух пошёл и вернулся к вам уже с подробностями.' : 'Слух проследили до вашей приёмной.'; }
+    else text += a.desc.split('. ')[0] + '.';
+    const changes = Game.apply(fx);
+    Game.log(text);
+    return { text, changes };
+  },
   mergeFxD(a, b) {
     const out = { ...a };
     for (const [k, v] of Object.entries(b || {})) out[k] = typeof v === 'object' && out[k] ? { ...out[k], ...v } : typeof v === 'number' && typeof out[k] === 'number' ? out[k] + v : v;
@@ -379,9 +437,9 @@ Object.assign(Game, {
         ['police', 'Канцелярия вскрыла пакет с пометкой «Преемник». Это план на случай его смерти: кто оцепляет правительственный квартал, кто созывает сенат партии, кто зачитывает завещание. Имени преемника в пакете нет.'],
         ['defense', 'Значит, имя впишет тот, кто будет сильнее в этот день. Армия резерва приведена в готовность. СС — тоже. Официально это учения.'],
         ['police', `Считают трое. ${R.map(r => r.name[0].toUpperCase() + r.name.slice(1)).join('. ')}. И вы.`],
-        ['economy', 'Врачи дают ему от года до трёх. Потом соберётся сенат партии. За кого будут гауляйтеры, генералы и директора, тот и станет главой Рейха.'],
+        ['economy', 'Врачи дают ему лет пять, не больше. Потом соберётся сенат партии. За кого будут гауляйтеры, генералы и директора, тот и станет главой Рейха.'],
         ['police', 'И ещё. Пока он жив, каждый, кто слишком заметно готовится к его смерти, — изменник. Списки уже ведут.'],
-        ['narrator', `Ваша задача — пережить Фюрера, взять власть и удержать её до ${Game.endYear()} года. Победить можно в сенате. Если сенат решит иначе, остаётся оружие.`],
+        ['narrator', `Ваша задача — пережить Фюрера, взять власть и удержать её до ${Game.endYear()} года. Победить можно в сенате. Если сенат решит иначе, остаётся оружие. Пока Фюрер жив, у вас нет ни казны, ни права издавать распоряжения: только ваше ведомство, ваши люди и агитация.`],
       ],
     };
   },
@@ -475,7 +533,7 @@ Game.newGameHooks.push(() => {
   S.fac.new = S.fac.new || { s: 44, a: 30, st: 'legal' };
   Object.assign(S.fac.new, { s: 44, a: S.regime === 'partei70' ? 32 : S.regime === 'heer70' ? 20 : 24 });
   S.fac.left.s = 30; S.fac.left.a = 45; S.fac.liberals.s = 18; S.fac.faith.s = 50; S.fac.hawks.s = 44; S.fac.oligarchs.s = 40;
-  S.fear = Math.max(S.fear, 55); S.support = 46; S.economy = 44;
+  S.fear = Math.max(S.fear, 55); S.support = 46; S.economy = 44; S.treasury -= 25;
   if (!S.fl.new || !S.fl.new.leader) Game.leader('new');
 });
 Game.applyHooks.push((fx, ch) => {
@@ -515,6 +573,7 @@ Object.assign(Game, {
   sucWin(how) {
     const U = Game.suc();
     U.phase = 'rule'; U.wonBy = how; U.war = U.war ? { ...U.war, over: true } : null;
+    U.ownFunds = Math.round(S.treasury); S.treasury = (how === 'war' ? 45 : 75) + Math.max(0, Math.round(S.treasury / 3)); darkNames(); // теперь в вашем распоряжении казна Рейха
     if (how === 'war') { S.economy = clamp(S.economy - 6); S.fac.new.s = clamp(S.fac.new.s - (U.war && U.war.enemy === 'ss' ? 18 : 4)); }
     Game.log(how === 'peace' ? 'Сенат партии назвал вас преемником.' : 'Гражданская война окончена. Власть в ваших руках.');
   },
@@ -582,11 +641,13 @@ Game.quarterHooks.push(rep => {
   if (!isDark()) return;
   const U = Game.suc(), hardK = { easy: 0.8, normal: 1, hard: 1.2 }[S.diff] || 1;
   if (U.phase === 'wait') {
-    U.health = clamp(U.health - rnd(1.6, 4.4));
-    if (S.turn >= 19) U.health = Math.min(U.health, 0);
+    U.health = clamp(U.health - rnd(2.2, 3.8));
+    if (S.turn >= 23) U.health = Math.min(U.health, 0);
+    S.fear = clamp(Math.max(S.fear + 1, 50));
     U.expo = clamp(U.expo - 2 + (S.fac.new.a < 25 ? 1 : 0));
     for (const [k, R] of Object.entries(U.rivals)) {
       const F = S.fac[RIVALS_D[k].fac];
+      R.base = (R.base || 45) + 0.3; // чем ближе «день икс», тем плотнее соперники собирают своих
       R.infl = clamp(R.infl + (0.5 + rnd(-1, 1.2) + (F.s - 42) / 45 - (F.a - 50) / 55) * hardK + ((R.base || 42) - R.infl) * 0.06, 22, 95);
     }
     if (U.pact && S.fac[RIVALS_D[U.pact].fac].a < 35) { rep.warn.push(`${RIVALS_D[U.pact].name[0].toUpperCase() + RIVALS_D[U.pact].name.slice(1)} разорвал союз с вами.`); U.pact = null; }
@@ -606,12 +667,24 @@ Game.quarterHooks.push(rep => {
   rep.lines = rep.lines.map(moveTextD); rep.warn = rep.warn.map(moveTextD);
 });
 // Хозяйство Рейха стоит на вывозе с Востока. Отказ от него — правильный и дорогой.
-Game.incomeHooks.push(() => {
-  if (!isDark()) return null;
+Game.incomeHooks.push(() => (isDark() && Game.suc().phase === 'rule' ? { label: 'Вывоз с Востока', v: Game.suc().course === 'thaw' ? 8 : 18 } : null));
+// Пока вы претендент, казны у вас нет: только средства ведомства и взносы тех, кто на вас ставит
+const _budgetCalcD = Game.budgetCalc, _budgetFxD = Game.budgetEffects;
+Game.budgetCalc = function () {
+  if (!isDark() || Game.suc().phase === 'rule') return _budgetCalcD.call(Game);
   const U = Game.suc(), war = U.phase === 'war' && U.war && !U.war.over;
-  return { label: 'Вывоз с Востока', v: U.course === 'thaw' ? 8 : war ? 9 : 18 };
-});
-Game.incomeHooks.push(() => (isDark() && S.suc && S.suc.phase === 'war' && S.suc.war && !S.suc.war.over ? { label: 'Расходы на войну', v: -6 } : null));
+  const hookInc = [{ label: 'Средства вашего ведомства', v: S.regime === 'techno70' ? 9 : 7 }, { label: 'Взносы концернов', v: Math.max(0, Math.round((S.fac.oligarchs.a - 40) / 10)) }];
+  if (war) hookInc.push({ label: 'Расходы на войну', v: -6 });
+  const income = hookInc.reduce((a, x) => a + x.v, 0);
+  return { simple: true, taxes: 0, taxPop: 0, taxCorp: 0, exports: 0, aid: [], aidSum: 0, extra: 0, hookInc, costs: { army: 0, police: 0, health: 0, edu: 0, subsidy: 0, infra: 0, media: 0 }, spend: 0, palace: 0, loans: 0, income, expense: 0, net: income };
+};
+Game.budgetEffects = function () {
+  if (!isDark() || Game.suc().phase === 'rule') return _budgetFxD.call(Game);
+  return { tot: { army: 0, fear: 0, support: 0, economy: 0 }, fac: { hawks: { a: 0, s: 0 }, liberals: { a: 0, s: 0 }, left: { a: 0 }, oligarchs: { a: 0 }, faith: { a: 0 } }, items: {} };
+};
+// Бюджет и распоряжения появляются только у главы Рейха; агитация — только у претендента
+Game.tabHidden = t => isDark() && ((['budget', 'decrees'].includes(t) && Game.suc().phase !== 'rule') || (t === 'agit' && Game.suc().phase === 'rule'));
+const darkNames = () => { if (!isDark()) return; STAT_NAMES.treasury = Game.suc().phase === 'rule' ? 'Казна Рейха' : 'Ваши фонды'; };
 
 // ---------- финалы ----------
 Game.endingHooks.push((type, E, verdicts) => {
@@ -670,6 +743,16 @@ UI.pressPage = async function (news) {
 
 // ---------- вкладка ----------
 Object.assign(UI, {
+  tab_agit() {
+    const U = Game.suc(), acts = Game.agitActions(), war = U.phase === 'war';
+    const F = REGIONS.reich70.factions;
+    return `<p class="lede">${war ? 'Идёт война, но за вас по-прежнему должны быть люди: гарнизоны, заводы, гау.' : 'Пока Фюрер жив, у вас нет ни казны, ни права издавать распоряжения. Есть ваше ведомство, ваше имя и пять лет, чтобы силы Рейха привыкли видеть преемником вас.'} Каждое действие стоит один приказ. Одно и то же, повторённое в течение двух лет, даёт всё меньше.${war ? '' : ' Почти всё заметное растит подозрения канцелярии.'}</p>
+      <section class="card"><div class="eyebrow">Кто за вас</div><div class="agit-forces">${Object.keys(SUC_W).filter(f => S.fac[f]).map(f => `<div class="agit-force"><span>${(F[f] || NEW_FACTIONS[DARK]).icon} ${esc((F[f] || NEW_FACTIONS[DARK]).short)}</span>${UI.meter('', S.fac[f].a, S.fac[f].a < 35 ? 'bad' : S.fac[f].a < 55 ? 'warn' : 'good')}<small>вес в сенате ${Math.round(SUC_W[f] * 100)}%</small></div>`).join('')}</div>
+        <p class="muted small">Ваш вес в сенате сейчас: <b>${Game.sucScore() + Game.sucPactBonus()}</b>. Подозрения канцелярии: <b>${Math.round(U.expo)}</b>.</p></section>
+      <div class="proj dec-grid mt">${acts.map(a => `<div class="proj-item dec"><div class="dec-main"><b>${esc(a.name)}</b><p class="muted small">${esc(a.desc)}</p>
+        <div class="dec-fx"><div class="dec-row"><span class="dec-tag">Сразу</span>${UI.fxChips(Game.previewFx(a.fx))}</div>${a.odds !== undefined ? `<div class="dec-row"><span class="dec-tag">Удача ${Math.round(a.odds * 100)}%</span>${UI.fxChips(Game.previewFx(a.win))}</div><div class="dec-row"><span class="dec-tag dec-risk">Провал</span>${UI.fxChips(Game.previewFx(a.lose))}</div>` : ''}</div></div>
+        ${UI.actBtn('agit:' + a.id, { ok: a.ok, name: 'Приказать', cost: a.cost })}</div>`).join('')}</div>`;
+  },
   tab_suc() {
     const U = Game.suc(), my = Game.sucScore(), pb = Game.sucPactBonus();
     const acts = Game.sucActions();
@@ -688,24 +771,30 @@ Object.assign(UI, {
           <p class="muted small">Идёт ${W.q + 1}-й квартал войны. На ход фронта влияют армия, одобрение вермахта, поддержка народа, казна и сила противника.</p></section></div>
         <div class="proj dec-grid mt">${acts.map(actCard).join('')}</div>`;
     }
-    const rows = [{ name: `${S.leader.title} ${S.leader.name} (вы)`, v: my + pb, me: true, note: pb ? `в том числе ${pb} от союзника` : 'ваш вес в сенате' },
-      ...Object.entries(U.rivals).map(([k, R]) => ({ name: RIVALS_D[k].name[0].toUpperCase() + RIVALS_D[k].name.slice(1), v: Math.round(R.infl), note: U.pact === k ? 'ваш союзник: голосует за вас' : `${RIVALS_D[k].role}. ${RIVALS_D[k].desc}`, ally: U.pact === k }))].sort((a, b) => b.v - a.v);
-    return `<p class="lede">Фюрер умирает. Когда он умрёт, сенат партии назовёт преемника — того, чей вес окажется больше. Ваш вес складывается из одобрения сил Рейха (партия значит больше всех) и личного авторитета. Если сенат выберет другого или СС не признает решения, останется оружие. Пока Фюрер жив, заметная подготовка считается изменой: следите за подозрениями.</p>
+    const rows = [{ look: S.leader.look, name: `${S.leader.title} ${S.leader.name} (вы)`, v: my + pb, me: true, note: pb ? `в том числе ${pb} от союзника` : 'ваш вес в сенате' },
+      ...Object.entries(U.rivals).map(([k, R]) => ({ look: RIVALS_D[k].look, name: RIVALS_D[k].name[0].toUpperCase() + RIVALS_D[k].name.slice(1), v: Math.round(R.infl), note: U.pact === k ? 'ваш союзник: голосует за вас' : `${RIVALS_D[k].role}. ${RIVALS_D[k].desc}`, ally: U.pact === k }))].sort((a, b) => b.v - a.v);
+    return `<p class="lede">Фюрер умирает. Когда он умрёт, сенат партии назовёт преемника — того, чей вес окажется больше. Ваш вес складывается из одобрения сил Рейха (его добывают на вкладке «Агитация») и личного авторитета. Здесь — интриги: соперники, союзы, гарнизоны. Если сенат выберет другого или СС не признает решения, останется оружие. Пока Фюрер жив, заметная подготовка считается изменой: следите за подозрениями.</p>
       <div class="cr">
         <section class="card" style="flex:1.4"><div class="eyebrow">Расклад в сенате партии</div>
-          <div class="suc-rows">${rows.map(r => `<div class="suc-row ${r.me ? 'me' : ''} ${r.ally ? 'ally' : ''}"><div class="suc-name"><b>${esc(r.name)}</b><span>${esc(r.note)}</span></div><span class="bar"><span style="width:${clamp(r.v)}%"></span></span><b class="suc-v">${r.v}</b></div>`).join('')}</div>
+          <div class="suc-rows">${rows.map(r => `<div class="suc-row ${r.me ? 'me' : ''} ${r.ally ? 'ally' : ''}"><div class="suc-face">${Portrait.svg(r.look)}</div><div class="suc-name"><b>${esc(r.name)}</b><span>${esc(r.note)}</span></div><span class="bar"><span style="width:${clamp(r.v)}%"></span></span><b class="suc-v">${r.v}</b></div>`).join('')}</div>
           <p class="muted small">Для мирной победы нужно быть первым с весом не ниже 45, а влияние рейхсфюрера СС должно быть ниже 55: иначе СС не признает решения сената.</p></section>
         <section class="card cr-side">
           ${UI.meter('Подозрения канцелярии', U.expo, U.expo >= 55 ? 'bad' : U.expo >= 35 ? 'warn' : 'good')}
           ${UI.meter('Готовность гарнизонов', U.ready, U.ready >= 25 ? 'good' : 'warn')}
           <div class="sp-facts"><span class="chip">Фюрер ${healthWord(U.health)}</span><span class="chip">личный авторитет: ${U.auth > 0 ? '+' : ''}${Math.round(U.auth)}</span>${U.pact ? `<span class="chip coopted">союз: ${esc(RIVALS_D[U.pact].short)}</span>` : ''}</div>
-          <p class="muted small">По оценке вашего врача, осталось кварталов: ${Math.max(1, Math.round(U.health / 3))}. Подозрения выше 55 — и вас могут вызвать в рейхсканцелярию.</p>
+          <p class="muted small">По оценке вашего врача, осталось кварталов: ${Math.max(1, Math.min(23 - S.turn, Math.round(U.health / 3)))}. Подозрения выше 55 — и вас могут вызвать в рейхсканцелярию.</p>
         </section>
       </div>
       <div class="proj dec-grid mt">${acts.map(actCard).join('')}</div>`;
   },
 });
 UI.actionHandlers = UI.actionHandlers || [];
+UI.actionHandlers.push(id => {
+  if (!id.startsWith('agit:')) return false;
+  const out = Game.agitAction(id.slice(5));
+  if (out) { UI.render(); UI.toast(out.text, out.changes); }
+  return true;
+});
 UI.actionHandlers.push(id => {
   if (!id.startsWith('suc:')) return false;
   const out = Game.sucAction(id.slice(4));

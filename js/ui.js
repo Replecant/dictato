@@ -117,10 +117,10 @@ const UI = {
       outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
     } : st.era === 'dark70' ? {
-      hat: [['Фуражка', 'cap'], ['Без убора', 'none']],
+      hat: [['Фуражка', 'schirm'], ['Без убора', 'none']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick']],
       glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Большие', 'square']],
-      outfit: [['Мундир', 'military'], ['Костюм', 'suit']],
+      outfit: [['Мундир', 'tunic70'], ['Костюм', 'suit']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === '1980' ? {
       skin: [['Светлая', SKIN.light], ['Смуглая', SKIN.tan], ['Бронзовая', SKIN.brown], ['Тёмная', SKIN.dark], ['Очень тёмная', SKIN.deep]],
@@ -194,6 +194,7 @@ const UI = {
     };
     for (const b of document.querySelectorAll('[data-look]')) b.onclick = () => {
       st.look[b.dataset.look] = b.dataset.look === 'bluetooth' ? b.dataset.val === '1' : b.dataset.val;
+      if (st.era === 'dark70' && typeof darkSetupLook === 'function') { darkSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (b.dataset.look === 'outfit') st.look.outfitColor = { military: '#4b5320', suit: '#2a2d36', mao: '#56604a', guayabera: '#f1e4c3', suit2000: '#1c2230', tracksuit: '#1f3f8a', polo: '#2a6a4a', uniform48: '#1d2a44', frock: '#1d1d22', poncho: '#9a1a1a', robe: '#5a2a2a' }[b.dataset.val];
       UI.renderSetup();
     };
@@ -368,11 +369,11 @@ const UI = {
         <div class="rep-grid">${diffs}</div>
         <table class="ledger">
           <tbody>
-            ${row('Налоги', B.taxes)}${row('Экспорт: ' + REGIONS[S.region].exports, B.exports)}
+            ${B.simple ? (B.hookInc || []).map(h => row(h.label, h.v)).join('') : `${row('Налоги', B.taxes)}${row('Экспорт: ' + REGIONS[S.region].exports, B.exports)}
             ${B.aid.map(a => row('Помощь: ' + COUNTRIES[a.c].name, a.v)).join('')}
             ${B.extra ? row('Аренда баз, нефть, казино', B.extra) : ''}${(B.hookInc || []).map(h => row(h.label, h.v)).join('')}
             ${row('Армия и полиция', -(B.costs.army + B.costs.police))}${row('Здоровье, школы, субсидии', -(B.costs.health + B.costs.edu + B.costs.subsidy))}${row('Дороги и порты', -B.costs.infra)}${row('Пропаганда', -B.costs.media)}${B.costs.netctl ? row('Контроль интернета', -B.costs.netctl) : ''}
-            ${B.palace ? row(`Нужды дворца (→ ${Game.bank().to})`, -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}
+            ${B.palace ? row(`Нужды дворца (→ ${Game.bank().to})`, -B.palace) : ''}${B.loans ? row('Выплаты по кредитам', -B.loans) : ''}`}
             ${row('Итого за квартал', B.net, 'total')}
           </tbody>
         </table>
@@ -400,9 +401,10 @@ const UI = {
       const lvl = money ? (k === 'treasury' && v < 0 ? 'bad' : '') : (k === 'fear' || k === 'net' ? '' : v < 25 ? 'bad' : v < 45 ? 'warn' : 'good');
       return `<div class="stat ${lvl}${k === 'net' ? ' net' : ''}" title="${STAT_NAMES[k]}"><span class="stat-ic" aria-hidden="true">${STAT_ICONS[k]}</span><span class="stat-name">${STAT_NAMES[k]}</span><b class="stat-val">${Math.round(v)}${money ? '<small> млн</small>' : k === 'net' ? '<small> %</small>' : ''}</b><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
-    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70' };
-    if (eraTabs[UI.tab] && eraTabs[UI.tab] !== S.era) UI.tab = 'cabinet';
-    for (const b of document.querySelectorAll('.tabs button')) { b.hidden = !!eraTabs[b.dataset.tab] && eraTabs[b.dataset.tab] !== S.era; b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
+    const eraTabs = { coldwar: '1960', war: '1930', colorrev: '2000', spring: '1848', cold80: '1980', gun05: '1905', suc: 'dark70', agit: 'dark70' };
+    const tabOff = t => (!!eraTabs[t] && eraTabs[t] !== S.era) || !!(Game.tabHidden && Game.tabHidden(t));
+    if (tabOff(UI.tab)) UI.tab = 'cabinet';
+    for (const b of document.querySelectorAll('.tabs button')) { b.hidden = tabOff(b.dataset.tab); b.classList.toggle('on', b.dataset.tab === UI.tab); b.setAttribute('aria-selected', b.dataset.tab === UI.tab); }
     const crb = document.querySelector('.tabs button[data-tab="colorrev"]');
     if (crb && S.era === '2000') { crb.textContent = (CR_REGION[S.region] || {}).tab || 'Цветные революции'; crb.classList.toggle('alert', !!S.cr && (S.cr.heat >= 55 || S.cr.rad >= 50)); }
     const spb = document.querySelector('.tabs button[data-tab="spring"]');

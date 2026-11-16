@@ -20,6 +20,7 @@ const Portrait = (() => {
         s += `<path d="M84 189 L100 232 L116 189 Z" fill="#f4f1ea"/>`;
         if (p.tie !== 'none') s += `<path d="M96 196 L104 196 L107 228 L100 238 L93 228 Z" fill="${p.tie || '#a82424'}"/>`;
         s += `<path d="M84 189 L100 232 L70 240 L56 198 Z" fill="${d}"/><path d="M116 189 L100 232 L130 240 L144 198 Z" fill="${d}"/>`;
+        if (p.pin) s += `<circle cx="126" cy="210" r="4.2" fill="#b3141c" stroke="#c9a640" stroke-width="1"/><circle cx="126" cy="210" r="1.8" fill="#fff"/>`; // партийный значок
         break;
       case 'mao':
         s += `<path d="M82 186 Q100 198 118 186 L120 197 Q100 210 80 197 Z" fill="${d}"/>`;
@@ -95,6 +96,27 @@ const Portrait = (() => {
         s += `<path d="M66 192 Q100 218 134 192 L124 186 Q100 202 76 186 Z" fill="${p.skin}"/>`;
         s += `<path d="M60 196 Q100 228 140 196 L136 208 Q100 238 64 208 Z" fill="${tr}" opacity="0.95"/>` + Array.from({ length: 9 }, (_, i) => { const x = 66 + i * 8.5, y = 208 + Math.sin(i / 8 * Math.PI) * 22; return `<circle cx="${x}" cy="${y}" r="3.4" fill="${tr}"/>`; }).join('');
         s += `<circle cx="100" cy="214" r="4.5" fill="#e2b33c" stroke="#9a7417" stroke-width="1"/>`;
+        break;
+      }
+      case 'tunic70': { // мундир Рейха 1970-х: вермахт (heer), партия (partei) или СС (ss)
+        const br = p.branch || 'heer';
+        const col = br === 'ss' ? '#0c0c0d' : br === 'partei' ? shade(c, -45) : '#2c3a30';
+        const metal = br === 'partei' ? '#c9a640' : '#c9ccd0';
+        const tab = br === 'ss' ? '#0c0c0d' : br === 'partei' ? '#8e1b1b' : '#a3161d';
+        s += `<path d="M100 198 L100 240" stroke="${d}" stroke-width="2"/>` + [208, 220, 232].map(y => `<circle cx="100" cy="${y}" r="2.6" fill="${metal}"/>`).join('');
+        s += `<path d="M79 184 Q100 198 121 184 L123 199 Q100 213 77 199 Z" fill="${col}"/>`;
+        // петлицы
+        s += `<path d="M80 188 L92 195 L91 203 L79 196 Z" fill="${tab}" stroke="${metal}" stroke-width="1"/><path d="M120 188 L108 195 L109 203 L121 196 Z" fill="${tab}" stroke="${metal}" stroke-width="1"/>`;
+        s += `<path d="M83 192 L89 196 M111 196 L117 192" stroke="${metal}" stroke-width="1.6"/>`;
+        // погоны: узкие плетёные
+        s += `<rect x="20" y="197" width="38" height="9" rx="2" fill="${metal}" transform="rotate(13 39 201)"/><rect x="142" y="197" width="38" height="9" rx="2" fill="${metal}" transform="rotate(-13 161 201)"/>`;
+        s += `<path d="M24 199 L54 206 M146 206 L176 199" stroke="${shade(c, -50)}" stroke-width="1.2" stroke-dasharray="3 2"/>`;
+        // нагрудный орёл
+        if (br !== 'partei') s += `<path d="M58 214 Q68 209 78 214 M68 212 V219" stroke="${metal}" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="68" cy="221" r="2" fill="${metal}"/>`;
+        // орден на шее
+        if (p.cross) s += `<path d="M96 203 H104 M100 199 V207" stroke="#0c0c0d" stroke-width="5"/><path d="M96 203 H104 M100 199 V207" stroke="${metal}" stroke-width="1.2"/>`;
+        // нарукавная повязка у партии и СС
+        if (br !== 'heer') s += `<path d="M163 212 L190 220 L192 240 L160 240 Z" fill="#b3141c"/><circle cx="177" cy="229" r="7" fill="#fff"/><g transform="rotate(45 177 229)" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M177 225 V233 M173 229 H181"/><path d="M177 225 H180.2 M181 229 V232.2 M177 233 H173.8 M173 229 V225.8"/></g>`;
         break;
       }
       default: // military
@@ -233,6 +255,15 @@ const Portrait = (() => {
   function hat(p) {
     const c = p.hatColor || '#4b5320', d = shade(c, -35);
     switch (p.hat) {
+      case 'schirm': { // фуражка с высокой тульёй
+        const band = p.hatBand || '#2c3a30', metal = p.hatMetal || '#c9ccd0';
+        return `<path d="M30 64 Q22 6 100 4 Q178 6 170 64 Q100 52 30 64 Z" fill="${c}"/><path d="M30 64 Q100 52 170 64" stroke="${metal}" stroke-width="1.5" fill="none"/>` +
+          `<path d="M44 60 Q100 50 156 60 L154 76 Q100 68 46 76 Z" fill="${band}"/>` +
+          `<path d="M52 74 Q100 82 148 74 Q146 86 100 90 Q54 86 52 74 Z" fill="#101010"/><path d="M64 79 Q100 85 136 79" stroke="#fff" stroke-opacity="0.2" stroke-width="2" fill="none"/>` +
+          `<path d="M50 72 Q100 79 150 72" stroke="${metal}" stroke-width="2.4" fill="none"/><circle cx="51" cy="72" r="2.6" fill="${metal}"/><circle cx="149" cy="72" r="2.6" fill="${metal}"/>` +
+          `<path d="M84 30 Q92 24 100 30 Q108 24 116 30 M100 28 V38" stroke="${metal}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="100" cy="41" r="2.4" fill="${metal}"/>` +
+          (p.branch === 'ss' ? `<circle cx="100" cy="64" r="4.6" fill="#e8e8e4"/><circle cx="98.2" cy="63.4" r="1" fill="#111"/><circle cx="101.8" cy="63.4" r="1" fill="#111"/>` : `<circle cx="100" cy="64" r="4.6" fill="#101010"/><circle cx="100" cy="64" r="3" fill="#f4f1ea"/><circle cx="100" cy="64" r="1.5" fill="#b3141c"/><path d="M92 66 Q94 71 100 71 Q106 71 108 66" stroke="${metal}" stroke-width="1.4" fill="none"/>`);
+      }
       case 'cap': return `<path d="M40 68 Q34 24 100 20 Q166 24 160 68 Z" fill="${c}"/><rect x="48" y="58" width="104" height="16" rx="3" fill="${d}"/>` +
         `<path d="M54 72 Q100 80 146 72 Q143 83 100 87 Q57 83 54 72 Z" fill="#141414"/><path d="M66 77 Q100 83 134 77" stroke="#fff" stroke-opacity="0.22" stroke-width="2" fill="none"/>` +
         `<path d="M52 69 Q100 76 148 69" stroke="#e2b33c" stroke-width="2.5" fill="none"/><circle cx="53" cy="69" r="3" fill="#e2b33c"/><circle cx="147" cy="69" r="3" fill="#e2b33c"/>` +
