@@ -5,7 +5,18 @@
 const ITAL = 'italy70';
 
 // ---------- державы ----------
-COUNTRIES.reich = { name: 'Германский рейх', bloc: 'axis', flag: 'reich', leaders: [[1975.3, 'Фюрер'], [9999, 'преемник Фюрера']] };
+COUNTRIES.reich = { name: 'Германский рейх', bloc: 'axis', flag: 'reich', leaders: [[1975.25, 'фюрер Адольф Гитлер'], [9999, 'преемник Гитлера']] };
+// Гитлеру в 1970-м восемьдесят один год. Весной 1975-го он умирает, и сенат партии называет преемника: в каждой партии — случайного
+// из его окружения. В списке только те, кому к 1975 году меньше семидесяти пяти: Геринг, Гесс, Геббельс, Дёниц, Борман и Гиммлер уже слишком стары.
+// pull — как преемник тянет Италию к Берлину каждый квартал, fx — что меняется в день его прихода.
+const FUHRER_AT = 1975.25;
+const FUHRERS = {
+  speer: { name: 'Альберт Шпеер', short: 'Шпеер', who: 'рейхсминистр вооружений, семьдесят лет', note: 'Архитектор и хозяйственник. В Берлине ждут счетоводов вместо ораторов; союзникам обещают «деловые отношения».', pull: -0.2, fx: { economy: 1, itCw: { reich: -3 } } },
+  heydrich: { name: 'Рейнхард Гейдрих', short: 'Гейдрих', who: 'глава имперской безопасности, семьдесят один год', note: 'Власть взяла СС. Союзникам советуют не опаздывать с ответами на берлинские ноты.', pull: 0.3, fx: { itCw: { reich: 4 }, fac: { liberals: { a: -3 }, faith: { a: -3 } } } },
+  axmann: { name: 'Артур Аксман', short: 'Аксман', who: 'имперский руководитель молодёжи, шестьдесят два года', note: 'Самый молодой из старой гвардии: войну он встретил двадцатишестилетним. Старики в сенате считают его временным. Берлин надолго занят собой.', pull: -0.1, fx: { itCw: { reich: -5 } } },
+  naumann: { name: 'Вернер Науман', short: 'Науман', who: 'министр пропаганды, шестьдесят пять лет', note: 'Человек радио и газет, ученик Геббельса. Тон Берлина станет громче, содержание останется прежним.', pull: 0.1, fx: { itCw: { reich: 2 }, fac: { new: { a: 3 } } } },
+  schirach: { name: 'Бальдур фон Ширах', short: 'фон Ширах', who: 'имперский наместник в Вене, шестьдесят восемь лет', note: 'Тридцать пять лет просидел в Вене и считает себя знатоком Юга. В Риме его знают лично и не боятся.', pull: -0.1, fx: { rel: { reich: 5 }, itCw: { reich: -1 } } },
+};
 COUNTRY_CASES.reich = ['Рейха', 'Рейхом', 'в Берлин'];
 const BLOCI = { reich: 'pact', spain: 'pact', japan: 'sphere', usa: 'west' };
 
@@ -187,6 +198,7 @@ Game.vars = function () {
   const v = _varsI.call(Game);
   if (!isItal()) return v;
   v.addr = 'дуче';
+  const FN = Game.fuhrerNew(); v.fuhrerNew = FN.name; v.fuhrerNewShort = FN.short; v.fuhrerNewWho = FN.who; v.fuhrerNewNote = FN.note; v.fuhrer = Game.fuhrerChanged() ? FN.short : 'Гитлер';
   const hot = Game.impHot(); if (hot) { v.impHot = IMP[hot].name; v.impHotIn = IMP[hot].loc; }
   return v;
 };
@@ -224,7 +236,13 @@ Object.assign(Game, {
     if (!S.it) S.it = {};
     return S.it;
   },
+  // Кто сменит Гитлера в этой партии
+  fuhrerKey() { const I = Game.it(); if (!I.fuhrer || !FUHRERS[I.fuhrer]) I.fuhrer = pick(Object.keys(FUHRERS)); return I.fuhrer; },
+  fuhrerNew() { return FUHRERS[Game.fuhrerKey()]; },
+  fuhrerChanged() { return Game.eraTime() >= FUHRER_AT; },
 });
+const _leaderAtI = Game.leaderAt;
+Game.leaderAt = function (c) { return isItal() && c === 'reich' && Game.fuhrerChanged() ? `фюрер ${Game.fuhrerNew().name}` : _leaderAtI.call(Game, c); };
 
 // ============================================================
 // ИМПЕРИЯ: владения
@@ -337,7 +355,7 @@ Object.assign(Game, {
   },
   itcwQuarter(rep) {
     const C = Game.itcw(), q = Game.viaSum(), cnt = Game.viaCount();
-    C.reich = clamp(C.reich + 0.1 + rnd(-0.8, 0.8) + ((S.rel.reich || 50) - 50) / 60 + q.reich + (C.bloc ? -0.8 : 0) + (C.vassal ? 1 : 0));
+    C.reich = clamp(C.reich + 0.1 + rnd(-0.8, 0.8) + ((S.rel.reich || 50) - 50) / 60 + q.reich + (C.bloc ? -0.8 : 0) + (C.vassal ? 1 : 0) + (Game.fuhrerChanged() ? Game.fuhrerNew().pull : 0));
     C.usa = clamp(C.usa - 0.2 + rnd(-0.8, 0.8) + ((S.rel.usa || 40) - 40) / 50 + q.usa + (S.economy < 40 ? 0.4 : 0) + (C.bloc ? -0.3 : 0));
     const over = C.reich + C.usa - 110; if (over > 0) { C.reich = clamp(C.reich - over * 0.3); C.usa = clamp(C.usa - over * 0.3); } // двум хозяевам сразу служить не выйдет
     if (C.bloc) S.economy = clamp(S.economy + 0.4);
@@ -618,7 +636,7 @@ Object.assign(Game, {
 Game.newGameHooks.push(() => {
   if (!isItal()) return;
   Game.eraLook();
-  Game.via(); Game.imp(); Game.itcw();
+  Game.via(); Game.imp(); Game.itcw(); Game.fuhrerKey();
   S.fac.new = S.fac.new || { s: 42, a: 40, st: 'legal' };
   Object.assign(S.fac.new, { s: 42, a: S.regime === 'gerarca70' ? 62 : S.regime === 'eroe70' ? 34 : 32 });
   S.fac.left.s = 30; S.fac.liberals.s = 34; S.fac.faith.s = 40; S.fac.hawks.s = 40; S.fac.oligarchs.s = 36;
@@ -930,6 +948,7 @@ Object.assign(UI, {
     return `<p class="lede">Мир делят три державы, и Италия — приз для двух из них. Берлин считает её младшим партнёром и держит углём. Вашингтон видит в ней дверь в Европу и стучит кредитами. Влияние каждого растёт и падает от ваших отношений с ним и от курса на «Итальянском пути»: жёсткие линии тянут к Берлину, реформы — к Вашингтону. Третий выход — свой блок с Мадридом.</p>
       <div class="cr">
         <section class="card" style="flex:1.3"><div class="eyebrow">Чья Италия · ${esc(Game.itcwStatus())}</div>
+          <p class="muted small">В Берлине: ${esc(Game.leaderAt('reich'))}${Game.fuhrerChanged() ? `, ${esc(Game.fuhrerNew().who)}. ${esc(Game.fuhrerNew().note)}` : ', восемьдесят с лишним лет. О его здоровье в Берлине не говорят вслух.'}</p>
           ${UI.meter('Влияние Рейха', C.reich, C.reich >= 85 ? 'bad' : C.reich >= 45 ? 'warn' : 'good')}
           ${UI.meter('Влияние США', C.usa, 'str')}
           ${C.bloc ? '<p><span class="chip coopted">Латинский пакт подписан</span></p>' : UI.meter('Латинский блок: готовность', C.latin, C.latin >= 100 ? 'good' : 'str')}
