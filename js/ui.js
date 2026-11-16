@@ -45,12 +45,11 @@ const UI = {
 
   // ---------- титульный экран ----------
   setWorld(dark) {
-    const sw = $('#world-switch'), main = $('#title-main'), dk = $('#title-dark');
-    sw.setAttribute('aria-checked', dark ? 'true' : 'false');
+    const main = $('#title-main'), dk = $('#title-dark');
     $('#screen-title').classList.toggle('world-dark', dark);
     main.inert = dark; main.setAttribute('aria-hidden', dark ? 'true' : 'false');
     dk.inert = !dark; dk.setAttribute('aria-hidden', dark ? 'false' : 'true');
-    if (dark) dk.scrollTop = 0;
+    if (dark) { dk.scrollTop = 0; setTimeout(() => { const b = $('#btn-folder-close'); if (b) b.focus({ preventScroll: true }); }, 60); }
   },
   title() {
     UI.setWorld(false);
@@ -868,8 +867,9 @@ const Charts = {
 function boot() {
   $('#btn-new').onclick = () => UI.startSetup();
   $('#btn-dark-de').onclick = () => UI.startSetup('dark');
-  // Тумблер миров: обычная папка уезжает в сторону, из картотеки выезжает тёмная папка «Мрак 1970-го»
-  $('#world-switch').onclick = () => UI.setWorld($('#world-switch').getAttribute('aria-checked') !== 'true');
+  // Папка «Диктато 1.2»: обычный экран уезжает в сторону, из картотеки выезжает тёмная папка
+  $('#btn-folder').onclick = () => UI.setWorld(true);
+  $('#btn-folder-close').onclick = () => { UI.setWorld(false); $('#btn-folder').focus(); };
   $('#btn-continue').onclick = () => UI.continueGame();
   $('#btn-begin').onclick = () => UI.beginGame();
   $('#btn-back').onclick = () => UI.title();

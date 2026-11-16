@@ -13,12 +13,6 @@
 <body>
 <!--APP-->
 <main id="screen-title" class="screen title-screen">
-  <!-- Тумблер «Мрак 1970-го» скрыт: чтобы вернуть режим, уберите атрибут hidden -->
-  <button class="world-switch" id="world-switch" type="button" role="switch" hidden aria-checked="false" aria-label="Переключить мир: наш мир или «Мрак 1970-го»">
-    <span class="ws-label ws-a">Наш мир</span>
-    <span class="ws-plate" aria-hidden="true"><span class="ws-lever"></span><span class="ws-lamp"></span></span>
-    <span class="ws-label ws-b">Мрак 1970-го</span>
-  </button>
   <div class="title-wrap" id="title-main">
     <div class="title-portraits" id="title-portraits" aria-hidden="true"></div>
     <div class="title-text">
@@ -31,16 +25,31 @@
         <button class="btn big ghost" id="btn-tutorial">Обучение</button>
       </div>
       <p class="fine">Все страны-герои, правители и министры вымышлены. Великие державы и мировые события — настоящие.</p>
+      <button class="folder-link" id="btn-folder" type="button">
+        <span class="fl-tab">Папка 1.2</span>
+        <span class="fl-body"><b>Диктато 1.2: Тучи над миром</b><small>Отдельная версия со своими правилами: альтернативный 1970-й, без шуток. Открыть папку →</small></span>
+      </button>
     </div>
   </div>
   <section class="dk-folder" id="title-dark" aria-hidden="true" inert>
-    <div class="dk-tab" aria-hidden="true">Дело № 1970 · альтернативная история</div>
+    <div class="dk-top"><div class="dk-tab" aria-hidden="true">Диктато 1.2 · отдельная папка</div><button class="dk-back" id="btn-folder-close" type="button">← К основной игре</button></div>
     <div class="dk-sheet">
       <div class="dk-stamp" aria-hidden="true">Секретно</div>
       <div class="dk-emblem" aria-hidden="true"><svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#b3141c"/><circle cx="15" cy="10" r="6" fill="#fff"/><g transform="rotate(45 15 10)" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M15 6.2 V13.8 M11.2 10 H18.8"/><path d="M15 6.2 H18.1 M18.8 10 V13.1 M15 13.8 H11.9 M11.2 10 V6.9"/></g></svg></div>
-      <p class="dk-eyebrow">Папка из другого шкафа · мир, которого не было</p>
-      <h1 class="dk-logo">МРАК <span>1970-го</span></h1>
-      <p class="dk-tagline">Мир, где победил Третий рейх. Война кончилась двадцать пять лет назад. Победители поделили карту и с тех пор боятся друг друга больше, чем побеждённых. Вожди стареют, преемники считают дни, а лозунги на стенах никто не решается перекрасить. Здесь шутят тише.</p>
+      <p class="dk-eyebrow">Диктато 1.2 · альтернативная история</p>
+      <h1 class="dk-logo">ТУЧИ <span>над миром</span></h1>
+      <p class="dk-tagline">1970 год. Мир, где победил Третий рейх. Война кончилась двадцать пять лет назад. Победители поделили карту и с тех пор боятся друг друга больше, чем побеждённых. Вожди стареют, преемники считают дни, а лозунги на стенах никто не решается перекрасить.</p>
+      <section class="dk-diff" aria-label="Чем отличается эта версия">
+        <h2>Чем отличается эта версия</h2>
+        <ul>
+          <li><b>Другой тон.</b> Это антиутопия. Шуток почти нет, абсурдных указов и капризов министров нет совсем.</li>
+          <li><b>Вы начинаете не правителем.</b> Первые пять лет — борьба за преемство: агитация и интриги вместо бюджета и указов.</li>
+          <li><b>Власть берут дважды.</b> Сначала в сенате партии или в гражданской войне, потом её нужно удержать.</li>
+          <li><b>Партия длиннее.</b> Пятнадцать лет вместо десяти.</li>
+          <li><b>Страны играются по-разному.</b> У каждой своя завязка и свои правила. Пока открыта Германия.</li>
+          <li><b>Реальные державы — под вашим управлением.</b> В основной игре страна-герой вымышлена, здесь — нет. Действующие лица вымышлены по-прежнему.</li>
+        </ul>
+      </section>
       <div class="dk-cards">
         <button class="dk-card dk-open" id="btn-dark-de" type="button">
           <span class="dk-no">Лист 1 · дело открыто</span>
@@ -64,7 +73,7 @@
         </article>
       </div>
       <div class="dk-foot">
-        <p class="dk-fine">Альтернативная история. Все действующие лица вымышлены. Это антиутопия: мир показан мрачным намеренно — как предупреждение, а не как мечта. Партия длится пятнадцать лет, шуток здесь почти нет. Италия и Япония — в разработке.</p>
+        <p class="dk-fine">Альтернативная история. Все действующие лица вымышлены. Это антиутопия: мир показан мрачным намеренно — как предупреждение, а не как мечта. Италия и Япония — в разработке.</p>
       </div>
     </div>
   </section>
