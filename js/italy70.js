@@ -131,6 +131,14 @@ function npcI(key) {
     spain_amb: { name: 'Посол Испании', look: LI({ face: 'long', hair: 'slick', hairColor: '#333', mustache: 'thick', ...IT_SUIT('#26282d', { pin: false }) }) },
     doctor: { name: 'Хирург госпиталя Челио', look: LI({ skin: SKIN.light, face: 'round', hair: 'bald', hairColor: '#999', glasses: 'round', brows: 'worried', outfit: 'suit', outfitColor: '#d8d8d2', tie: 'none' }) },
     reporter: { name: 'Редактор «Римского вестника»', look: LI({ face: 'oval', hair: 'curly', hairColor: '#2a2018', mustache: 'pencil', ...IT_SUIT('#3a3530', { tie: '#5a2a2a' }) }) },
+    sheikh: { name: 'Шейх братства сенуситов', look: { skin: SKIN.brown, face: 'long', hair: 'short', hairColor: '#ddd', beard: 'full', mustache: 'thick', brows: 'normal', mouth: 'flat', glasses: 'none', outfit: 'robe', outfitColor: '#e8e2d0', trim: '#6a5a3a', hat: 'keffiyeh', hatColor: '#e8e2d0' } },
+    abuna: { name: 'Абуна, глава эфиопской церкви', look: { skin: SKIN.dark, face: 'long', hair: 'bald', hairColor: '#ccc', beard: 'full', mustache: 'thick', brows: 'normal', mouth: 'flat', glasses: 'none', outfit: 'robe', outfitColor: '#1d1d1d', trim: '#c9a640', hat: 'turban', hatColor: '#e8e2d0' } },
+    archbishop: { name: 'Архиепископ Афинский', look: { skin: SKIN.tan, face: 'long', hair: 'short', hairColor: '#bbb', beard: 'full', mustache: 'thick', brows: 'worried', mouth: 'flat', glasses: 'none', outfit: 'robe', outfitColor: '#1d1d1d', trim: '#8e8a80', hat: 'none' } },
+    rector: { name: 'Ректор Римского университета', look: LI({ skin: SKIN.light, face: 'long', hair: 'combover', hairColor: '#bbb', glasses: 'round', mustache: 'thick', ...IT_SUIT('#2a2d33', { pin: false }) }) },
+    mother: { name: 'Мать осуждённого', look: LI({ face: 'round', hair: 'bun', hairColor: '#8a8a8a', brows: 'worried', outfit: 'robe', outfitColor: '#1d1d1d', trim: '#3a3a3a', hat: 'none' }) },
+    turk_amb: { name: 'Посол Турции', look: LI({ face: 'square', hair: 'slick', hairColor: '#222', mustache: 'thick', ...IT_SUIT('#26282d', { pin: false, tie: '#5a2a2a' }) }) },
+    egypt: { name: 'Посланник короля Египта', look: { skin: SKIN.brown, face: 'oval', hair: 'slick', hairColor: '#1a1a1a', mustache: 'pencil', brows: 'normal', mouth: 'flat', glasses: 'none', ...IT_SUIT('#1d1e22', { pin: false, tie: '#2f3a4a' }) } },
+    japan_amb: { name: 'Посол Японии', look: { skin: '#e2b184', face: 'oval', hair: 'short', hairColor: '#111', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'round', ...IT_SUIT('#1d1e22', { pin: false }) } },
     rebel: { name: 'Человек из толпы', look: LI({ face: 'oval', hair: 'short', hairColor: '#333', brows: 'angry', ...IT_SUIT('#4a4640', { tie: 'none', pin: false }) }) },
   };
   return M[key] || null;
@@ -200,6 +208,7 @@ Game.vars = function () {
   v.addr = 'дуче';
   const FN = Game.fuhrerNew(); v.fuhrerNew = FN.name; v.fuhrerNewShort = FN.short; v.fuhrerNewWho = FN.who; v.fuhrerNewNote = FN.note; v.fuhrer = Game.fuhrerChanged() ? FN.short : 'Гитлер';
   const hot = Game.impHot(); if (hot) { v.impHot = IMP[hot].name; v.impHotIn = IMP[hot].loc; }
+  const gone = Game.impGone(); if (gone) v.impGone = IMP[gone].name;
   return v;
 };
 const _renderI = UI.render;
@@ -266,6 +275,7 @@ Object.assign(Game, {
   impIncome() { return Math.round(Object.keys(IMP).reduce((a, k) => a + Game.impYield(k), 0) * 10) / 10; },
   impUpkeep() { return Object.keys(IMP).reduce((a, k) => a + (Game.impHeld(k) ? 1 + (Game.imp()[k].unrest >= 60 ? 1 : 0) : 0), 0); },
   impHot() { return Object.keys(IMP).filter(k => Game.impHeld(k)).sort((a, b) => Game.imp()[b].unrest - Game.imp()[a].unrest)[0] || null; },
+  impGone() { return Object.keys(IMP).find(k => !Game.impHeld(k)) || null; },
   impCount() { return Object.keys(IMP).filter(k => Game.impHeld(k)).length; },
   impActions(k) {
     const T = Game.imp()[k], D = IMP[k];
