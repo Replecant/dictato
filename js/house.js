@@ -46,7 +46,7 @@ REGIME_SETUP_LOOK[SUSH] = {
 };
 for (const k of Object.keys(HOUSES)) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK[SUSH][k], bluetooth: false };
 const HS_NAMES = { hverdan: 'Леонт Вердан', hgargon: 'Вальдемар Гаргон', hmiral: 'Арман Мираль' };
-function houseSetupLook(st, key) { if (key === 'outfit') st.look.outfitColor = { uniform48: HOUSES[st.regime] ? { hverdan: '#1f3a2a', hgargon: '#2a1210', hmiral: '#221d38' }[st.regime] : '#1f3a2a', mantle: '#2a1210', plate: '#3a3d44' }[st.look.outfit]; }
+function houseSetupLook(st, key) { if (st.look.hat === 'hood') st.look.hatColor = st.look.outfitColor; if (key === 'outfit') st.look.outfitColor = { uniform48: HOUSES[st.regime] ? { hverdan: '#1f3a2a', hgargon: '#2a1210', hmiral: '#221d38' }[st.regime] : '#1f3a2a', mantle: '#2a1210', plate: '#3a3d44' }[st.look.outfit]; }
 
 NAME_POOLS.sush = { m: ['Дункар', 'Турфин', 'Гурвен', 'Питрий', 'Раббан', 'Юэн', 'Стилар', 'Корин', 'Хават', 'Фейд'], f: ['Алия', 'Чана', 'Ирула'], last: ['Халь', 'Нефуд', 'Аракс', 'Кайн', 'Мапес', 'Тувек', 'Рамалло', 'Фенрик', 'Отейм', 'Харра'] };
 RELATIVES_BY_STYLE.sush = { defense: 'Племянник Раббан', economy: 'Кузен Питрий', police: 'Тётка Ирула', propaganda: 'Шурин Гурвен', foreign: 'Зять Фейд' };
@@ -90,6 +90,25 @@ LEADER_STYLE[SUSH] = {
   new: { title: 'Старшина контрабандистов', look: { outfit: 'robe', outfitColor: '#4a3a2a', trim: '#c98a2a', hat: 'hood', hatColor: '#4a3a2a', glasses: 'none', medals: 0, sash: '' } },
 };
 NEW_FACTIONS[HOUSE] = { name: 'Контрабандисты', short: 'Контрабанда', icon: '📦', desc: 'Возят приправу мимо квоты, мимо Трона и мимо вас. Платят всем понемногу и поэтому существуют при любом доме.', rivals: ['liberals', 'hawks'], risk: 'rev', appear: () => true, intro: 'Контрабандисты прислали ящик приправы «на новоселье». Ящик не числится ни в одной ведомости. Как и они сами.', grow: () => 0 };
+// у каждого дома свой ближний круг (у Вердана — тот, что записан в самой планете)
+const hsLook = (role, o) => ({ ...REGIONS[SUSH].advisors[role].look, ...o });
+const HOUSE_ADV = {
+  hverdan: { police: { name: 'Мастер тайн Юэн Отейм', bio: 'Домашний лекарь, которому поручили ещё и тайны. Клялся не вредить. Клятву толкует всё шире.', look: hsLook('police', { mustache: 'thick', mouth: 'flat', hairColor: '#5a4a3a', brows: 'worried', trim: '#4a7a5a' }) } },
+  hgargon: {
+    defense: { name: 'Зверь Раббан Тувек', bio: 'Племянник барона. Любую задачу решает одним способом. Способ не меняется; задачи кончаются.', look: hsLook('defense', { skin: SKIN.light, face: 'round', hair: 'bald', hairColor: '#b84a2a', mustache: 'none', mouth: 'grin', outfit: 'plate', steel: '#3a2a26' }) },
+    economy: { name: 'Счётчик Питрий Мапес', bio: 'Искривлённый счётчик: считает то, что другим считать стыдно. Смеётся невпопад и вовремя.', look: hsLook('economy', { face: 'round', hair: 'curly', hairColor: '#8a3a1a', mouth: 'grin', brows: 'angry', trim: '#b8452a' }) },
+    police: { name: 'Капитан подвалов Нефуд', bio: 'Глуховат, поэтому криков не слышит. Барон считает это главным достоинством.', look: hsLook('police', { face: 'square', hair: 'bald', mustache: 'none', mouth: 'flat', brows: 'bushy', outfitColor: '#2a1210', trim: '#b8452a' }) },
+    propaganda: { name: 'Племянник Фейд Харра', bio: 'Любимец арены. Выходит под музыку и побеждает красиво. Противникам заранее подрезают сухожилия.', look: hsLook('propaganda', { skin: SKIN.light, face: 'oval', hair: 'slick', hairColor: '#b84a2a', mustache: 'none', beard: 'none', mouth: 'smirk', outfitColor: '#2a1210' }) },
+    foreign: { name: 'Посол Отейм Рамалло', bio: 'Возит ко двору подарки барона. Половину довозит. Двор доволен и этой половиной.', look: hsLook('foreign', { face: 'round', hair: 'bald', glasses: 'none', mustache: 'walrus', outfitColor: '#2a1210', trim: '#b8452a' }) },
+  },
+  hmiral: {
+    defense: { name: 'Фехтмейстер Стилар Аракс', bio: 'Дерётся только на дуэлях и только с теми, кому накануне что-то подсыпали. Не проиграл ни разу.', look: hsLook('defense', { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#e8e2c0', mustache: 'pencil', brows: 'normal', mouth: 'smirk', outfitColor: '#221d38' }) },
+    economy: { name: 'Счётчица Ирула Кайн', bio: 'Ведёт две книги дома. Третью ведёт про тех, кто заглядывал в первые две.', look: hsLook('economy', { face: 'oval', hair: 'bun', hairColor: '#5a4a3a', brows: 'normal', earring: true, trim: '#5a4a8a' }) },
+    police: { name: 'Мастер ядов Юэн Фенрик', bio: 'Сорок ядов, сорок противоядий, одна улыбка на все случаи.', look: hsLook('police', { face: 'round', hair: 'combover', hairColor: '#888', mustache: 'none', glasses: 'round', mouth: 'grin' }) },
+    propaganda: { name: 'Летописица Алия Харра', bio: 'Пишет хронику дома на год вперёд. Потом дом старается соответствовать.', look: hsLook('propaganda', { skin: SKIN.light, face: 'long', hair: 'long', hairColor: '#1a1a1a', mustache: 'none', beard: 'none', earring: true, mouth: 'smirk', outfit: 'robe', outfitColor: '#221d38', trim: '#d9c07a' }) },
+    foreign: { name: 'Посол Хават Нефуд', bio: 'Мычит при дворе так многозначительно, что двор боится переспросить.', look: hsLook('foreign', { face: 'long', hair: 'bald', mustache: 'handlebar', outfitColor: '#221d38', trim: '#8a7ac8' }) },
+  },
+};
 function npcH(key) {
   const M = {
     emperor: { name: 'Падишах-автократор Корвин IX', look: LH({ face: 'long', hair: 'short', hairColor: '#b8b8b8', beard: 'goatee', brows: 'angry', outfit: 'ermine', outfitColor: '#3a2a10', hat: 'crown' }) },
@@ -288,6 +307,7 @@ Game.newGameHooks.push(() => {
   S.fac.new = S.fac.new || { s: 28, a: 50, st: 'legal' };
   Object.assign(S.fac.new, { s: 28, a: 50 });
   S.fac.left.s = 40; S.fac.liberals.s = 28; S.fac.faith.s = 34; S.fac.hawks.s = 42; S.fac.oligarchs.s = 40;
+  for (const [r, d] of Object.entries(HOUSE_ADV[S.regime] || {})) if (S.adv[r]) Object.assign(S.adv[r], { name: d.name, bio: d.bio, look: d.look, female: isFemale(d) });
   for (const k of Object.keys(HOUSES)) if (k !== S.regime && S.rel[k] === undefined) S.rel[k] = REGIONS[SUSH].relInit[k];
   delete S.rel[S.regime];
   if (!S.fl.new || !S.fl.new.leader) Game.leader('new');

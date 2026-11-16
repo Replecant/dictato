@@ -123,14 +123,14 @@ const UI = {
       outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
     } : st.era === 'house' ? {
-      hat: [['Без убора', 'none'], ['Обруч', 'circlet']],
+      hat: [['Без убора', 'none'], ['Капюшон пустынника', 'hood']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Руль', 'handlebar'], ['Моржовые', 'walrus']],
       beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Монокль', 'monocle']],
       outfit: [['Парадный мундир', 'uniform48'], ['Мантия', 'mantle'], ['Латы', 'plate']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Длинные', 'long'], ['Лысина', 'bald']],
     } : st.era === 'ship' ? {
-      hat: [['Без убора', 'none'], ['Обруч связи', 'circlet']],
+      hat: [['Без убора', 'none'], ['Гарнитура связи', 'headset']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Руль', 'handlebar']],
       beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Круглые', 'round']],

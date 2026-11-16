@@ -1407,3 +1407,26 @@ UI.actionHandlers.push(id => {
   if (out) { UI.render(); UI.toast(out.text, out.changes); }
   return true;
 });
+
+// ---------- уволенного сменяет родич: лицо его, а одежда и биография — того мира, где идёт игра ----------
+const KIN_FANTASY = { defense: 'Ваш кузен. Меч носит для красоты, зато носит красиво.', economy: 'Ваш дядя. Считает на пальцах и уверен, что их одиннадцать.', police: 'Ваша родня по матери. Знает все сплетни; половину сочинила сама.', propaganda: 'Ваш племянник. Громкий. Этим его дарования исчерпываются.', foreign: 'Ваш шурин. За границей был однажды, проездом, и рассказывает об этом всем.' };
+const KIN_DARK = { defense: 'Ваш родственник. Предан лично вам. Иных достоинств в личном деле не указано.', economy: 'Ваш родственник. Счёт знает в пределах необходимого. Предан.', police: 'Ваш родственник. Вопросов не задаёт. Ответов тоже не знает.', propaganda: 'Ваш родственник. Говорит то, что велено, и теми же словами.', foreign: 'Ваш родственник. Языков не знает. За границей молчит, что уже немало.' };
+const KIN_BIO = {
+  realm: KIN_FANTASY, burg: KIN_FANTASY, crown: KIN_FANTASY, dark70: KIN_DARK, dark70i: KIN_DARK, dark70j: KIN_DARK,
+  ship: { defense: 'Кадет. Вчера из Академии. Оружие держит так, будто оно может обидеться.', economy: 'Кадет. Реактор видел на схеме. Схема была красивая.', police: 'Кадет. Устав знает наизусть. Людей пока не встречал.', propaganda: 'Кадет медслужбы. Анатомию сдал со второго раза, зато честно.', foreign: 'Кадет. Владеет двумя языками; один из них родной.' },
+  house: { defense: 'Ваш племянник. Клинок держит уверенно, пока никто не нападает.', economy: 'Ваш кузен. Считать его учили счётчики. Бросили на втором году.', police: 'Ваша родня. Ядов не знает, зато знает всех при дворе, а это почти то же самое.', propaganda: 'Ваш шурин. Поёт. Громко. Просили тише; не умеет.', foreign: 'Ваш зять. При дворе его принимают охотно: он безобиден.' },
+};
+const _fireAdvG = Game.fireAdvisor;
+Game.fireAdvisor = function (role) {
+  const was = S.adv[role] ? { ...S.adv[role].look } : {};
+  const r = _fireAdvG.call(Game, role);
+  if (!isGloom() || !S.adv[role]) return r;
+  const A = S.adv[role], L = { ...A.look };
+  for (const k of ['outfit', 'outfitColor', 'trim', 'steel', 'hat', 'hatColor', 'hatBand', 'hatMetal', 'gem', 'pips', 'medals', 'sash', 'tie', 'pin', 'plume']) { if (was[k] !== undefined) L[k] = was[k]; else delete L[k]; }
+  if (!['none', 'round', 'pince', 'monocle'].includes(L.glasses)) L.glasses = 'none';
+  L.cigar = false; L.bluetooth = false;
+  if (!['none', 'thick', 'walrus', 'handlebar', 'pencil', 'waxed'].includes(L.mustache)) L.mustache = 'none';
+  A.look = L;
+  const bio = (KIN_BIO[S.era] || {})[role]; if (bio) A.bio = bio;
+  return r;
+};

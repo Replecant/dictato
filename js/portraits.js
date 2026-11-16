@@ -335,7 +335,7 @@ const Portrait = (() => {
         break;
     }
     // причёска: рисуется для овального лица и подгоняется под форму головы
-    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki' && p.hat !== 'circlet';
+    const hatOn = p.hat && p.hat !== 'none' && p.hat !== 'hachimaki' && p.hat !== 'circlet' && p.hat !== 'headset';
     let hair = p.hair;
     if (hatOn) {
       if (['keffiyeh', 'hijab', 'hood'].includes(p.hat) || (p.hat === 'helmet' && hair !== 'long')) hair = 'none';
@@ -389,6 +389,8 @@ const Portrait = (() => {
         const m = p.hatMetal || '#d9b44a';
         return `<path d="M52 78 L48 38 L68 58 L82 28 L100 54 L118 28 L132 58 L152 38 L148 78 Q100 66 52 78 Z" fill="${m}" stroke="${shade(m, -45)}" stroke-width="1.5"/><path d="M52 78 Q100 66 148 78 L148 86 Q100 74 52 86 Z" fill="${shade(m, -22)}"/><circle cx="100" cy="66" r="5.5" fill="${p.gem || '#a8242a'}"/><circle cx="72" cy="71" r="3.6" fill="#3a6ea8"/><circle cx="128" cy="71" r="3.6" fill="#3a6ea8"/><circle cx="82" cy="27" r="3.2" fill="${m}"/><circle cx="118" cy="27" r="3.2" fill="${m}"/><circle cx="48" cy="37" r="2.6" fill="${m}"/><circle cx="152" cy="37" r="2.6" fill="${m}"/>`;
       }
+      case 'headset': // гарнитура связи: дужка, наушник, микрофон
+        return `<path d="M50 106 Q44 50 100 46 Q156 50 150 106" fill="none" stroke="#2a2d33" stroke-width="5"/><rect x="41" y="98" width="14" height="26" rx="5" fill="#2a2d33"/><rect x="145" y="98" width="14" height="26" rx="5" fill="#2a2d33"/><path d="M48 122 Q52 148 80 150" fill="none" stroke="#2a2d33" stroke-width="3"/><circle cx="82" cy="150" r="4.5" fill="${p.gem || '#6fb5a8'}"/>`;
       case 'circlet': // обруч с камнем
         return `<path d="M50 80 Q100 62 150 80" stroke="${p.hatMetal || '#c9a640'}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M100 58 L106 69 L100 79 L94 69 Z" fill="${p.gem || '#7fe0c0'}" stroke="${p.hatMetal || '#c9a640'}" stroke-width="1.2"/>`;
       case 'gunbo': { // фуражка императорской армии: красный околыш, золотая звезда

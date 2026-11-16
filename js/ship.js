@@ -86,7 +86,7 @@ REGIONS[STAR] = {
     economy: { name: 'Главный инженер Зофья Гайка', bio: 'Держит реактор на честном слове. Слово своё, поэтому держит.', look: LS('eng', { face: 'round', hair: 'bun', hairColor: '#a84a2a', brows: 'bushy', mouth: 'smirk', pips: 3 }) },
     police: { name: 'Старпом Элар с Вессы', bio: 'Вессианец. Эмоций не испытывает, кроме лёгкого раздражения. Его он испытывает постоянно.', look: LS('sci', { skin: '#8fb6c9', face: 'long', hair: 'slick', hairColor: '#e8e8ef', antennae: true, pips: 3 }) },
     propaganda: { name: 'Доктор Савва Пульс', bio: 'Корабельный врач. Отвечает за здоровье и настроение экипажа. Ворчит, что он врач, а не всё остальное.', look: LS('med', { face: 'oval', hair: 'combover', hairColor: '#7a7a7a', brows: 'worried', pips: 3 }) },
-    foreign: { name: 'Офицер связи Нура Оканте', bio: 'Говорит на сорока языках. На тридцати девяти извиняется за капитана.', look: LS('cmd', { skin: SKIN.dark || '#8a5a3a', face: 'oval', hair: 'curly', hairColor: '#1a1a1a', earring: true, mouth: 'smirk', hat: 'circlet', gem: '#6fb5a8', pips: 2 }) },
+    foreign: { name: 'Офицер связи Нура Оканте', bio: 'Говорит на сорока языках. На тридцати девяти извиняется за капитана.', look: LS('cmd', { skin: SKIN.dark || '#8a5a3a', face: 'oval', hair: 'curly', hairColor: '#1a1a1a', earring: true, mouth: 'smirk', hat: 'headset', gem: '#6fb5a8', pips: 2 }) },
   },
 };
 REGION_TALK[STAR] = { addr: 'капитан', sir: 'офицер', lady: 'офицер', holiday_acc: 'День спуска корабля', holiday_dat: 'Дню спуска корабля', gringo: 'чужие', haven: 'спасательная капсула', exileTo: 'ближайшую обитаемую планету', canteen: 'синтезированная каша', fruit_adj: 'Корабельный', locale: 'корабля', pay_in_kind: 'Пайками.', vegas: 'каюта с иллюминатором', rebel: 'Выборный от нижних палуб', meeting: 'в кают-компании' };
@@ -377,7 +377,7 @@ Object.assign(Game, {
   shSkill(sk) {
     const H = Game.sh(), L = H.team.lead; let v;
     if (L === 'cap') v = CAP_SK[S.regime][sk];
-    else { const A = S.adv[L]; v = OFF_SK[L][sk] - (A.relative ? 2 : 0) - (A.loy < 35 ? 1 : 0); }
+    else { const A = S.adv[L]; v = Math.max(0, OFF_SK[L][sk] - (A.relative ? 2 : 0) - (A.loy < 35 ? 1 : 0)); }
     return v + (sk === 'sci' && H.norm.lab === 2 ? 1 : 0) + (sk === 'tech' && H.norm.repair === 2 ? 1 : 0) + (sk === 'force' ? H.team.red : 0);
   },
   shChance(sk, diff) { const H = Game.sh(); return clamp(0.5 + (Game.shSkill(sk) - diff - (S.diff === 'hard' ? 0.5 : 0)) * 0.12 + (sk !== 'force' ? H.team.red * 0.02 : 0), 0.08, 0.93); },
@@ -810,7 +810,7 @@ Object.assign(UI, {
         <div class="cr"><section class="card" style="flex:1.4"><div class="eyebrow">В пути</div><h2 class="rm-rank">${esc(P.name)}</h2><p class="muted small">${esc(P.kind)} · ходу ещё ${H.loc.eta} кв. · по слухам: ${esc(P.gain)}</p><p>${esc(P.orbit)}</p></section>${tally}</div>`;
     }
     const lead = L => { const ok = Game.shLeadOk(L), sk = L === 'cap' ? CAP_SK[S.regime] : OFF_SK[L], pen = L !== 'cap' && (S.adv[L].relative ? 2 : 0) + (S.adv[L].loy < 35 ? 1 : 0);
-      return `<button class="sh-lead ${T.lead === L ? 'on' : ''}" data-act="sht:lead:${L}" ${!ok || !hub ? 'disabled' : ''}><b>${esc(L === 'cap' ? 'Капитан лично' : ROLES[L].title)}</b><span>${L === 'cap' ? esc(S.leader.name) : esc(S.adv[L].name)}</span><small>${ok ? Object.keys(SK_NAME).map(k => `${SK_NAME[k]} ${sk[k] - (pen || 0)}`).join(' · ') : L === 'cap' ? `ранен, ещё ${H.capHurt} кв.` : `в лазарете, ещё ${H.hurt[L]} кв.`}</small></button>`; };
+      return `<button class="sh-lead ${T.lead === L ? 'on' : ''}" data-act="sht:lead:${L}" ${!ok || !hub ? 'disabled' : ''}><b>${esc(L === 'cap' ? 'Капитан лично' : ROLES[L].title)}</b><span>${L === 'cap' ? esc(S.leader.name) : esc(S.adv[L].name)}</span><small>${ok ? Object.keys(SK_NAME).map(k => `${SK_NAME[k]} ${Math.max(0, sk[k] - (pen || 0))}`).join(' · ') : L === 'cap' ? `ранен, ещё ${H.capHurt} кв.` : `в лазарете, ещё ${H.hurt[L]} кв.`}</small></button>`; };
     const opts = P.opts.map(o => (o[1] ? `<li><b>${SK_NAME[o[1]]}</b> ${stars(o[2])} <span class="muted">сейчас шанс ${Math.round(Game.shChance(o[1], o[2]) * 100)}%</span></li>` : '<li><b>без риска</b> <span class="muted">можно ничего не трогать и уйти</span></li>')).join('');
     return `<p class="lede">Запасы, починку и открытия корабль добывает внизу. Вы решаете, кто ведёт группу и сколько с ней идёт охраны, а на месте — как поступить. Каждый офицер силён в своём: кто-то дерётся, кто-то думает, кто-то договаривается. Капитан может спуститься сам: Устав не советует, традиция требует.</p>
       <div class="cr">
@@ -856,7 +856,7 @@ Object.assign(UI, {
         <header><div><span class="eyebrow">${esc(Ro.title)}</span><h3>${esc(A.name)}</h3></div><span class="chip ${A.loy < 25 ? 'banned' : hurt ? '' : 'coopted'}">${hurt ? `в лазарете, ${H.hurt[r]} кв.` : A.loy < 25 ? 'ненадёжен' : A.relative ? 'кадет' : 'на посту'}</span></header>
         <p class="muted small">${esc(A.bio)}</p>
         ${UI.meter('Верность', A.loy, A.loy >= 55 ? 'good' : A.loy >= 30 ? 'warn' : 'bad')}
-        <p class="muted small">На высадке: ${Object.keys(SK_NAME).map(k => `${SK_NAME[k]} <b>${sk[k] - pen}</b>`).join(' · ')}</p>
+        <p class="muted small">На высадке: ${Object.keys(SK_NAME).map(k => `${SK_NAME[k]} <b>${Math.max(0, sk[k] - pen)}</b>`).join(' · ')}</p>
         <div class="acts">${UI.actBtn(`adv:${r}:act`, { name: Ro.action, cost: Ro.actionDesc, ok: true })}
           ${shBtn(`shb:${r}:talk`, 'Разговор в каюте', 'приказ · верность +', true)}
           ${shBtn(`shb:${r}:praise`, 'Благодарность в журнал', H.markAt.praise === S.turn ? 'в этом квартале уже была' : 'без приказа · остальные завидуют', H.markAt.praise !== S.turn, true)}
