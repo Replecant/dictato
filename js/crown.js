@@ -978,3 +978,49 @@ UI.actionHandlers.push(id => {
   if (out) { UI.render(); UI.toast(out.text, out.changes); }
   return true;
 });
+
+// ---------- требования сословий в трёх державах «Мира, которого нет»: свои слова вместо «субсидий на хлеб» ----------
+for (const list of Object.values(FAC_DEMANDS)) for (const d of list) if (!d.only) d.except = [...new Set([...(d.except || []), 'velentar', 'kislobrod', DRV])];
+const fanDem = (reg, f, id, text, k, op, v) => (FAC_DEMANDS[f] = FAC_DEMANDS[f] || []).push(Array.isArray(k) ? { id, kind: 'act', only: [reg], text, acts: k } : { id, kind: 'budget', only: [reg], text, k, op, v });
+// Магократия
+fanDem('velentar', 'left', 'v_l_bread', 'Хлеб для бездарных поднять до 65% и выше', 'subsidy', '>=', 65);
+fanDem('velentar', 'left', 'v_l_tax', 'Подать с бездарных снизить до 40% и ниже', 'popTax', '<=', 40);
+fanDem('velentar', 'left', 'v_l_school', 'Издать «Грамоту для бездарных» (указ)', ['dec:r_school']);
+fanDem('velentar', 'liberals', 'v_c_eye', 'Око Башни урезать до 40% и ниже', 'police', '<=', 40);
+fanDem('velentar', 'liberals', 'v_c_acad', 'Академию довести до 60% и выше', 'edu', '>=', 60);
+fanDem('velentar', 'faith', 'v_f_tithe', 'Уплатить десятину Святому Престолу (указ)', ['dec:r_tribute']);
+fanDem('velentar', 'faith', 'v_f_heal', 'Лекарей и зелья довести до 60% и выше', 'health', '>=', 60);
+fanDem('velentar', 'oligarchs', 'v_a_tax', 'Сбор с гильдий снизить до 40% и ниже', 'corpTax', '<=', 40);
+fanDem('velentar', 'oligarchs', 'v_a_duty', 'Пошлину на вывоз зелий снизить до 40% и ниже', 'duty', '<=', 40);
+fanDem('velentar', 'hawks', 'v_h_pay', 'Боевых магов довести до 65% и выше', 'army', '>=', 65);
+fanDem('velentar', 'hawks', 'v_h_wand', 'Выдать Легиону новые жезлы (указ)', ['dec:r_legion']);
+fanDem('velentar', 'new', 'v_n_road', 'Дороги и порталы довести до 60% и выше', 'infra', '>=', 60);
+fanDem('velentar', 'new', 'v_n_fest', 'Устроить Праздник Семи Шпилей (указ)', ['dec:r_fest']);
+// Кислоброд
+fanDem('kislobrod', 'left', 'k_l_soup', 'Суп для бедных поднять до 65% и выше', 'subsidy', '>=', 65);
+fanDem('kislobrod', 'left', 'k_l_tax', 'Подать с горожан снизить до 40% и ниже', 'popTax', '<=', 40);
+fanDem('kislobrod', 'left', 'k_l_kitchen', 'Открыть суповые кухни (указ)', ['dec:b_soup']);
+fanDem('kislobrod', 'liberals', 'k_p_rumor', 'Канцелярию слухов урезать до 40% и ниже', 'police', '<=', 40);
+fanDem('kislobrod', 'liberals', 'k_p_arch', 'Школы и архив довести до 60% и выше', 'edu', '>=', 60);
+fanDem('kislobrod', 'faith', 'k_f_gift', 'Сделать пожертвование Святому Престолу (указ)', ['dec:b_church']);
+fanDem('kislobrod', 'faith', 'k_f_bath', 'Лекарей и бани довести до 60% и выше', 'health', '>=', 60);
+fanDem('kislobrod', 'oligarchs', 'k_m_tax', 'Сбор с гильдий снизить до 40% и ниже', 'corpTax', '<=', 40);
+fanDem('kislobrod', 'oligarchs', 'k_m_bridge', 'Мостовые и мосты довести до 60% и выше', 'infra', '>=', 60);
+fanDem('kislobrod', 'hawks', 'k_w_pay', 'Городскую стражу довести до 65% и выше', 'army', '>=', 65);
+fanDem('kislobrod', 'hawks', 'k_w_debt', 'Выплатить страже долги (указ)', ['dec:b_watch']);
+fanDem('kislobrod', 'new', 'k_t_toll', 'Мостовой сбор поднять до 60% и выше: контрабанде нужен спрос', 'duty', '>=', 60);
+fanDem('kislobrod', 'new', 'k_t_watch', 'Городскую стражу урезать до 45% и ниже', 'army', '<=', 45);
+// Дравенор
+fanDem(DRV, 'left', 'd_l_bread', 'Хлебные раздачи поднять до 65% и выше', 'subsidy', '>=', 65);
+fanDem(DRV, 'left', 'd_l_tax', 'Подушную подать снизить до 40% и ниже', 'popTax', '<=', 40);
+fanDem(DRV, 'left', 'd_l_grace', 'Издать Манифест о Даровании Милостей (эдикт)', ['dec:em_grace']);
+fanDem(DRV, 'liberals', 'd_c_uni', 'Школы и университеты довести до 60% и выше', 'edu', '>=', 60);
+fanDem(DRV, 'liberals', 'd_c_spy', 'Тайные дела урезать до 40% и ниже', 'police', '<=', 40);
+fanDem(DRV, 'faith', 'd_f_grant', 'Выдать Жалованную Грамоту Церкви (эдикт)', ['dec:em_church']);
+fanDem(DRV, 'faith', 'd_f_alms', 'Лекарей и богадельни довести до 60% и выше', 'health', '>=', 60);
+fanDem(DRV, 'oligarchs', 'd_h_tax', 'Сбор с Высоких домов снизить до 40% и ниже', 'corpTax', '<=', 40);
+fanDem(DRV, 'oligarchs', 'd_h_bull', 'Издать Золотую Буллу о Вольностях (эдикт)', ['dec:em_bull']);
+fanDem(DRV, 'hawks', 'd_g_pay', 'Легионы довести до 65% и выше', 'army', '>=', 65);
+fanDem(DRV, 'hawks', 'd_g_triumph', 'Устроить Триумф (эдикт)', ['dec:em_triumph']);
+fanDem(DRV, 'new', 'd_n_court', 'Нужды двора поднять до 60% и выше', 'palace', '>=', 60);
+fanDem(DRV, 'new', 'd_n_title', 'Принять новый титул (эдикт)', ['dec:em_title']);
