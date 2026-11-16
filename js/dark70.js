@@ -117,6 +117,10 @@ function npcD(key) {
     kanzlei: { name: 'Начальник рейхсканцелярии', look: LD({ face: 'long', hair: 'combover', hairColor: '#8a8a8a', glasses: 'round', ...DARK_PARTEI({ medals: 2 }) }) },
     reporter: { name: 'Корреспондент римской газеты', look: { skin: SKIN.tan, face: 'oval', hair: 'curly', hairColor: '#2a2018', mustache: 'pencil', brows: 'normal', mouth: 'smile', ...DARK_SUIT('#3a3530', { tie: '#5a2a2a', pin: false }) } },
     bishop: { name: 'Епископ', look: LD({ face: 'round', hair: 'bald', hairColor: '#aaa', glasses: 'round', outfit: 'robe', outfitColor: '#1d1d1d', trim: '#6a2a5a', hat: 'none' }) },
+    komissar: { name: 'Рейхскомиссар', look: LD({ face: 'round', hair: 'bald', hairColor: '#888', ...DARK_PARTEI({ medals: 3 }) }) },
+    nuntius: { name: 'Папский нунций', look: { skin: SKIN.light, face: 'long', hair: 'bald', hairColor: '#aaa', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'round', outfit: 'robe', outfitColor: '#1d1d1d', trim: '#8e1b1b', hat: 'none' } },
+    spain_amb: { name: 'Посол Испании', look: { skin: SKIN.tan, face: 'long', hair: 'slick', hairColor: '#333', mustache: 'thick', brows: 'normal', mouth: 'flat', ...DARK_SUIT('#26282d', { pin: false }) } },
+    elder: { name: 'Староста', look: { skin: SKIN.light, face: 'long', hair: 'short', hairColor: '#999', beard: 'full', mustache: 'thick', brows: 'worried', mouth: 'flat', outfit: 'suit', outfitColor: '#4a4640', tie: 'none', hat: 'none' } },
     rebel: { name: 'Человек из толпы', look: LD({ face: 'oval', hair: 'short', hairColor: '#333', brows: 'angry', ...DARK_SUIT('#4a4640', { tie: 'none' }) }) },
     italy_amb: { name: 'Посол Италии', look: { skin: SKIN.tan, face: 'oval', hair: 'slick', hairColor: '#222', mustache: 'pencil', brows: 'normal', mouth: 'flat', ...DARK_SUIT('#26282d') } },
     japan_amb: { name: 'Посол Японии', look: { skin: SKIN.light, face: 'oval', hair: 'short', hairColor: '#111', mustache: 'none', brows: 'normal', mouth: 'flat', glasses: 'round', ...DARK_SUIT('#1d1e22') } },
@@ -167,6 +171,15 @@ Game.vars = function () {
   if (!isDark()) return v;
   const U = S.suc || {};
   if (U.rivals && U.phase !== 'rule') { const k = Game.sucTop()[0], n = RIVALS_D[k].name; v.rivTop = n[0].toUpperCase() + n.slice(1); v.rivTopShort = RIVALS_D[k].short; }
+  if (U.phase === 'rule') {
+    const hot = Game.colHot(), rich = Game.colRich(), gone = Game.colGone(), ro = Game.rivOld();
+    const auto = Game.colAuto();
+    if (hot) { v.colHot = COL_D[hot].name; v.colHotShort = COL_D[hot].short; v.colHotIn = COL_D[hot].loc; v.colHotOf = COL_D[hot].gen; v.colHotFrom = COL_D[hot].from; }
+    if (rich) { v.colRich = COL_D[rich].name; v.colRichIn = COL_D[rich].loc; }
+    if (gone) { v.colGone = COL_D[gone].short; v.colGoneIn = COL_D[gone].loc; }
+    if (auto) v.colAutoOf = COL_D[auto].gen;
+    if (ro) { v.rivOld = RIVALS_D[ro].name[0].toUpperCase() + RIVALS_D[ro].name.slice(1); v.rivOldShort = RIVALS_D[ro].short; }
+  }
   v.addr = U.phase === 'rule' ? 'мой фюрер'
     : { partei70: 'господин рейхсляйтер', heer70: 'господин фельдмаршал', techno70: 'господин рейхсминистр' }[S.regime];
   return v;
@@ -787,7 +800,7 @@ Game.applyHooks.push((fx, ch) => {
   if (fx.sucRival) for (const [k, d] of Object.entries(fx.sucRival)) if (U.rivals[k]) { const b = U.rivals[k].infl; U.rivals[k].infl = clamp(b + d, 22, 95); add(U.rivals[k].infl - b, `Влияние: ${RIVALS_D[k].short}`, '⚖️'); }
   if (fx.sucPact) U.pact = fx.sucPact;
   if (fx.sucLostTo) U.lostTo = fx.sucLostTo;
-  if (fx.colSet) { const [k, d] = fx.colSet, T = Game.col()[k]; if (T) { if (d.ctrl) T.ctrl = clamp(T.ctrl + d.ctrl); if (d.unrest) T.unrest = clamp(T.unrest + d.unrest); if (d.auto) T.auto = true; if (d.left) { T.left = true; T.ctrl = 0; } add(d.ctrl || 0, `Контроль: ${COL_D[k].short}`, '🗺️'); add(-(d.unrest || 0), `Спокойствие: ${COL_D[k].short}`, '🕊️'); } }
+  if (fx.colSet) { const [k, d] = fx.colSet, T = Game.col()[k]; if (T) { if (d.ctrl) T.ctrl = clamp(T.ctrl + d.ctrl); if (d.unrest) T.unrest = clamp(T.unrest + d.unrest); if (d.auto !== undefined) T.auto = !!d.auto; if (d.left) { T.left = true; T.ctrl = 0; } add(d.ctrl || 0, `Контроль: ${COL_D[k].short}`, '🗺️'); add(-(d.unrest || 0), `Спокойствие: ${COL_D[k].short}`, '🕊️'); } }
   if (fx.colAll) for (const k of Object.keys(COL_D)) if (Game.colHeld(k)) Game.col()[k].ctrl = clamp(Game.col()[k].ctrl + fx.colAll);
   if (fx.cwSet) { const C = Game.cw70(); for (const [k, d] of Object.entries(fx.cwSet)) { const b = C[k]; C[k] = clamp(C[k] + d); add(k === 'arms' ? C[k] - b : -(C[k] - b), { japan: 'Разрядка с Токио', usa: 'Разрядка с Вашингтоном', arms: 'Паритет вооружений', ju: 'Согласие Токио и Вашингтона' }[k], '☢️'); } }
   if (fx.sucCtrl && U.war) { const b = U.war.ctrl; U.war.ctrl = clamp(b + fx.sucCtrl); add(U.war.ctrl - b, 'Контроль над Рейхом', '🗺️'); }
@@ -804,7 +817,7 @@ Game.previewHooks.push((fx, out) => {
   if (fx.sucRival) for (const [k, d] of Object.entries(fx.sucRival)) first.push({ icon: '⚖️', d: -d, label: `Влияние: ${RIVALS_D[k].short}`, text: `${RIVALS_D[k].short} ${sign(d)}` });
   if (fx.sucCtrl) first.push({ icon: '🗺️', d: fx.sucCtrl, label: 'Контроль над Рейхом', text: `контроль ${sign(fx.sucCtrl)}` });
   if (fx.sucPact) first.push({ icon: '🤝', d: 1, label: 'Союз', text: 'союз' });
-  if (fx.colSet) { const [k, d] = fx.colSet; if (d.ctrl) first.push({ icon: '🗺️', d: d.ctrl, label: 'Контроль', text: `контроль ${sign(d.ctrl)}` }); if (d.unrest) first.push({ icon: '🔥', d: -d.unrest, label: 'Волнения', text: `волнения ${sign(d.unrest)}` }); if (d.auto) first.push({ icon: '📜', d: 1, label: 'Самоуправление', text: 'самоуправление' }); if (d.left) first.push({ icon: '🚪', d: -1, label: 'Уход', text: 'владение потеряно' }); }
+  if (fx.colSet) { const [k, d] = fx.colSet; if (d.ctrl) first.push({ icon: '🗺️', d: d.ctrl, label: 'Контроль', text: `контроль ${sign(d.ctrl)}` }); if (d.unrest) first.push({ icon: '🔥', d: -d.unrest, label: 'Волнения', text: `волнения ${sign(d.unrest)}` }); if (d.auto) first.push({ icon: '📜', d: 1, label: 'Самоуправление', text: 'самоуправление' }); if (d.auto === false) first.push({ icon: '📜', d: -1, label: 'Самоуправление', text: 'самоуправление отменено' }); if (d.left) first.push({ icon: '🚪', d: -1, label: 'Уход', text: 'владение потеряно' }); }
   if (fx.colAll) first.push({ icon: '🗺️', d: fx.colAll, label: 'Контроль над владениями', text: `контроль над владениями ${sign(fx.colAll)}` });
   if (fx.cwSet) for (const [k, d] of Object.entries(fx.cwSet)) first.push({ icon: '☢️', d: k === 'arms' ? d : -d, label: k, text: `${{ japan: 'соперничество с Токио', usa: 'соперничество с Вашингтоном', arms: 'паритет', ju: 'вражда Токио и Вашингтона' }[k]} ${sign(d)}` });
   if (fx.sucHealth) first.push({ icon: '🩺', d: fx.sucHealth, label: 'Здоровье Фюрера', text: `здоровье Фюрера ${sign(fx.sucHealth)}` });
@@ -1004,11 +1017,11 @@ const darkNames = () => {
 // ---------- скелеты механик правителя ----------
 // «Больной человек Европы»: владения Рейха. Империя не может ни удержать завоёванное, ни отпустить.
 const COL_D = {
-  ost: { name: 'Рейхскомиссариат Остланд', short: 'Остланд', what: 'лес, сланцы, порты Балтики', y: 4, ctrl: 75, unrest: 30 },
-  ukr: { name: 'Рейхскомиссариат Украина', short: 'Украина', what: 'зерно, уголь, руда', y: 8, ctrl: 65, unrest: 45 },
-  mos: { name: 'Рейхскомиссариат Московия', short: 'Московия', what: 'лес и рабочая сила', y: 5, ctrl: 50, unrest: 60 },
-  kav: { name: 'Рейхскомиссариат Кавказ', short: 'Кавказ', what: 'нефть', y: 7, ctrl: 60, unrest: 50 },
-  afr: { name: 'Германская Центральная Африка', short: 'Африка', what: 'уран, медь, каучук', y: 3, ctrl: 55, unrest: 40 },
+  ost: { name: 'Рейхскомиссариат Остланд', short: 'Остланд', what: 'лес, сланцы, порты Балтики', loc: 'в Остланде', gen: 'Остланда', from: 'из Остланда', y: 4, ctrl: 75, unrest: 30 },
+  ukr: { name: 'Рейхскомиссариат Украина', short: 'Украина', what: 'зерно, уголь, руда', loc: 'на Украине', gen: 'Украины', from: 'с Украины', y: 8, ctrl: 65, unrest: 45 },
+  mos: { name: 'Рейхскомиссариат Московия', short: 'Московия', what: 'лес и рабочая сила', loc: 'в Московии', gen: 'Московии', from: 'из Московии', y: 5, ctrl: 50, unrest: 60 },
+  kav: { name: 'Рейхскомиссариат Кавказ', short: 'Кавказ', what: 'нефть', loc: 'на Кавказе', gen: 'Кавказа', from: 'с Кавказа', y: 7, ctrl: 60, unrest: 50 },
+  afr: { name: 'Германская Центральная Африка', short: 'Африка', what: 'уран, медь, каучук', loc: 'в Центральной Африке', gen: 'Центральной Африки', from: 'из Центральной Африки', y: 3, ctrl: 55, unrest: 40 },
 };
 Object.assign(Game, {
   col() { const U = Game.suc(); if (!U.col) U.col = Object.fromEntries(Object.entries(COL_D).map(([k, d]) => [k, { ctrl: d.ctrl, unrest: d.unrest, auto: false, left: false, lost: false }])); return U.col; },
@@ -1016,6 +1029,11 @@ Object.assign(Game, {
   colYield(k) { const T = Game.col()[k]; return Game.colHeld(k) ? COL_D[k].y * T.ctrl / 100 * (T.auto ? 0.7 : 1) * (Game.suc().course === 'thaw' ? 0.6 : 1) : 0; },
   colIncome() { return Math.round(Object.keys(COL_D).reduce((a, k) => a + Game.colYield(k), 0) * 10) / 10; },
   colUpkeep() { return Object.keys(COL_D).reduce((a, k) => a + (Game.colHeld(k) ? 1 + (Game.col()[k].unrest >= 60 ? 1 : 0) : 0), 0); },
+  colHot() { return Object.keys(COL_D).filter(k => Game.colHeld(k)).sort((a, b) => Game.col()[b].unrest - Game.col()[a].unrest)[0] || null; },
+  colRich() { return Object.keys(COL_D).filter(k => Game.colHeld(k)).sort((a, b) => Game.colYield(b) - Game.colYield(a))[0] || null; },
+  colAuto() { return Object.keys(COL_D).find(k => Game.colHeld(k) && Game.col()[k].auto) || null; },
+  colGone() { return Object.keys(COL_D).find(k => !Game.colHeld(k)) || null; },
+  rivOld() { const U = Game.suc(), enemy = U.war && U.war.enemy; return Object.keys(U.rivals).filter(k => k !== 'ss' && k !== enemy).sort((a, b) => U.rivals[b].infl - U.rivals[a].infl)[0] || null; },
   colActions(k) {
     const T = Game.col()[k], D = COL_D[k];
     if (!Game.colHeld(k)) return [];
@@ -1147,7 +1165,7 @@ Object.assign(Game, {
   proj() { const U = Game.suc(); if (!U.proj) U.proj = { active: [], done: {} }; return U.proj; },
   projChance(id) {
     const P = PROJ_D[id], U = Game.suc();
-    return clamp(P.p + (P.tech && S.fac.liberals.a >= 55 ? 0.05 : 0) + (P.tech && U.course === 'thaw' ? 0.1 : 0) + (S.economy >= 55 ? 0.05 : 0) - (S.economy < 35 ? 0.1 : 0), 0.2, 0.8);
+    return clamp(P.p + (P.tech && S.flags.dkScience ? 0.1 : 0) + (P.tech && S.fac.liberals.a >= 55 ? 0.05 : 0) + (P.tech && U.course === 'thaw' ? 0.1 : 0) + (S.economy >= 55 ? 0.05 : 0) - (S.economy < 35 ? 0.1 : 0), 0.2, 0.8);
   },
   projCost() { return Game.proj().active.reduce((a, x) => a + PROJ_D[x.id].cost, 0); },
   projCan(id) {
