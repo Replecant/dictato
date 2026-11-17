@@ -250,9 +250,10 @@ UI.tab_factions = function () {
   let h = _tabFacD.call(UI);
   if (!isDark()) return h;
   if (darkPre()) {
-    h = h.replace(/^[\s\S]*?(?=<section class="card dem-summary">)/, `<p class="lede">Шесть сил, которые в «день икс» решат, кто станет главой Рейха. <b>Сила</b> — сколько у них людей и влияния, <b>одобрение</b> — насколько они готовы видеть преемником вас. Вы не можете им приказывать: только договариваться, платить и обещать. На двух из них можно опереться: их одобрение растёт само, переговоры идут легче, остальные ревнуют.</p>
+    h = h.replace(/^[\s\S]*?(?=<section class="card dem-summary">)/, `<p class="lede">Шесть сил, которые в «день икс» решат, кто станет главой Рейха. <b>Сила</b> — сколько у них людей и влияния, <b>одобрение</b> — насколько они готовы видеть преемником вас. Вы не можете им приказывать и пока не можете с ними торговаться от имени государства: расположение сил набирают на вкладке «Агитация» и выполняя их просьбы. На двух из них можно опереться: их одобрение растёт само, остальные ревнуют.</p>
       <p class="lede">Силы действуют сами: довольные помогают деньгами и людьми, недовольные вредят, а доведённые до края приходят с ультиматумом. Сейчас вы опираетесь на: <b>${(S.pillars || []).map(f => Game.facDef(f).name).join(' и ') || 'никого'}</b>.</p>`);
     h = h.replace(/<p class="muted small">Одновременно[\s\S]*?<\/p>/, '<p class="muted small">Силы просят у претендента обещаний и услуг: одновременно не больше двух просьб, на ответ даётся 5–8 кварталов. Выполнили — одобрение +18. Не ответили — одобрение падает на 12, а сила крепнет.</p>');
+    for (const tr of Object.values(typeof LEADER_TRAITS !== 'undefined' ? LEADER_TRAITS : {})) if (tr.desc && !/требования/.test(tr.desc)) h = h.split(esc(tr.desc)).join('Характер скажется, когда с ним придётся договариваться: после «дня икс».');
     h = h.split('<span class="chip legal">легально</span>').join('').split('Требования движений').join('Чего от вас хотят');
   }
   return TD_FAC.reduce((a, [f, t]) => a.split(f).join(t), h);
@@ -549,7 +550,7 @@ Game.countryAction = function (c, act) {
 };
 // Претендент не может ни запретить силу, ни арестовать её лидера, ни раздавать ордена
 const _facActsD = Game.factionActions;
-Game.factionActions = function (f) { const a = _facActsD.call(Game, f); return darkPre() ? a.filter(x => !['ban', 'arrest', 'legalize', 'medal'].includes(x.id)) : a; };
+Game.factionActions = function (f) { const a = _facActsD.call(Game, f); return darkPre() ? a.filter(x => !['ban', 'arrest', 'legalize', 'medal', 'talk', 'bribe', 'coopt', 'hire', 'scare'].includes(x.id)) : a; };
 
 // ---------- преемство ----------
 const RIVALS_D = {
