@@ -67,3 +67,26 @@ UI.render = function () {
   const LEG = { 'Народ': STAT_NAMES.support, 'Армия': STAT_NAMES.army, 'Экономика': STAT_NAMES.economy, 'Страх': STAT_NAMES.fear }, root = document.querySelector('#screen-game');
   if (root) { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) { const t = n.nodeValue.trim(); if (LEG[t] && LEG[t] !== t) n.nodeValue = n.nodeValue.replace(t, LEG[t]); } }
 };
+
+// ---------- личного фонда нет в «Тучах над миром» и в «Вакууме власти»: там игра про другое ----------
+const NOFUND = ['dark70', 'dark70i', 'dark70j', 'ship', 'domin', 'house'];
+const noFund = () => !!S && NOFUND.includes(S.era);
+const _ecoActsNF = Game.economyActions;
+Game.economyActions = function () { const a = _ecoActsNF.call(Game); return noFund() ? a.filter(x => x.id !== 'transfer') : a; };
+const _ecoFxNF = Game.economyFx;
+Game.economyFx = function (id) { const r = _ecoFxNF.call(Game, id); if (r && noFund() && r.fx && r.fx.schedule) for (const s of r.fx.schedule) if (s.fx) delete s.fx.swiss; return r; };
+const _budgetNF = Game.budgetCalc;
+Game.budgetCalc = function () { if (noFund() && S.budget) S.budget.palace = 0; const B = _budgetNF.call(Game); if (noFund()) B.palace = 0; return B; };
+Game.quarterHooks.push(() => { if (noFund()) S.swiss = 0; });
+const _modalNF = Modal.open;
+Modal.open = function (html, ...rest) { return _modalNF.call(Modal, noFund() && typeof html === 'string' ? html.replace(/<div class="rep-stat"><span>🏦[\s\S]*?<\/div>/g, '') : html, ...rest); };
+const _renderNF = UI.render;
+UI.render = function () {
+  if (noFund()) { S.swiss = 0; if (S.budget) S.budget.palace = 0; }
+  _renderNF.call(UI);
+  if (!noFund()) return;
+  for (const el of document.querySelectorAll('#stats .stat')) if (el.querySelector('.stat-ic') && el.querySelector('.stat-ic').textContent.includes('🏦')) el.hidden = true;
+  const row = document.querySelector('#br-palace'); if (row) row.hidden = true;
+  for (const li of document.querySelectorAll('#screen-game li')) if (/уход[ия]т (на|в) ваш/.test(li.textContent)) li.remove();
+  const rc = document.querySelector('#retire-confirm p'); if (rc) rc.textContent = rc.textContent.replace(/ с \d+ [^ ]+ на счёте/, '');
+};
