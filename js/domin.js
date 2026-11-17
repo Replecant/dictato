@@ -39,7 +39,7 @@ Object.assign(TITLE_FORMS, { 'Лорд-регент': ['Лорда-регент�
 REGIME_SETUP_LOOK[DMN] = {
   dmnoble: LM({ face: 'long', hair: 'slick', hairColor: '#c8c8c8', mustache: 'handlebar', mouth: 'smirk', glasses: 'monocle', eyeGlow: '', hat: 'laurel', outfit: 'mantle', outfitColor: '#3a2230', trim: '#c9a640' }),
   dmpriest: LM({ face: 'long', hair: 'bald', hairColor: '#999', beard: 'full', brows: 'bushy', eyeGlow: '', hat: 'mitre', hatColor: '#5a1a20', ...DM_ROBE('#5a1a20') }),
-  dmwar: LM({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#555', brows: 'angry', eyeGlow: '', bionic: true, ...DM_COAT('#1d1e22') }),
+  dmwar: LM({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#555', brows: 'angry', eyeGlow: '', aug: 'eye', ...DM_COAT('#1d1e22') }),
 };
 for (const k of ['dmnoble', 'dmpriest', 'dmwar']) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK[DMN][k], bluetooth: false };
 const DM_NAMES = { dmnoble: 'Максимилиан фон Кастелян', dmpriest: 'Игнаций Неугасимый', dmwar: 'Маркус Железный Кодекс' };

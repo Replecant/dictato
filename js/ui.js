@@ -112,6 +112,8 @@ const UI = {
       mustache: [['Нет', 'none'], ['Пышные', 'thick'], ['Нафабренные', 'waxed'], ['Моржовые', 'walrus'], ['Руль', 'handlebar']],
       beard: [['Нет', 'none'], ['Бакенбарды', 'sideburns'], ['Шкиперская', 'chinstrap'], ['Эспаньолка', 'imperial'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
+      sash: [['Нет', ''], ['Красная', '#c1272d'], ['Синяя', '#1f4e8c'], ['Золотая', '#c9a640']],
       outfit: [['Мундир', 'uniform48'], ['Фрак', 'frock'], ['Пончо', 'poncho']],
       hair: [['Короткие', 'short'], ['Романтические', 'romantic'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
     } : st.era === '1905' ? {
@@ -120,6 +122,8 @@ const UI = {
       mustache: [['Нафабренные', 'waxed'], ['Руль', 'handlebar'], ['Моржовые', 'walrus'], ['Пышные', 'thick'], ['Нет', 'none']],
       beard: [['Нет', 'none'], ['Эспаньолка', 'imperial'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Пенсне', 'pince'], ['Монокль', 'monocle'], ['Круглые', 'round']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
+      sash: [['Нет', ''], ['Красная', '#c1272d'], ['Синяя', '#1f4e8c'], ['Золотая', '#c9a640']],
       outfit: [['Парадный мундир', 'uniform48'], ['Мундир', 'military'], ['Костюм', 'suit'], ['Халат', 'robe']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Лысина', 'bald']],
     } : st.era === 'domin' ? {
@@ -163,24 +167,31 @@ const UI = {
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Моржовые', 'walrus']],
       beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Монокль', 'monocle']],
+      eyeGlow: [['Обычные', ''], ['Мертвенный свет', '#7fe0c0'], ['Багровый свет', '#c1272d']],
       outfit: [['Мантия', 'mantle'], ['Балахон', 'robe'], ['Латы', 'plate']],
       hair: [['Короткие', 'short'], ['Длинные', 'long'], ['Зачёс', 'slick'], ['Лысина', 'bald']],
     } : st.era === 'dark70j' ? {
       hat: [['Армейская фуражка', 'gunbo'], ['Флотская фуражка', 'kaigunbo'], ['Придворная шапка', 'eboshi'], ['Без убора', 'none']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick']],
       glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Большие', 'square']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
       outfit: [['Кимоно с гербами', 'montsuki'], ['Мундир армии', 'gunpuku'], ['Мундир флота', 'kaigun'], ['Народная форма', 'kokumin'], ['Костюм', 'suit']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === 'dark70i' ? {
       hat: [['Феска милиции', 'fez70'], ['Фуражка', 'berretto'], ['Пилотка', 'bustina'], ['Шляпа альпийца', 'alpino'], ['Без убора', 'none']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick']],
       glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Большие', 'square']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
       outfit: [['Чёрная форма партии', 'orbace'], ['Армейский мундир', 'grigio'], ['Колониальный китель', 'sahariana'], ['Костюм', 'suit']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Зачёс на лысину', 'combover'], ['Кудри', 'curly'], ['Лысина', 'bald']],
     } : st.era === 'dark70' ? {
       hat: [['Фуражка', 'schirm'], ['Без убора', 'none']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick']],
       glasses: [['Нет', 'none'], ['Круглые', 'round'], ['Большие', 'square']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
       outfit: [['Мундир', 'tunic70'], ['Костюм', 'suit']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === '1980' ? {
@@ -188,6 +199,9 @@ const UI = {
       hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Бейсболка', 'baseball'], ['Без убора', 'none']],
       mustache: [['Пышные', 'thick'], ['Моржовые', 'walrus'], ['Ниточка', 'pencil'], ['Нет', 'none']],
       glasses: [['Нет', 'none'], ['Авиаторы', 'aviator'], ['Большие', 'square'], ['Круглые', 'round']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
+      sash: [['Нет', ''], ['Красная', '#c1272d'], ['Синяя', '#1f4e8c'], ['Золотая', '#c9a640']],
       outfit: [['Мундир', 'military'], ['Костюм', 'suit'], ['Френч', 'mao'], ['Гуаябера', 'guayabera'], ['Спортивный', 'tracksuit']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Афро', 'afro'], ['Зачёс на лысину', 'combover'], ['Лысина', 'bald']],
     } : st.era === '2000' ? {
@@ -195,6 +209,7 @@ const UI = {
       hat: [['Без убора', 'none'], ['Фуражка', 'cap'], ['Бейсболка', 'baseball'], ['Тюбетейка', 'tubeteika'], ['Куфия', 'keffiyeh']],
       mustache: [['Нет', 'none'], ['Пышные', 'thick'], ['Ниточка', 'pencil']],
       glasses: [['Нет', 'none'], ['Без оправы', 'rimless'], ['Спортивные', 'sport'], ['Авиаторы', 'aviator']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       outfit: [['Костюм', 'suit2000'], ['Мундир', 'military'], ['Спортивный', 'tracksuit'], ['Поло', 'polo']],
       hair: [['Короткие', 'short'], ['Ёжик', 'buzz'], ['Гель', 'gelled'], ['Зачёс', 'slick'], ['Лысина', 'bald']],
       bluetooth: [['Нет', ''], ['Bluetooth-гарнитура', '1']],
@@ -203,12 +218,15 @@ const UI = {
       hat: [['Фуражка', 'cap'], ['Берет', 'beret'], ['Кепи', 'kepi'], ['Шляпа', 'fedora'], ['Котелок', 'bowler'], ['Цилиндр', 'top'], ['Без убора', 'none']],
       mustache: [['Пышные', 'thick'], ['Моржовые', 'walrus'], ['Ниточка', 'pencil'], ['Руль', 'handlebar'], ['Нет', 'none']],
       glasses: [['Нет', 'none'], ['Авиаторы', 'aviator'], ['Круглые', 'round'], ['Монокль', 'monocle']],
+      beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
+      medals: [['Нет', '0'], ['Пара', '3'], ['Колодка', '7'], ['Вся грудь', '14']],
+      sash: [['Нет', ''], ['Красная', '#c1272d'], ['Синяя', '#1f4e8c'], ['Золотая', '#c9a640']],
       outfit: [['Мундир', 'military'], ['Костюм', 'suit'], ['Френч', 'mao'], ['Гуаябера', 'guayabera']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Афро', 'afro'], ['Лысина', 'bald']],
     };
-    const labels = { skin: 'Кожа', hat: 'Головной убор', mustache: 'Усы', beard: 'Борода', glasses: 'Очки', aug: 'На лице', outfit: 'Одежда', hair: 'Волосы', bluetooth: 'Гаджет' };
+    const labels = { skin: 'Кожа', hat: 'Головной убор', mustache: 'Усы', beard: 'Борода', glasses: 'Очки', aug: 'На лице', medals: 'Награды', sash: 'Лента', eyeGlow: 'Глаза', outfit: 'Одежда', hair: 'Волосы', bluetooth: 'Гаджет' };
     $('#setup-look').innerHTML = Object.entries(opts).map(([k, list]) => `
-      <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${(k === 'bluetooth' ? (st.look.bluetooth ? '1' : '') : k === 'aug' ? st.look.aug || 'none' : st.look[k]) === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
+      <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${(k === 'bluetooth' ? (st.look.bluetooth ? '1' : '') : k === 'aug' ? st.look.aug || 'none' : k === 'medals' ? (n => !n ? '0' : n <= 4 ? '3' : n <= 9 ? '7' : '14')(+st.look.medals || 0) : k === 'sash' || k === 'eyeGlow' ? st.look[k] || '' : k === 'beard' ? st.look.beard || 'none' : st.look[k]) === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
     UI.renderSetupPortrait();
     for (const b of document.querySelectorAll('[data-diff]')) b.onclick = () => { st.diff = b.dataset.diff; UI.renderSetup(); };
     for (const b of document.querySelectorAll('button[data-era]')) b.onclick = () => {
@@ -254,7 +272,7 @@ const UI = {
       UI.renderSetup();
     };
     for (const b of document.querySelectorAll('[data-look]')) b.onclick = () => {
-      st.look[b.dataset.look] = b.dataset.look === 'bluetooth' ? b.dataset.val === '1' : b.dataset.val;
+      st.look[b.dataset.look] = b.dataset.look === 'bluetooth' ? b.dataset.val === '1' : b.dataset.look === 'medals' ? +b.dataset.val : b.dataset.val;
       if (st.era === 'dark70' && typeof darkSetupLook === 'function') { darkSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'dark70i' && typeof italSetupLook === 'function') { italSetupLook(st, b.dataset.look); return UI.renderSetup(); }
       if (st.era === 'dark70j' && typeof japSetupLook === 'function') { japSetupLook(st, b.dataset.look); return UI.renderSetup(); }
