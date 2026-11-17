@@ -353,8 +353,11 @@ Object.assign(Game, {
     for (const P of B.papers) if (S.turn - P.at >= 2) { const f = PAPER_DECK.find(x => x.id === P.id).from; if (S.fac[f]) S.fac[f].a = clamp(S.fac[f].a - 1.5); }
     for (const c of B.comm.filter(c => S.turn >= c.back)) { B.papers.push({ id: c.id, at: S.turn, grown: true }); const f = PAPER_DECK.find(x => x.id === c.id).from; if (S.fac[f]) S.fac[f].a = clamp(S.fac[f].a - 3); rep.lines.push(`Комиссия вернула дело «${PAPER_DECK.find(x => x.id === c.id).title}»: с приложениями оно стало толще и дороже.`); }
     B.comm = B.comm.filter(c => S.turn < c.back);
-    while (B.papers.length > 8) { const P = B.papers.shift(), D = PAPER_DECK.find(x => x.id === P.id); if (S.fac[D.from]) S.fac[D.from].a = clamp(S.fac[D.from].a - 8); rep.warn.push(`Прошение «${D.title}» пролежало так долго, что податель обиделся и написал в газету.`); }
-    Game.bgNewPapers(S.diff === 'hard' ? 4 : S.diff === 'easy' ? 2 + (S.turn % 2) : 3 + (S.turn % 2));
+    while (B.papers.length > 8) { const P = B.papers.shift(), D = PAPER_DECK.find(x => x.id === P.id); if (S.fac[D.from]) S.fac[D.from].a = clamp(S.fac[D.from].a - 5); rep.warn.push(`Прошение «${D.title}» пролежало так долго, что податель обиделся и написал в газету.`); }
+    // когда приёмная забита, часть просителей разворачивается у дверей: завал растёт медленнее и из него можно выбраться
+    const jam = B.papers.length >= 7 ? 1 : 0;
+    if (jam) rep.lines.push('В приёмную не войти: часть просителей постояла у дверей и ушла до лучших времён.');
+    Game.bgNewPapers((S.diff === 'hard' ? 4 : S.diff === 'easy' ? 2 + (S.turn % 2) : 3 + (S.turn % 2)) - jam);
     if (B.papers.length >= 6) { S.economy = clamp(S.economy - 1); S.support = clamp(S.support - 0.5); rep.warn.push(`Завал в ратуше: ${B.papers.length} неразобранных дел. Письмоводители строят из папок укрепления.`); }
     const seats = Game.bgSeats();
     if (seats < 3) { S.treasury -= 2; rep.warn.push(`В совете за вас ${seats} гильдий из шести. Смета не утверждена; деньги тратятся «временно».`); }
