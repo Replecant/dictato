@@ -127,6 +127,7 @@ const UI = {
       mustache: [['Нет', 'none'], ['Пышные', 'thick'], ['Руль', 'handlebar'], ['Моржовые', 'walrus']],
       beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
       glasses: [['Нет', 'none'], ['Монокль', 'monocle']],
+      aug: [['Нет', 'none'], ['Механический глаз', 'eye'], ['Шрам', 'scar'], ['Дыхательная маска', 'mask'], ['Кабели в виске', 'cables'], ['Учётный номер', 'code']],
       outfit: [['Мантия Высокого дома', 'mantle'], ['Шинель', 'greatcoat'], ['Ряса', 'robe']],
       hair: [['Короткие', 'short'], ['Площадка', 'flattop'], ['Зачёс', 'slick'], ['Ирокез', 'mohawk'], ['Тонзура', 'tonsure'], ['Длинные', 'long'], ['Лысина', 'bald']],
     } : st.era === 'house' ? {
@@ -205,9 +206,9 @@ const UI = {
       outfit: [['Мундир', 'military'], ['Костюм', 'suit'], ['Френч', 'mao'], ['Гуаябера', 'guayabera']],
       hair: [['Короткие', 'short'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Афро', 'afro'], ['Лысина', 'bald']],
     };
-    const labels = { skin: 'Кожа', hat: 'Головной убор', mustache: 'Усы', beard: 'Борода', glasses: 'Очки', outfit: 'Одежда', hair: 'Волосы', bluetooth: 'Гаджет' };
+    const labels = { skin: 'Кожа', hat: 'Головной убор', mustache: 'Усы', beard: 'Борода', glasses: 'Очки', aug: 'На лице', outfit: 'Одежда', hair: 'Волосы', bluetooth: 'Гаджет' };
     $('#setup-look').innerHTML = Object.entries(opts).map(([k, list]) => `
-      <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${(k === 'bluetooth' ? (st.look.bluetooth ? '1' : '') : st.look[k]) === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
+      <div class="look-row"><span class="look-label">${labels[k]}</span><div class="seg">${list.map(([n, v]) => `<button class="${(k === 'bluetooth' ? (st.look.bluetooth ? '1' : '') : k === 'aug' ? st.look.aug || 'none' : st.look[k]) === v ? 'on' : ''}" data-look="${k}" data-val="${v}">${n}</button>`).join('')}</div></div>`).join('');
     UI.renderSetupPortrait();
     for (const b of document.querySelectorAll('[data-diff]')) b.onclick = () => { st.diff = b.dataset.diff; UI.renderSetup(); };
     for (const b of document.querySelectorAll('button[data-era]')) b.onclick = () => {
