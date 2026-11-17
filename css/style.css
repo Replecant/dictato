@@ -1541,3 +1541,8 @@ body[data-era="crown"] { --bg: #170f12; --wood: #1f1418; --panel: #281a1f; --pan
 .ax-np article.lead::after { content: ""; display: block; clear: both; }
 .ax-np [class$="-np-off"] { margin-top: 0; border-top: 3px double currentColor; }
 @media (max-width: 900px) { .ax-np .ax-cols { grid-template-columns: minmax(0, 1fr); } .ax-np .ax-col + .ax-col { border-left: 0; padding-left: 0; } .ax-np .ax-photo { float: none; width: 100%; margin: 0 0 8px; } }
+
+/* ---------- текст интерфейса не выделяется мышью; поля ввода остаются обычными ---------- */
+body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
+img, svg { -webkit-user-drag: none; }
