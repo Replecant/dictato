@@ -48,8 +48,8 @@ for (const k of Object.keys(HOUSES)) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK[SU
 const HS_NAMES = { hverdan: 'Леонт Вердан', hgargon: 'Вальдемар Гаргон', hmiral: 'Арман Мираль' };
 function houseSetupLook(st, key) { if (st.look.hat === 'hood') st.look.hatColor = st.look.outfitColor; if (key === 'outfit') st.look.outfitColor = { uniform48: HOUSES[st.regime] ? { hverdan: '#1f3a2a', hgargon: '#2a1210', hmiral: '#221d38' }[st.regime] : '#1f3a2a', mantle: '#2a1210', plate: '#3a3d44' }[st.look.outfit]; }
 
-NAME_POOLS.sush = { m: ['Дункар', 'Турфин', 'Гурвен', 'Питрий', 'Раббан', 'Юэн', 'Стилар', 'Корин', 'Хават', 'Фейд'], f: ['Алия', 'Чана', 'Ирула'], last: ['Халь', 'Нефуд', 'Аракс', 'Кайн', 'Мапес', 'Тувек', 'Рамалло', 'Фенрик', 'Отейм', 'Харра'] };
-RELATIVES_BY_STYLE.sush = { defense: 'Племянник Раббан', economy: 'Кузен Питрий', police: 'Тётка Ирула', propaganda: 'Шурин Гурвен', foreign: 'Зять Фейд' };
+NAME_POOLS.sush = { m: ['Орсен', 'Мельхор', 'Тавриан', 'Жоффрен', 'Эстебар', 'Гроддак', 'Одвин', 'Лисандр', 'Амадей', 'Базиль', 'Корвус', 'Ильмар', 'Рутгер', 'Зенон', 'Фабиан', 'Уго', 'Тибальд', 'Ансельм', 'Йорам', 'Касьян', 'Велизар', 'Хольгер'], f: ['Северина', 'Клодин', 'Мелисента', 'Оттилия', 'Ровена', 'Изабо', 'Текла', 'Юдифь', 'Гизела', 'Аурика'], last: ['Бальд', 'Иззет', 'Лох', 'Квинн', 'Ужур', 'Кеш', 'Шпатц', 'Вей', 'Оль', 'Тиш', 'Мерсо', 'Рюмон', 'Дарр', 'Суллак', 'Эйн', 'Корбо', 'Хольт', 'Занд', 'Ярвик', 'Пеллам', 'Ноктис', 'Трасс'] };
+RELATIVES_BY_STYLE.sush = { defense: 'Племянник Уго', economy: 'Кузен Ансельм', police: 'Тётка Оттилия', propaganda: 'Шурин Тибальд', foreign: 'Зять Фабиан' };
 REGIONS[SUSH] = {
   name: 'Планета Сушь', short: 'Сушь',
   blurb: 'Песок, ветер и приправа. Без приправы не летают корабли Гильдии, не видят будущего провидцы и несъедобна столичная кухня. Тот, кто держит Сушь, кормит Империю. Тот, кто перестаёт кормить, недолго держит Сушь.',
@@ -57,7 +57,7 @@ REGIONS[SUSH] = {
   exports: 'приправа', exportGen: 'приправы', company: 'Имперская приправная палата', patron: 'throne',
   sport: 'бои на коротких клинках', rival: 'соседний дом', rivalShort: 'соперники',
   disputed: 'Южная Пустошь', faithLeader: 'Наставница', capitalSquare: 'площади Трёх Цистерн',
-  jungle: 'глубокой пустыне', nephew: 'Раббан',
+  jungle: 'глубокой пустыне', nephew: 'Уго',
   countries: ['throne', 'guild', 'order', 'hgargon', 'hmiral'],
   relInit: { throne: 55, guild: 50, order: 50, hverdan: 35, hgargon: 30, hmiral: 40 },
   flag: FLAGS.sush,
@@ -70,11 +70,11 @@ REGIONS[SUSH] = {
     hawks: { name: 'Гвардия дома', short: 'Гвардия', icon: '⚔️', desc: 'Ваши собственные клинки. Защитные поля, короткие мечи и долгая память о том, вовремя ли платили.' },
   },
   advisors: {
-    defense: { name: 'Мастер меча Дункар Халь', bio: 'Лучший клинок дома. Погибал за него дважды. Оба раза вернулся и попросил прибавку.', look: LH({ skin: SKIN.tan, face: 'square', hair: 'curly', hairColor: '#1a1a1a', brows: 'angry', ...HS_UNI('#2a2d33') }) },
-    economy: { name: 'Счётчик Турфин Хават', bio: 'Считает добычу в уме. Губы красные от сока, которым смазывают мозги. Ошибся один раз, в 201 году, и помнит.', look: LH({ face: 'long', hair: 'bald', hairColor: '#999', brows: 'bushy', mouth: 'flat', blush: true, outfit: 'robe', outfitColor: '#22202a', trim: '#8a3a2a' }) },
-    police: { name: 'Мастер тайн Питрий Кайн', bio: 'Знает сорок ядов и к каждому противоядие. Противоядия держит при себе.', look: LH({ face: 'long', hair: 'slick', hairColor: '#1a1a1a', mustache: 'pencil', mouth: 'smirk', outfit: 'robe', outfitColor: '#1a1a1e', trim: '#5a4a8a' }) },
-    propaganda: { name: 'Бард-оруженосец Гурвен', bio: 'Воин и певец. Сочинил о вашем доме сорок баллад. В каждой кто-нибудь гибнет под дождём, которого здесь не бывает.', look: LH({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#8a5a2a', mustache: 'thick', beard: 'goatee', ...HS_UNI('#3a2a1a') }) },
-    foreign: { name: 'Посол Корин Фенрик', bio: 'Представляет дом при Золотом Троне. Говорит мало, мычит многозначительно. При дворе его мычание записывают.', look: LH({ face: 'oval', hair: 'slick', hairColor: '#5a4a3a', glasses: 'monocle', mouth: 'smirk', outfit: 'mantle', outfitColor: '#3a2a10', trim: '#d9c07a' }) },
+    defense: { name: 'Мастер меча Орсен Бальд', bio: 'Лучший клинок дома. Погибал за него дважды. Оба раза вернулся и попросил прибавку.', look: LH({ skin: SKIN.tan, face: 'square', hair: 'curly', hairColor: '#1a1a1a', brows: 'angry', ...HS_UNI('#2a2d33') }) },
+    economy: { name: 'Счётчик Мельхор Иззет', bio: 'Считает добычу в уме. Губы красные от сока, которым смазывают мозги. Ошибся один раз, в 201 году, и помнит.', look: LH({ face: 'long', hair: 'bald', hairColor: '#999', brows: 'bushy', mouth: 'flat', blush: true, outfit: 'robe', outfitColor: '#22202a', trim: '#8a3a2a' }) },
+    police: { name: 'Мастер тайн Зенон Дарр', bio: 'Знает сорок ядов и к каждому противоядие. Противоядия держит при себе.', look: LH({ face: 'long', hair: 'slick', hairColor: '#1a1a1a', mustache: 'pencil', mouth: 'smirk', outfit: 'robe', outfitColor: '#1a1a1e', trim: '#5a4a8a' }) },
+    propaganda: { name: 'Бард-оруженосец Жоффрен', bio: 'Воин и певец. Сочинил о вашем доме сорок баллад. В каждой кто-нибудь гибнет под дождём, которого здесь не бывает.', look: LH({ skin: SKIN.tan, face: 'square', hair: 'short', hairColor: '#8a5a2a', mustache: 'thick', beard: 'goatee', ...HS_UNI('#3a2a1a') }) },
+    foreign: { name: 'Посол Эстебар Квинн', bio: 'Представляет дом при Золотом Троне. Говорит мало, мычит многозначительно. При дворе его мычание записывают.', look: LH({ face: 'oval', hair: 'slick', hairColor: '#5a4a3a', glasses: 'monocle', mouth: 'smirk', outfit: 'mantle', outfitColor: '#3a2a10', trim: '#d9c07a' }) },
   },
 };
 REGION_TALK[SUSH] = { addr: 'милорд', sir: 'сударь', lady: 'сударыня', holiday_acc: 'День Первой Воды', holiday_dat: 'Дню Первой Воды', gringo: 'иномиряне', haven: 'счёт в Гильдии', exileTo: 'любой мир, куда возьмёт Гильдия', canteen: 'лепёшка с приправой', fruit_adj: 'Песчаный', locale: 'Суши', pay_in_kind: 'Водой.', vegas: 'покои с собственной цистерной', rebel: 'Старшина водоносов', meeting: 'в зале с гобеленами' };
@@ -93,20 +93,20 @@ NEW_FACTIONS[HOUSE] = { name: 'Контрабандисты', short: 'Контр
 // у каждого дома свой ближний круг (у Вердана — тот, что записан в самой планете)
 const hsLook = (role, o) => ({ ...REGIONS[SUSH].advisors[role].look, ...o });
 const HOUSE_ADV = {
-  hverdan: { police: { name: 'Мастер тайн Юэн Отейм', bio: 'Домашний лекарь, которому поручили ещё и тайны. Клялся не вредить. Клятву толкует всё шире.', look: hsLook('police', { mustache: 'thick', mouth: 'flat', hairColor: '#5a4a3a', brows: 'worried', trim: '#4a7a5a' }) } },
+  hverdan: { police: { name: 'Мастер тайн Тавриан Лох', bio: 'Домашний лекарь, которому поручили ещё и тайны. Клялся не вредить. Клятву толкует всё шире.', look: hsLook('police', { mustache: 'thick', mouth: 'flat', hairColor: '#5a4a3a', brows: 'worried', trim: '#4a7a5a' }) } },
   hgargon: {
-    defense: { name: 'Зверь Раббан Тувек', bio: 'Племянник барона. Любую задачу решает одним способом. Способ не меняется; задачи кончаются.', look: hsLook('defense', { skin: SKIN.light, face: 'round', hair: 'bald', hairColor: '#b84a2a', mustache: 'none', mouth: 'grin', outfit: 'plate', steel: '#3a2a26' }) },
-    economy: { name: 'Счётчик Питрий Мапес', bio: 'Искривлённый счётчик: считает то, что другим считать стыдно. Смеётся невпопад и вовремя.', look: hsLook('economy', { face: 'round', hair: 'curly', hairColor: '#8a3a1a', mouth: 'grin', brows: 'angry', trim: '#b8452a' }) },
-    police: { name: 'Капитан подвалов Нефуд', bio: 'Глуховат, поэтому криков не слышит. Барон считает это главным достоинством.', look: hsLook('police', { face: 'square', hair: 'bald', mustache: 'none', mouth: 'flat', brows: 'bushy', outfitColor: '#2a1210', trim: '#b8452a' }) },
-    propaganda: { name: 'Племянник Фейд Харра', bio: 'Любимец арены. Выходит под музыку и побеждает красиво. Противникам заранее подрезают сухожилия.', look: hsLook('propaganda', { skin: SKIN.light, face: 'oval', hair: 'slick', hairColor: '#b84a2a', mustache: 'none', beard: 'none', mouth: 'smirk', outfitColor: '#2a1210' }) },
-    foreign: { name: 'Посол Отейм Рамалло', bio: 'Возит ко двору подарки барона. Половину довозит. Двор доволен и этой половиной.', look: hsLook('foreign', { face: 'round', hair: 'bald', glasses: 'none', mustache: 'walrus', outfitColor: '#2a1210', trim: '#b8452a' }) },
+    defense: { name: 'Зверь Гроддак Ужур', bio: 'Племянник барона. Любую задачу решает одним способом. Способ не меняется; задачи кончаются.', look: hsLook('defense', { skin: SKIN.light, face: 'round', hair: 'bald', hairColor: '#b84a2a', mustache: 'none', mouth: 'grin', outfit: 'plate', steel: '#3a2a26' }) },
+    economy: { name: 'Счётчик Цвибл Кеш', bio: 'Искривлённый счётчик: считает то, что другим считать стыдно. Смеётся невпопад и вовремя.', look: hsLook('economy', { face: 'round', hair: 'curly', hairColor: '#8a3a1a', mouth: 'grin', brows: 'angry', trim: '#b8452a' }) },
+    police: { name: 'Капитан подвалов Мордух', bio: 'Глуховат, поэтому криков не слышит. Барон считает это главным достоинством.', look: hsLook('police', { face: 'square', hair: 'bald', mustache: 'none', mouth: 'flat', brows: 'bushy', outfitColor: '#2a1210', trim: '#b8452a' }) },
+    propaganda: { name: 'Племянник Ярро Гаргон', bio: 'Любимец арены. Выходит под музыку и побеждает красиво. Противникам заранее подрезают сухожилия.', look: hsLook('propaganda', { skin: SKIN.light, face: 'oval', hair: 'slick', hairColor: '#b84a2a', mustache: 'none', beard: 'none', mouth: 'smirk', outfitColor: '#2a1210' }) },
+    foreign: { name: 'Посол Одвин Шпатц', bio: 'Возит ко двору подарки барона. Половину довозит. Двор доволен и этой половиной.', look: hsLook('foreign', { face: 'round', hair: 'bald', glasses: 'none', mustache: 'walrus', outfitColor: '#2a1210', trim: '#b8452a' }) },
   },
   hmiral: {
-    defense: { name: 'Фехтмейстер Стилар Аракс', bio: 'Дерётся только на дуэлях и только с теми, кому накануне что-то подсыпали. Не проиграл ни разу.', look: hsLook('defense', { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#e8e2c0', mustache: 'pencil', brows: 'normal', mouth: 'smirk', outfitColor: '#221d38' }) },
-    economy: { name: 'Счётчица Ирула Кайн', bio: 'Ведёт две книги дома. Третью ведёт про тех, кто заглядывал в первые две.', look: hsLook('economy', { face: 'oval', hair: 'bun', hairColor: '#5a4a3a', brows: 'normal', earring: true, trim: '#5a4a8a' }) },
-    police: { name: 'Мастер ядов Юэн Фенрик', bio: 'Сорок ядов, сорок противоядий, одна улыбка на все случаи.', look: hsLook('police', { face: 'round', hair: 'combover', hairColor: '#888', mustache: 'none', glasses: 'round', mouth: 'grin' }) },
-    propaganda: { name: 'Летописица Алия Харра', bio: 'Пишет хронику дома на год вперёд. Потом дом старается соответствовать.', look: hsLook('propaganda', { skin: SKIN.light, face: 'long', hair: 'long', hairColor: '#1a1a1a', mustache: 'none', beard: 'none', earring: true, mouth: 'smirk', outfit: 'robe', outfitColor: '#221d38', trim: '#d9c07a' }) },
-    foreign: { name: 'Посол Хават Нефуд', bio: 'Мычит при дворе так многозначительно, что двор боится переспросить.', look: hsLook('foreign', { face: 'long', hair: 'bald', mustache: 'handlebar', outfitColor: '#221d38', trim: '#8a7ac8' }) },
+    defense: { name: 'Фехтмейстер Лисандр Вей', bio: 'Дерётся только на дуэлях и только с теми, кому накануне что-то подсыпали. Не проиграл ни разу.', look: hsLook('defense', { skin: SKIN.light, face: 'long', hair: 'slick', hairColor: '#e8e2c0', mustache: 'pencil', brows: 'normal', mouth: 'smirk', outfitColor: '#221d38' }) },
+    economy: { name: 'Счётчица Северина Оль', bio: 'Ведёт две книги дома. Третью ведёт про тех, кто заглядывал в первые две.', look: hsLook('economy', { face: 'oval', hair: 'bun', hairColor: '#5a4a3a', brows: 'normal', earring: true, trim: '#5a4a8a' }) },
+    police: { name: 'Мастер ядов Амадей Тиш', bio: 'Сорок ядов, сорок противоядий, одна улыбка на все случаи.', look: hsLook('police', { face: 'round', hair: 'combover', hairColor: '#888', mustache: 'none', glasses: 'round', mouth: 'grin' }) },
+    propaganda: { name: 'Летописица Клодин Мерсо', bio: 'Пишет хронику дома на год вперёд. Потом дом старается соответствовать.', look: hsLook('propaganda', { skin: SKIN.light, face: 'long', hair: 'long', hairColor: '#1a1a1a', mustache: 'none', beard: 'none', earring: true, mouth: 'smirk', outfit: 'robe', outfitColor: '#221d38', trim: '#d9c07a' }) },
+    foreign: { name: 'Посол Базиль Рюмон', bio: 'Мычит при дворе так многозначительно, что двор боится переспросить.', look: hsLook('foreign', { face: 'long', hair: 'bald', mustache: 'handlebar', outfitColor: '#221d38', trim: '#8a7ac8' }) },
   },
 };
 function npcH(key) {
