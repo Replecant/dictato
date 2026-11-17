@@ -48,7 +48,7 @@ REGIME_SETUP_LOOK[JAP] = {
   kaigun70: { ...JP_NAVY({ medals: 6 }), hair: 'short', mustache: 'none', glasses: 'none' },
 };
 for (const k of ['kuge70', 'rikugun70', 'kaigun70']) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK[JAP][k], bluetooth: false };
-const JP_NAMES = { kuge70: 'Нобуёси Татибана', rikugun70: 'Кэндзи Мураками', kaigun70: 'Сабуро Исикава' };
+const JP_NAMES = { kuge70: 'Нобуёши Тачибана', rikugun70: 'Кенджи Мураками', kaigun70: 'Сабуро Ишикава' };
 function japSetupLook(st, key) {
   const L = st.look;
   if (key === 'outfit') Object.assign(L, { montsuki: JP_KIMONO, gunpuku: JP_ARMY, kaigun: JP_NAVY, kokumin: JP_KOKU, suit: () => JP_SUIT('#26282d') }[L.outfit]({ hat: L.hat, glasses: L.glasses, medals: ['gunpuku', 'kaigun'].includes(L.outfit) ? 6 : 0 }));
@@ -57,8 +57,8 @@ function japSetupLook(st, key) {
 }
 
 // ---------- страна ----------
-NAME_POOLS.japan = { m: ['Хидэо', 'Сигэру', 'Ёсио', 'Кэйдзо', 'Такэси', 'Исаму', 'Дзиро', 'Тосио', 'Минору', 'Харуо'], f: ['Сэцуко', 'Фумико', 'Харуэ'], last: ['Кувабара', 'Хираока', 'Сонода', 'Цукамото', 'Одагири', 'Морисита', 'Тагава', 'Ногами', 'Эндо', 'Фунабаси'] };
-RELATIVES_BY_STYLE.japan = { defense: 'Кузен Сабуро', economy: 'Шурин Кэйдзо', police: 'Дядюшка Гэндзо', propaganda: 'Племянник Юкио', foreign: 'Зять Хидэо' };
+NAME_POOLS.japan = { m: ['Хидео', 'Шигеру', 'Йошио', 'Кейзо', 'Такеши', 'Исаму', 'Джиро', 'Тошио', 'Минору', 'Харуо', 'Масао', 'Кеничи', 'Таро', 'Нобору', 'Акира', 'Макото', 'Юкио', 'Сейджи', 'Кацуо', 'Хироши', 'Тецуо', 'Рюичи'], f: ['Сецуко', 'Фумико', 'Харуэ', 'Кейко', 'Мичико', 'Йошико', 'Томоко', 'Казуко', 'Норико'], last: ['Кувабара', 'Хираока', 'Сонода', 'Цукамото', 'Одагири', 'Моришита', 'Тагава', 'Ногами', 'Эндо', 'Фунабаши', 'Като', 'Ямагучи', 'Мацуда', 'Иноуэ', 'Кобаяши', 'Окада', 'Хасегава', 'Миязаки', 'Сугимото', 'Такахаши', 'Оно', 'Фуджита'] };
+RELATIVES_BY_STYLE.japan = { defense: 'Кузен Сабуро', economy: 'Шурин Кейзо', police: 'Дядюшка Гензо', propaganda: 'Племянник Юкио', foreign: 'Зять Хидео' };
 REGIONS[JAP] = {
   name: 'Япония', short: 'Япония',
   blurb: 'Океан от Сингапура до Гавайев и слабейшее хозяйство из трёх держав. Армия и флот воюют друг с другом за бюджет упорнее, чем когда-то с Америкой. Трон поручил вам составить кабинет. Прежний продержался одиннадцать месяцев.',
@@ -66,7 +66,7 @@ REGIONS[JAP] = {
   exports: 'суда, сталь и текстиль', exportGen: 'стали', company: 'концерн «Тоёхара»', patron: 'italy',
   sport: 'первенство империи', rival: 'Соединённые Штаты', rivalShort: 'США',
   disputed: 'Гавайские острова', faithLeader: 'Директор Ассоциации', capitalSquare: 'площади перед дворцом',
-  jungle: 'джунглях Борнео', nephew: 'Кэндзи',
+  jungle: 'джунглях Борнео', nephew: 'Кенджи',
   countries: ['reich', 'usa', 'italy'],
   relInit: { reich: 40, usa: 22, italy: 45 },
   flag: FLAGS.japan,
@@ -79,11 +79,11 @@ REGIONS[JAP] = {
     hawks: { name: 'Армия', short: 'Армия', icon: '⚔️', desc: 'Сто дивизий от Маньчжурии до Бирмы. Военный министр — действующий генерал; если армия его отзовёт и не назовёт другого, кабинет падёт. Она уже делала так девять раз.' },
   },
   advisors: {
-    defense: { name: 'Генерал Кодзо Мидзуно', bio: 'Военный министр. В кабинете он представляет армию, а не наоборот.', look: LJ({ skin: JP_SKINS[2], face: 'square', hair: 'short', hairColor: '#8a8a8a', mustache: 'thick', ...JP_ARMY({ medals: 5 }) }) },
-    economy: { name: 'Сюнсукэ Арима', bio: 'Министр финансов. Тридцать лет делит бюджет между армией и флотом. Остального бюджета не видел никогда.', look: LJ({ skin: JP_SKINS[0], face: 'long', hair: 'combover', hairColor: '#6a6a6a', glasses: 'round', brows: 'worried', ...JP_SUIT('#33363b') }) },
+    defense: { name: 'Генерал Козо Мизуно', bio: 'Военный министр. В кабинете он представляет армию, а не наоборот.', look: LJ({ skin: JP_SKINS[2], face: 'square', hair: 'short', hairColor: '#8a8a8a', mustache: 'thick', ...JP_ARMY({ medals: 5 }) }) },
+    economy: { name: 'Шунсуке Арима', bio: 'Министр финансов. Тридцать лет делит бюджет между армией и флотом. Остального бюджета не видел никогда.', look: LJ({ skin: JP_SKINS[0], face: 'long', hair: 'combover', hairColor: '#6a6a6a', glasses: 'round', brows: 'worried', ...JP_SUIT('#33363b') }) },
     police: { name: 'Горо Катаяма', bio: 'Министр внутренних дел. Особая высшая полиция докладывает ему о чужих мыслях. О своих он молчит.', look: LJ({ skin: JP_SKINS[1], face: 'oval', hair: 'slick', hairColor: '#2a2a2a', brows: 'angry', ...JP_KOKU() }) },
     propaganda: { name: 'Масао Уэда', bio: 'Глава Информационного бюро. Решает, что напечатают все газеты империи. Газет шестьсот, текст один.', look: LJ({ skin: JP_SKINS[2], face: 'round', hair: 'bald', hairColor: '#777', glasses: 'square', ...JP_KOKU() }) },
-    foreign: { name: 'Барон Тадаси Нагаи', bio: 'Министр иностранных дел. Служил в Берлине и Вашингтоне. Знает, что обе столицы считают Японию третьей.', look: LJ({ skin: JP_SKINS[0], face: 'long', hair: 'slick', hairColor: '#b0b0b0', mustache: 'pencil', ...JP_KIMONO() }) },
+    foreign: { name: 'Барон Тадаши Нагаи', bio: 'Министр иностранных дел. Служил в Берлине и Вашингтоне. Знает, что обе столицы считают Японию третьей.', look: LJ({ skin: JP_SKINS[0], face: 'long', hair: 'slick', hairColor: '#b0b0b0', mustache: 'pencil', ...JP_KIMONO() }) },
   },
 };
 REGION_TALK[JAP] = { addr: 'господин премьер-министр', sir: 'господин', lady: 'госпожа', holiday_acc: 'День основания империи', holiday_dat: 'Дню основания империи', gringo: 'американцы', haven: 'Шанхай', exileTo: 'Шанхай', canteen: 'рис по карточкам', fruit_adj: 'Имперский', locale: 'Японии', pay_in_kind: 'Рисом.', vegas: 'горячие источники для отличившихся', rebel: 'Человек из толпы', meeting: 'в чайном доме' };
@@ -417,7 +417,7 @@ Object.assign(Game, {
     if (!a || !a.ok || !Game.spend()) return null;
     let fx = { ...a.fx }, text = a.name + '. ';
     if (a.odds !== undefined) { const ok = Math.random() < a.odds; fx = Game.mergeFxD(fx, ok ? a.win : a.lose); text += ok ? 'Они поверили. Берлин и Вашингтон отзывают послов друг у друга.' : 'Подлог раскрыт. Обе столицы требуют объяснений от Токио.'; }
-    else text += { army: 'Заказы ушли на арсеналы Осаки и Мукдена.', navy: 'Заложены два авианосца в Курэ и Йокосуке.', detr: 'Комиссия согласовала ещё сорок километров линии.', detu: 'Конвенция подписана в Лиссабоне. Адмиралы назвали её «бумажным якорем».' }[id];
+    else text += { army: 'Заказы ушли на арсеналы Осаки и Мукдена.', navy: 'Заложены два авианосца в Куре и Йокосуке.', detr: 'Комиссия согласовала ещё сорок километров линии.', detu: 'Конвенция подписана в Лиссабоне. Адмиралы назвали её «бумажным якорем».' }[id];
     const changes = Game.apply(fx);
     Game.noteDeal('jcw:' + id);
     Game.log(text);
@@ -643,7 +643,7 @@ Game.introScene = function () {
   return {
     title: 'Повеление трона', bg: 'palace',
     lines: [
-      ['narrator', 'Токио, 9 января 1970 года. Кабинет Киси пал вчера: флот отозвал морского министра после спора о бюджете. Прежний кабинет продержался одиннадцать месяцев. Тот, что был до него, — семь.'],
+      ['narrator', 'Токио, 9 января 1970 года. Кабинет Киши пал вчера: флот отозвал морского министра после спора о бюджете. Прежний кабинет продержался одиннадцать месяцев. Тот, что был до него, — семь.'],
       ['npc:keeper', 'Его величество повелевает вам составить кабинет. Старейшины совещались четыре часа. Ваше имя назвали третьим: первые двое отказались.'],
       ['narrator', why],
       ['defense', 'Армия войдёт в кабинет. Пока её интересы учитываются, я остаюсь военным министром, {addr}. Если нет — я подам в отставку, и преемника вам не назовут.'],
@@ -668,7 +668,7 @@ Game.coupScene = function (role) {
   c0.text = 'Обратиться по радио'; c0.win.res = 'Вас услышали. Солдатам сказали, что их обманули офицеры. К вечеру роты одна за другой вернулись в казармы.'; c0.lose.res = 'Радиостанцию заняли раньше, чем вы до неё добрались.';
   c1.text = 'Просить повеления трона'; c1.win.res = 'Его величество назвал восставших мятежниками. Это слово решило всё: к утру офицеры сдали оружие.'; c1.lose.res = 'Двор молчал три дня. Этого хватило.';
   if (c2) { c2.text = 'Вызвать флот в Токийский залив'; if (c2.win) c2.win.res = 'Линкоры навели орудия на правительственный квартал. Армейские мятежники поняли, что флот ждал такого случая двадцать лет.'; if (c2.lose) c2.lose.res = 'Флот ответил, что это внутреннее дело армии.'; }
-  if (c3) { c3.text = 'Уехать в Шанхай'; c3.res = 'Самолёт взлетел с аэродрома Ханэда до рассвета.'; }
+  if (c3) { c3.text = 'Уехать в Шанхай'; c3.res = 'Самолёт взлетел с аэродрома Ханеда до рассвета.'; }
   return sc;
 };
 const _revJ = Game.revolutionScene;
@@ -729,7 +729,7 @@ decJ('social', { id: 'j_amnesty', name: 'Пересмотр дел о «мысл
 decJ('social', { id: 'j_curfew', name: 'Особое положение в столице', desc: 'Патрули военной полиции, пропуска, ночные проверки. Тихо и страшно.', cost: '', repeat: true,
   run: (S, m) => ({ fx: { fear: Math.round(9 * m), support: -4, fac: { liberals: { a: -5 }, hawks: { a: 4 } } }, text: 'После десяти вечера на улицах только патрули с белыми повязками.' }) });
 decJ('economy', { id: 'j_ships', name: 'Заказы верфям', desc: 'Танкеры и эсминцы. Верфи загружены, флот и дзайбацу довольны, армия считает деньги.', cost: '−14 млн', ok: S => S.treasury >= 14, repeat: true,
-  run: (S, m) => ({ fx: { treasury: -14, economy: Math.round(1 * m), fac: { oligarchs: { a: Math.round(6 * m) }, new: { a: Math.round(5 * m) }, hawks: { a: -3 } }, jpCw: { ocean: Math.round(3 * m) } }, text: 'Заказы размещены. Курэ и Нагасаки работают в три смены.' }) });
+  run: (S, m) => ({ fx: { treasury: -14, economy: Math.round(1 * m), fac: { oligarchs: { a: Math.round(6 * m) }, new: { a: Math.round(5 * m) }, hawks: { a: -3 } }, jpCw: { ocean: Math.round(3 * m) } }, text: 'Заказы размещены. Куре и Нагасаки работают в три смены.' }) });
 decJ('economy', { id: 'j_arsenal', name: 'Заказы арсеналам', desc: 'Танки и орудия для материка. Арсеналы загружены, армия и дзайбацу довольны, флот считает деньги.', cost: '−14 млн', ok: S => S.treasury >= 14, repeat: true,
   run: (S, m) => ({ fx: { treasury: -14, economy: Math.round(1 * m), fac: { oligarchs: { a: Math.round(6 * m) }, hawks: { a: Math.round(5 * m) }, new: { a: -3 } }, jpCw: { north: Math.round(3 * m) } }, text: 'Заказы размещены. Осака и Мукден работают в три смены.' }) });
 decJ('economy', { id: 'j_oil', name: 'Новые промыслы на Борнео', desc: 'Бурить глубже и дальше в джунгли. Нефть — то, без чего не ходит ни флот, ни хозяйство.', cost: '−18 млн', ok: S => S.treasury >= 18 && Game.sphHeld('nan'), once: true,
@@ -795,7 +795,7 @@ UI.pressPage = async function (news) {
   if (!news.length && S.turn % 2) return;
   await Modal.open(`<div class="dk-np jp-np">
       <div class="dk-np-mast"><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS.japan}</svg><span>Токийский вестник</span><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS.japan}</svg></div>
-      <div class="dk-np-date">Токио · ${date} · ${S.year - 1925}-й год эры Сёва · проверено Информационным бюро</div>
+      <div class="dk-np-date">Токио · ${date} · ${S.year - 1925}-й год эры Шова · проверено Информационным бюро</div>
       ${news.map((h, i) => `<article class="${i ? '' : 'lead'}"><h3>${esc(h.head)}</h3><p>${esc(Game.fmt(h.text))}</p></article>`).join('')}
       <div class="dk-np-off">${off.map(([t, x]) => `<div><b>${esc(t)}</b><p>${esc(x)}</p></div>`).join('')}</div>
       ${ch.length ? `<div class="fx-list">${UI.changes(ch)}</div>` : ''}
