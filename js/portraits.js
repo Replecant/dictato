@@ -292,9 +292,11 @@ const Portrait = (() => {
       default: s += `<ellipse cx="100" cy="110" rx="47" ry="56" fill="${sk}"/>`;
     }
     if (p.blush) s += `<ellipse cx="74" cy="130" rx="9" ry="5" fill="#e06666" opacity="0.28"/><ellipse cx="126" cy="130" rx="9" ry="5" fill="#e06666" opacity="0.28"/>`;
-    if (p.beard === 'full') s += `<path d="M54 118 Q56 176 100 178 Q144 176 146 118 Q142 152 122 154 Q100 160 78 154 Q58 152 54 118 Z" fill="${p.hairColor}"/>`;
-    if (p.beard === 'sideburns') s += `<path d="M51 94 Q47 140 72 158 Q86 152 82 134 Q66 126 62 98 Z M149 94 Q153 140 128 158 Q114 152 118 134 Q134 126 138 98 Z" fill="${p.hairColor}"/>`;
-    if (p.beard === 'chinstrap') s += `<path d="M51 102 Q50 174 100 182 Q150 174 149 102 L142 104 Q140 160 100 169 Q60 160 58 104 Z" fill="${p.hairColor}"/>`;
+    // бороды нарисованы под овал: ширину подгоняем под лицо, как причёски
+    const bfit = `translate(100 0) scale(${(FACE_FIT[p.face] || FACE_FIT.oval)[0]} 1) translate(-100 0)`;
+    if (p.beard === 'full') s += `<g transform="${bfit}"><path d="M53 104 Q57 128 80 133 Q100 127 120 133 Q143 128 147 104 Q152 172 100 181 Q48 172 53 104 Z" fill="${p.hairColor}"/><ellipse cx="100" cy="147" rx="13" ry="7.5" fill="${sk}"/></g>`;
+    if (p.beard === 'sideburns') s += `<g transform="${bfit}"><path d="M51 94 Q47 140 72 158 Q86 152 82 134 Q66 126 62 98 Z M149 94 Q153 140 128 158 Q114 152 118 134 Q134 126 138 98 Z" fill="${p.hairColor}"/></g>`;
+    if (p.beard === 'chinstrap') s += `<g transform="${bfit}"><path d="M52 102 Q50 174 100 182 Q150 174 148 102 L141 104 Q140 158 100 167 Q60 158 59 104 Z" fill="${p.hairColor}"/></g>`;
     // глаза
     if (p.eyes === 'sleepy') {
       s += `<path d="M76 108 Q83 112 90 108" stroke="#1d1d1d" stroke-width="3" fill="none"/><path d="M110 108 Q117 112 124 108" stroke="#1d1d1d" stroke-width="3" fill="none"/>`;
