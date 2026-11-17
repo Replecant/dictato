@@ -18,7 +18,18 @@ const altPairs = () => {
     ...(S.era === 'house' ? [['Страны иногда обращаются с просьбами', 'Трон, Гильдия, Орден и дома иногда обращаются с просьбами'], ['Торговых договоров пока нет', 'Торговых соглашений пока нет']] : []),
   ];
 };
-const altText = s => (typeof s === 'string' && altOn() ? altPairs().reduce((a, [f, t]) => a.split(f).join(t), s) : s);
+// «Тучи над миром»: тон сухой, меняются только подсказки бюджета, где названы силы из обычной игры
+const DARK_ERAS = ['dark70', 'dark70i', 'dark70j'];
+const darkOn = () => !!S && DARK_ERAS.includes(S.era);
+const darkPairs = () => {
+  const F = REGIONS[S.region].factions, N = NEW_FACTIONS[S.era] || {}, sh = k => (F[k] || N).short || '';
+  return [
+    ['Лояльность армии и генералов', `Сила и верность: ${sh('hawks')}`], ['Страх; урезание радует либералов', `Страх; урезание радует: ${sh('liberals')}`],
+    ['Экономика и народ, но образованных либералов больше', `Экономика и народ; заодно крепнут: ${sh('liberals')}`], ['Народ и левые; выше нормы портят экономику', `Народ и ${sh('left')}; выше нормы портят экономику`],
+    ['Народ и страх; либералы злятся', `Народ и страх; злятся: ${sh('liberals')}`], ['Доход; богачи и экономика страдают', `Доход; страдают ${sh('oligarchs')} и экономика`],
+  ];
+};
+const altText = s => (typeof s !== 'string' ? s : altOn() ? altPairs().reduce((a, [f, t]) => a.split(f).join(t), s) : darkOn() ? darkPairs().reduce((a, [f, t]) => a.split(f).join(t), s) : s);
 const _eraTextAlt = Game.eraText;
 Game.eraText = s => altText(_eraTextAlt(s));
 const _modalOpenAlt = Modal.open;
@@ -34,6 +45,7 @@ const ALT_COST = { defense: 12, economy: 15, propaganda: 8, foreign: 10 };
 const _eraLookAlt = Game.eraLook;
 Game.eraLook = function () {
   _eraLookAlt.call(Game);
+  if (darkOn() && !(typeof darkPre === 'function' && darkPre())) { for (const [r, c] of Object.entries(ALT_COST)) if (!/[−-]\d|Стоит \d/.test(ROLES[r].actionDesc)) ROLES[r].actionDesc = `${ROLES[r].actionDesc} Стоит ${c} млн.`; return; }
   if (!altOn()) return;
   const E = ALT_ECO[S.era];
   if (E) { ROLES.economy.action = E[0]; ROLES.economy.actionDesc = E[1]; }
