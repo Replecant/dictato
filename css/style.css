@@ -1546,3 +1546,15 @@ body[data-era="crown"] { --bg: #170f12; --wood: #1f1418; --panel: #281a1f; --pan
 body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
 img, svg { -webkit-user-drag: none; }
+
+/* ---------- режим подсказок ---------- */
+#btn-hints.on { border-color: var(--brass); color: var(--brass); }
+.hint-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin: 12px 0 4px; }
+.hint-card { padding: 11px 14px 10px; border: 1px dashed var(--brass-dim); border-left: 3px solid var(--brass); border-radius: 3px; background: color-mix(in srgb, var(--panel) 82%, var(--brass) 5%); }
+.hint-card p { margin: 3px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--fg); }
+.hint-card ul { margin: 6px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.45; color: var(--fg); }
+.hint-card li + li { margin-top: 3px; }
+.hint-k { font: 10.5px/1.2 "PT Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); }
+.hint-adv { border-left-color: var(--amber); } .hint-adv .hint-k { color: var(--amber); }
+.hint-intro { grid-column: 1 / -1; }
+.hint-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
