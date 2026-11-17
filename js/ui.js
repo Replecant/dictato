@@ -973,7 +973,8 @@ function boot() {
   $('#btn-folder-close').onclick = () => { UI.setWorld(false); $('#btn-folder').focus(); };
   $('#btn-continue').onclick = () => UI.continueGame();
   $('#btn-begin').onclick = () => UI.beginGame();
-  $('#btn-back').onclick = () => UI.title();
+  // из настройки доп. мира «Назад» возвращает на обложку этого мира, а не в основное меню
+  $('#btn-back').onclick = () => { const e = UI.setup && UI.setup.era, w = /^dark70/.test(e) ? true : ['realm', 'burg', 'crown'].includes(e) ? 'realm' : ['ship', 'house', 'domin'].includes(e) ? 'void' : false; UI.title(); if (w) UI.setWorld(w); };
   $('#setup-name').oninput = e => { UI.setup.name = e.target.value; UI.renderSetupPortrait(); };
   $('#setup-title').onchange = e => { UI.setup.title = e.target.value; UI.renderSetupPortrait(); };
   $('#setup-country').oninput = e => { UI.setup.country = e.target.value; };
