@@ -200,7 +200,7 @@ Object.assign(Game, {
     else if (id === 'burn') { const s = D.sec[a]; if (a === 'throne' || !Game.dmAlive(a) || Game.dmVotes() < 4 || !Game.spend()) return null; s.burned = true; D.burnedN++; D.queue = D.queue.filter(q => q.sec !== a); for (const o of Object.keys(D.sec)) if (Game.dmAlive(o)) D.sec[o].stab = clamp(D.sec[o].stab + 6); fx = { fear: 12, support: -6, fac: { faith: { a: 5 }, left: { a: -8 }, hawks: { a: 4 } }, dmSyn: ['pilot', -15] }; text = `${SECTORS[a].name}: очищение огнём. Совет одобрил, флот исполнил. Угрозы в секторе больше нет. Сектора, впрочем, тоже. В ведомости он переведён в графу «решённые вопросы».`; }
     else if (id === 'hire') { const c = 6 + D.staff[a] * 3; if (!PALATY[a] || D.staff[a] >= 5 || S.treasury < c || !Game.spend()) return null; D.staff[a]++; fx = { treasury: -c, fac: { liberals: { a: 3 } } }; text = `${PALATY[a][0]}: набран миллиард писцов. Первые полгода они будут оформлять самих себя.`; }
     else if (id === 'purge') { if (!Game.spend()) return null; const k = Object.keys(D.staff).sort((x, y) => D.staff[y] - D.staff[x])[0]; if (D.staff[k] > 1) D.staff[k]--; D.backlog = clamp(D.backlog - 26); fx = { fear: 5, fac: { liberals: { a: -9 } }, dmSyn: ['chanc', -10] }; text = `Чистка Канцелярии. Затор убавился: вместе с теми, кто его создавал. ${PALATY[k][0]} поредела.`; }
-    else if (id === 'oil') { if (S.treasury < 6 || !Game.spend()) return null; D.backlog = clamp(D.backlog - Math.max(3, Math.round(11 * m('oil')))); fx = { treasury: -6, fac: { new: { a: 4 } }, dmSyn: ['gear', 4] }; text = 'Жрецы Шестерни окурили счётные машины ладаном и смазали священным маслом. Машины заработали быстрее. Жрецы уверяют, что дело в ладане.'; }
+    else if (id === 'oil') { if (S.treasury < 6 || !Game.spend()) return null; D.backlog = clamp(D.backlog - Math.max(2, Math.round(9 * m('oil')))); fx = { treasury: -6, fac: { new: { a: 4 } }, dmSyn: ['gear', 4] }; text = 'Жрецы Шестерни окурили счётные машины ладаном и смазали священным маслом. Машины заработали быстрее. Жрецы уверяют, что дело в ладане.'; }
     else if (id === 'night') { if (D.nightAt === S.turn) return null; D.nightAt = S.turn; D.backlog = clamp(D.backlog - 4); fx = { support: -1, fac: { liberals: { a: -3 } } }; text = 'Объявлена ночная смена. Писцы спят за столами по очереди. Затор убавился.'; }
     else if (id === 'flatter') { if (!D.syn[a] || !Game.spend()) return null; fx = { dmSyn: [a, Math.max(2, Math.round(9 * m('fl:' + a)))] }; text = `${SYNOD[a].name} выслушан с почтением. Вы кивали четыре часа. Он оценил.`; }
     else if (id === 'gift') { if (!D.syn[a] || S.treasury < 10 || !Game.spend()) return null; fx = { treasury: -10, dmSyn: [a, Math.max(3, Math.round(14 * m('gf:' + a)))] }; text = `${SYNOD[a].name} получил в дар реликвию: фалангу святого. У святого, судя по числу таких даров, было сорок пальцев.`; }
@@ -225,14 +225,14 @@ Object.assign(Game, {
     for (const [k, N] of Object.entries(SECTORS)) {
       const s = D.sec[k]; if (!Game.dmAlive(k)) continue;
       const soft = N.foe ? clamp(1.3 - (S.rel[N.foe] || 0) / 100, 0.5, 1.3) : clamp(1.2 - S.fear / 160, 0.6, 1.2);
-      s.thr = clamp(s.thr + N.grow * 1.45 * soft * (S.diff === 'hard' ? 1.25 : S.diff === 'easy' ? 0.8 : 1) + (Math.random() * 2 - 1));
+      s.thr = clamp(s.thr + N.grow * 1.8 * soft * (S.diff === 'hard' ? 1.25 : S.diff === 'easy' ? 0.8 : 1) + (Math.random() * 2 - 1));
       s.stab = clamp(s.stab + (40 - s.thr) / 12 + TITHE[s.tithe][2] + (D.staff.cadre - 2) * 0.4 + (S.support - 50) / 60);
       if (s.thr >= 80 && S.turn % 2 === 0) rep.warn.push(`${N.name}: угроза (${N.kind}) у предела. Наместник шлёт астропатов; двое уже сгорели от усердия.`);
       if (s.stab <= 0) { s.lost = true; D.queue = D.queue.filter(q => q.sec !== k); S.support = clamp(S.support - 4); S.fac.hawks.a = clamp(S.fac.hawks.a - 6); D.syn.pilot.l = clamp(D.syn.pilot.l - 12); rep.warn.push(`Сектор потерян: ${N.name}. Канцелярия узнала об этом из недоимки по десятине.`); }
     }
     // машина
     if (Game.dmAlive('forge')) S.economy = clamp(S.economy + 0.6);
-    D.backlog = clamp(D.backlog + 7 + D.queue.length * 2 + Game.dmLost() - D.staff.orders * 2 - D.staff.archive * 0.5);
+    D.backlog = clamp(D.backlog + 9 + D.queue.length * 2.5 + Game.dmLost() - D.staff.orders * 2 - D.staff.archive * 0.5);
     if (D.backlog >= 75 && S.turn % 3 === 0) rep.warn.push(`Затор в Канцелярии: ${Math.round(D.backlog)}%. Приказы идут на ${Game.dmDelay()} кв. дольше; десятина оседает в коридорах.`);
     if (Math.random() < D.staff.archive * 0.035) { if (Math.random() < 0.5) { S.treasury += 8; rep.lines.push('Великий архив нашёл забытую десятину за 38-е тысячелетие. С процентами: +8.'); } else { const k = pick(Object.keys(SECTORS).filter(Game.dmAlive)); D.sec[k].thr = clamp(D.sec[k].thr - 10); rep.lines.push(`Великий архив нашёл целый флот, числившийся погибшим: стоял на консервации с пометкой «до востребования». Отправлен в сектор «${SECTORS[k].name}».`); } }
     else if (D.staff.archive <= 1 && Math.random() < 0.2) { S.treasury -= 5; rep.warn.push('Великий архив потерял ведомость целого субсектора. Десятина оттуда пришла, но оприходовать её некуда: −5.'); }
@@ -488,7 +488,7 @@ Game.endingHooks.push((type, E, verdicts) => {
     coup: ['Низложен', 'Капитул признал ваши толкования ересью. Вас заточили в келье под Троном. Сквозь потолок слышно, как новый регент объясняет, что Автократор всегда его любил.'],
     revolution: ['Ульи встали', 'Триллион человек поднялся по сорока тысячам ступеней. Они прошли мимо вас к Трону, посмотрели на Автократора и разошлись по сменам. Вас они не заметили. Это обиднее всего.'],
     exile: ['В бочке из-под масла', 'Каперы высадили вас на вольной станции. Здесь никто не кланяется и все торгуют с чужими. Вы открыли лавку реликвий. Пальцы святого Аврелия идут хорошо.'],
-    helicopter: ['В бочке из-под масла', 'Каперы вывезли вас и тайник. Тайник оказался легче, чем вы помнили: доля каперов.'],
+    helicopter: ['В бочке из-под масла', 'Каперы вывезли вас в бочке и высадили на первой же станции. За провоз взяли цепь регента: больше у вас ничего не было. На станции цепь уже продаётся; подлинность никто не оспаривает.'],
     retired: ['Сложил цепь', 'Вы сложили цепь регента сами. Такого не случалось шесть тысяч лет, и формы для этого нет. Канцелярия до сих пор числит вас регентом. Жалованье приходит.'],
   }[type];
   if (T) { E.title = T[0]; E.text = T[1]; }

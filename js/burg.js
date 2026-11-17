@@ -23,7 +23,7 @@ Object.assign(REGIME_TYPES, {
   heir: {
     name: 'Наследник', icon: '🎩',
     desc: 'Ваш дед был лордом-мэром. Отец тоже. Оба кончили плохо, но с почестями. Старые семьи считают вас своим, казна по привычке пуста, а портрет прадеда смотрит со стены с выражением «ну-ну».',
-    fx: { support: 5, treasury: -10 }, fac: { oligarchs: { a: 8 }, faith: { a: 10 }, liberals: { a: -8 }, left: { a: -4 } }, rel: { kingdom: 8 },
+    fx: { support: 5, treasury: -4 }, fac: { oligarchs: { a: 8 }, faith: { a: 10 }, liberals: { a: -8 }, left: { a: -4 } }, rel: { kingdom: 8 },
   },
   hero: {
     name: 'Отставной герой', icon: '🗡️',
@@ -338,7 +338,7 @@ Object.assign(Game, {
     return { text, changes };
   },
   // --- торговля ---
-  bgRouteIncome(k) { const B = Game.bg(), R = B.routes[k], D = ROUTES[k], blocked = B.quests.some(q => QUEST_DECK.find(x => x.id === q.id).route === k) && R.guard <= 0; return D.base * (0.6 + R.lvl * 0.4) * clamp((S.rel[k] || 40) / 55, 0.3, 1.4) * TARIFFS[B.tariff][1] * (blocked ? 0.3 : 1) * (B.hot === k ? 1.5 : 1); },
+  bgRouteIncome(k) { const B = Game.bg(), R = B.routes[k], D = ROUTES[k], blocked = B.quests.some(q => QUEST_DECK.find(x => x.id === q.id).route === k) && R.guard <= 0; return D.base * (0.58 + R.lvl * 0.35) * clamp((S.rel[k] || 40) / 55, 0.3, 1.4) * TARIFFS[B.tariff][1] * (blocked ? 0.3 : 1) * (B.hot === k ? 1.5 : 1); },
   bgTradeIncome() { return Math.round(Object.keys(ROUTES).reduce((a, k) => a + Game.bgRouteIncome(k), 0) * 10) / 10; },
   bgRouteActions(k) { const R = Game.bg().routes[k]; return [
     { id: 'mission', name: 'Торговая миссия', cost: R.lvl >= 3 ? 'путь налажен' : `−${R.lvl === 1 ? 9 : 16} млн`, ok: R.lvl < 3 && S.treasury >= (R.lvl === 1 ? 9 : 16), fx: { treasury: R.lvl === 1 ? -9 : -16, rel: { [k]: 4 }, fac: { oligarchs: { a: 3 } }, bgRoute: [k, 'lvl'] } },
@@ -391,9 +391,9 @@ Object.assign(Game, {
     if (t === 0) { S.fac.oligarchs.a = clamp(S.fac.oligarchs.a + 0.4); S.economy = clamp(S.economy + 0.2); }
     if (t === 2) { S.fac.oligarchs.a = clamp(S.fac.oligarchs.a - 0.6); if (S.fac.new) S.fac.new.s = clamp(S.fac.new.s + 0.3); for (const k of Object.keys(ROUTES)) S.rel[k] = clamp((S.rel[k] || 0) - 0.2); }
     // город ворчит по привычке: чем лучше дела, тем быстрее к ним привыкают
-    if (S.support > 55) S.support = clamp(S.support - (S.support - 55) * 0.09);
-    if (S.economy > 58) S.economy = clamp(S.economy - (S.economy - 58) * 0.07);
-    if (S.army > 65) S.army = clamp(S.army - (S.army - 65) * 0.06);
+    if (S.support > 55) S.support = clamp(S.support - (S.support - 55) * 0.14);
+    if (S.economy > 58) S.economy = clamp(S.economy - (S.economy - 58) * 0.11);
+    if (S.army > 65) S.army = clamp(S.army - (S.army - 65) * 0.1);
     B.stamps = Game.bgStampMax();
   },
 });
@@ -427,7 +427,7 @@ Game.previewHooks.push((fx, out) => {
 });
 Game.quarterHooks.push(rep => { if (!isBurg()) return; Game.bgQuarter(rep); rep.lines = rep.lines.map(l => Game.eraText(l)); rep.warn = rep.warn.map(l => Game.eraText(l)); });
 Game.incomeHooks.push(() => (isBurg() ? { label: 'Торговые пути', v: Game.bgTradeIncome() } : null));
-Game.incomeHooks.push(() => (isBurg() ? { label: 'Сорок семь гильдий: содержание совета', v: -12 } : null));
+Game.incomeHooks.push(() => (isBurg() ? { label: 'Сорок семь гильдий: содержание совета', v: -11 } : null));
 Game.incomeHooks.push(() => (isBurg() && Game.bg().comm.length ? { label: 'Комиссии заседают', v: -Game.bg().comm.length } : null));
 Game.coupHooks.push(() => (isBurg() ? Math.max(0, 3 - Game.bgSeats()) * 0.012 - 0.01 : 0));
 const _blocB = Game.bloc;

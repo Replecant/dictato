@@ -234,7 +234,7 @@ const JP_SVC_NAME = { army: 'армии', navy: 'флота', civ: 'гражда
 // ============================================================
 // ТРИ ПЕЧАТИ: кабинет стоит, пока в нём люди двора, армии и флота
 // ============================================================
-const JP_SEAL_MIN = 25; // ниже — отзывают министра
+const JP_SEAL_MIN = 20; // ниже — отзывают министра
 Object.assign(Game, {
   jpSeals() {
     const P = Game.jpParty(), one = (f, name, icon) => { const a = S.fac[f] ? S.fac[f].a : 50; return { f, name, icon, a, lvl: a < JP_SEAL_MIN + 8 ? 'bad' : a < 45 ? 'warn' : 'good', word: a < JP_SEAL_MIN ? 'отзывает своего человека' : a < JP_SEAL_MIN + 8 ? 'на грани разрыва' : a < 45 ? 'колеблется' : 'поддерживает кабинет' }; };
@@ -546,7 +546,7 @@ Object.assign(Game, {
     if (K.kodo.w >= 22 && K.kodo.l < 32) rep.warn.push('Общество императорского пути сильно и враждебно. Особая полиция докладывает о «группах прямого действия».');
     const q = Game.jpDialQ();
     // аппетиты штабов растут сами: то, чем они были довольны год назад, сегодня уже мало
-    S.fac.hawks.a = clamp(S.fac.hawks.a + q.army - 0.6); S.fac.new.a = clamp(S.fac.new.a + q.navy - 0.6);
+    S.fac.hawks.a = clamp(S.fac.hawks.a + q.army - 0.3); S.fac.new.a = clamp(S.fac.new.a + q.navy - 0.3);
     // слабейшее хозяйство из трёх: война в Китае и две гонки вооружений сразу
     S.economy = clamp(S.economy - (Game.sphHeld('chi') && !Game.sph().chi.auto ? 0.3 : 0.1)); S.fac.liberals.a = clamp(S.fac.liberals.a + q.court);
     for (const s of Game.jpSeals()) if (s.lvl === 'bad' && !(P.civMin && s.f !== 'liberals')) rep.warn.push(`${s.name}: ${s.word}. Ниже ${JP_SEAL_MIN} — и кабинет падёт.`);
@@ -829,7 +829,7 @@ Object.assign(UI, {
         <div class="dec-fx">${acts.map(a => `<div class="dec-row"><span class="dec-tag">${esc(a.name)}${a.odds !== undefined ? ` · ${Math.round(a.odds * 100)}%` : ''}</span>${UI.fxChips(Game.previewFx(a.odds !== undefined ? Game.mergeFxD({ ...a.fx }, a.win) : a.fx))}</div>`).join('')}</div></article>`; };
     return `<p class="lede">Премьер в Японии не вождь. Трон поручил вам кабинет, и кабинет стоит, пока в нём остаются люди двора, армии и флота. Каждая из трёх сил может его свалить, отозвав своего человека. Армия и флот к тому же враждуют между собой: что дано одному, отнято у другого. Вся игра — в том, чтобы никто из троих не дошёл до края.</p>
       <section class="card"><div class="eyebrow">Три печати и народ</div>${jpSealsHtml()}
-        <p class="muted small">Аппетиты штабов растут сами: одобрение армии и флота убывает на 0,6 в квартал. С учётом рычагов курса сейчас выходит ${jpNum(q.army - 0.6)} у армии и ${jpNum(q.navy - 0.6)} у флота.</p></section>
+        <p class="muted small">Аппетиты штабов растут сами: одобрение армии и флота убывает на 0,3 в квартал. С учётом рычагов курса сейчас выходит ${jpNum(q.army - 0.6)} у армии и ${jpNum(q.navy - 0.6)} у флота.</p></section>
       <div class="cr mt">
         <section class="card" style="flex:1.4"><div class="eyebrow">Ассоциация помощи трону · парламент</div>
           <div class="jp-diet" role="img" aria-label="Места клик в парламенте">${Object.keys(CLIQ).map(k => `<span class="${P.cl[k].l >= 50 ? 'ok' : 'no'} jp-c-${k}" style="flex:${P.cl[k].w}" title="${esc(CLIQ[k].name)}: ${Math.round(P.cl[k].w)}%">${Math.round(P.cl[k].w)}</span>`).join('')}</div>

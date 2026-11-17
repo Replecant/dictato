@@ -77,7 +77,8 @@ const _ecoFxNF = Game.economyFx;
 Game.economyFx = function (id) { const r = _ecoFxNF.call(Game, id); if (r && noFund() && r.fx && r.fx.schedule) for (const s of r.fx.schedule) if (s.fx) delete s.fx.swiss; return r; };
 const _budgetNF = Game.budgetCalc;
 Game.budgetCalc = function () { if (noFund() && S.budget) S.budget.palace = 0; const B = _budgetNF.call(Game); if (noFund()) B.palace = 0; return B; };
-Game.quarterHooks.push(() => { if (noFund()) S.swiss = 0; });
+// ползунка «нужд дворца» здесь нет, поэтому и штрафа к верности советников за его ноль быть не должно
+Game.quarterHooks.push(() => { if (!noFund()) return; S.swiss = 0; for (const a of Object.values(S.adv)) a.loy = clamp(a.loy + 1); });
 const _modalNF = Modal.open;
 Modal.open = function (html, ...rest) { return _modalNF.call(Modal, noFund() && typeof html === 'string' ? html.replace(/<div class="rep-stat"><span>🏦[\s\S]*?<\/div>/g, '') : html, ...rest); };
 const _renderNF = UI.render;

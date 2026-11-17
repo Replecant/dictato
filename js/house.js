@@ -196,7 +196,7 @@ Object.assign(Game, {
   },
   hsCore() { return HOUSES[S.regime].core; },
   hsTop() { const v = Game.hs().val; return Object.keys(v).sort((a, b) => v[b] - v[a])[0]; },
-  hsOutput() { const H = Game.hs(); return Math.round((5 + H.harv * 2.8 + [0, 0, 2][H.pol] + (H.val.ruth >= 50 ? 1.5 : 0) + Object.values(H.riv).filter(r => r.out).length * 3 - (H.war ? 2 : 0)) * clamp(S.economy / 55, 0.6, 1.3) * 10) / 10; },
+  hsOutput() { const H = Game.hs(); return Math.round((6 + H.harv * 3 + [0, 0, 2][H.pol] + (H.val.ruth >= 50 ? 1.5 : 0) + Object.values(H.riv).filter(r => r.out).length * 3 - (H.war ? 2 : 0)) * clamp(S.economy / 55, 0.6, 1.3) * 10) / 10; },
   hsRivals() { return Object.keys(Game.hs().riv); },
   hsPillars() {
     const H = Game.hs(), R = Game.hsRivals();
@@ -208,7 +208,7 @@ Object.assign(Game, {
       ['Имя', H.val[Game.hsTop()] >= 75, 'главная ценность дома от 75: вас должны либо любить, либо бояться, либо быть вам должны'],
     ];
   },
-  hsStrikeChance() { const H = Game.hs(), n = Game.hsPillars().filter(p => p[1]).length; return clamp(0.1 + n * 0.16 - H.susp / 300 + (S.diff === 'easy' ? 0.08 : S.diff === 'hard' ? -0.08 : 0), 0.05, 0.9); },
+  hsStrikeChance() { const H = Game.hs(), n = Game.hsPillars().filter(p => p[1]).length; return clamp(0.08 + n * 0.15 - H.susp / 200 + (S.diff === 'easy' ? 0.08 : S.diff === 'hard' ? -0.08 : 0), 0.05, 0.9); },
   hsAct(id, arg) {
     const H = Game.hs(); let fx = {}, text = '', free = false;
     const m = k => { const x = Game.dealInfo('hs:' + k).mult; Game.noteDeal('hs:' + k); return x; };
@@ -245,7 +245,7 @@ Object.assign(Game, {
   },
   hsStrike() {
     const H = Game.hs(), n = Game.hsPillars().filter(p => p[1]).length;
-    if (S.turn < 20 || n < 3 || H.busy || !Game.spend()) return null;
+    if (S.turn < 24 || n < 3 || H.busy || !Game.spend()) return null;
     H.busy = true;
     (async () => { try { await VN.play(Game.hsStrikeScene()); } finally { H.busy = false; } const end = darkEnd(); if (end) { Game.ending(end); UI.showEnding(); } else { Game.save(); UI.render(); } })();
     return { text: '', changes: [] };
@@ -267,6 +267,7 @@ Object.assign(Game, {
     if (v.ruth >= 50) { S.fear = clamp(S.fear + 0.7); S.support = clamp(S.support - 0.4); H.trust = clamp(H.trust - 0.6); }
     if (v.schem >= 50) { for (const r of Object.values(H.riv)) if (!r.out) r.str = clamp(r.str - 0.5); H.susp = clamp(H.susp + 0.3); for (const a of Object.values(S.adv)) a.loy = clamp(a.loy - 0.3); }
     if (Game.hsTop() !== core) { for (const f of DEFAULT_PILLARS[S.regime]) if (S.fac[f]) S.fac[f].a = clamp(S.fac[f].a - 1.2); if (S.turn % 4 === 0) rep.warn.push(`Дом теряет лицо: ${HOUSES[S.regime].name} славился другим. Те, кто служил вам за «${VAL[core][0].toLowerCase()}», в растерянности.`); }
+    S.economy = clamp(S.economy + 0.4); // приправа кормит планету
     // кочевники
     if (H.pol === 0) { S.treasury -= 3; H.trust = clamp(H.trust + 1); } else if (H.pol === 2) { H.trust = clamp(H.trust - 1.5); H.nstr = clamp(H.nstr - (S.army >= 65 ? 2 : 0.5)); }
     H.nstr = clamp(H.nstr + 0.5, 10, 100);
@@ -280,8 +281,12 @@ Object.assign(Game, {
     if (S.turn >= Q.due) {
       if (H.spice >= Q.need) { H.spice -= Q.need; Q.paid++; Q.missed = 0; S.rel.throne = clamp((S.rel.throne || 0) + 4); rep.lines.push(`Квота Трона сдана: ${Q.need} мер приправы. Имперский приёмщик пересчитал дважды и не нашёл, к чему придраться. Расстроился.`); }
       else { const lack = Math.round(Q.need - H.spice); H.spice = 0; Q.missed++; S.rel.throne = clamp((S.rel.throne || 0) - Math.min(22, 6 + lack)); H.susp = clamp(H.susp + 6); rep.warn.push(`Квота Трона сорвана: не хватило ${lack} мер. Император «огорчён». В переводе с придворного это третья степень из четырёх.`); }
+      if (Q.missed >= 3) { S.pendingEnd = 'revoked'; rep.warn.push('Третья сорванная квота подряд. Трон отзывает лен.'); }
       Q.need = Math.round(Q.need * 1.07 + 2 + (S.diff === 'hard' ? 3 : S.diff === 'easy' ? -1 : 0)); Q.due = S.turn + 4;
     }
+    // большой запас не лежит спокойно: усушка, воровство и приёмщики
+    if (H.spice > 80) { const rot = Math.round((H.spice - 80) * 0.12); if (rot > 0) { H.spice -= rot; if (S.turn % 3 === 0) rep.lines.push(`Хранилища переполнены: за квартал «усохло» мер приправы: ${rot}. Счётчик подозревает не усушку.`); } }
+    if (H.susp >= 85 && S.turn % 3 === 1 && H.spice >= 20) { const take = Math.round(H.spice / 2); H.spice -= take; H.susp = clamp(H.susp - 12); rep.warn.push(`Имперская ревизия: приёмщики Трона вывезли «на хранение» ${take} мер приправы. Расписку выдали.`); }
     // подозрения Трона
     H.susp = clamp(H.susp + (S.army >= 75 ? 0.8 : 0) + (H.spice >= 60 ? 1.2 : 0) + (H.spice >= 100 ? 1 : 0) + (H.trust >= 70 ? 0.6 : 0) - ((S.rel.throne || 0) >= 65 ? 0.6 : 0) - 0.2);
     // дома-соперники
@@ -295,7 +300,7 @@ Object.assign(Game, {
       else if (W.front <= -45) rep.warn.push(`Война идёт плохо: ${HOUSES[W.foe].name} теснит гвардию к Карраку.`);
     } else if (S.turn >= 6 && (Q.missed >= 2 || H.susp >= 72) && Math.random() < 0.35) {
       const k = Game.hsRivals().filter(x => !H.riv[x].out).sort((a, b) => (S.rel[a] || 0) - (S.rel[b] || 0))[0];
-      if (k) { H.war = { foe: k, front: -6, since: S.turn, by: 'them' }; S.rel[k] = clamp((S.rel[k] || 0) - 20); Q.missed = 0; rep.warn.push(`Трон дозволил войну домов против вас: ${HOUSES[k].name} высаживает гвардию на Сушь. Император сослался на «сомнения в вашем усердии». Приказы фронту — на вкладке «Планета Сушь».`); }
+      if (k) { H.riv[k].str = clamp(H.riv[k].str + 12, 20, 95); H.war = { foe: k, front: -12, since: S.turn, by: 'them' }; S.rel[k] = clamp((S.rel[k] || 0) - 20); Q.missed = 0; rep.warn.push(`Трон дозволил войну домов против вас: ${HOUSES[k].name} высаживает гвардию на Сушь. Император сослался на «сомнения в вашем усердии». Приказы фронту — на вкладке «Планета Сушь».`); }
     }
     if (H.susp >= 85 && S.turn % 3 === 0) rep.warn.push('Трон подозревает вас почти открыто. При дворе о вашем доме говорят в прошедшем времени: тренируются.');
   },
@@ -342,7 +347,8 @@ Game.incomeHooks.push(() => (isHouse() && Game.hs().war ? { label: 'Война �
 Game.incomeHooks.push(() => (isHouse() && Game.hs().pol === 0 ? { label: 'Вода кочевникам', v: -3 } : null));
 Game.coupHooks.push(() => { if (!isHouse()) return 0; const H = Game.hs(); return (H.val.schem >= 60 ? 0.008 : 0) + (H.war && H.war.front <= -40 ? 0.03 : 0) - (H.val.ruth >= 60 ? 0.01 : 0) - (S.army >= 55 && S.fac.hawks.a >= 40 ? 0.012 : 0); });
 Game.revHooks.push(() => { if (!isHouse()) return 0; const H = Game.hs(); return (H.val.ruth >= 60 ? 0.015 : 0) - (H.val.noble >= 60 ? 0.012 : 0); });
-Game.forcedList.push(() => { if (!isHouse() || S.over || S.pendingEnd !== 'ousted') return null; return { title: 'Щиты погасли', bg: 'night', crisis: true, lines: [['defense', 'Они в цитадели, {addr}. Гвардия держит последнюю лестницу. Гильдейский грузовик на орбите берёт пассажиров; третьим классом.'], ['narrator', 'По закону о войне домов проигравший покидает планету с личными вещами. Личных вещей у вас оказалось немного.']], choices: [{ text: 'Сдать планету', fx: {}, res: 'Вы подписали уступку лена. Победитель был учтив и даже предложил воды на дорогу. Вода была платной.' }], after: darkEnd }; });
+Game.forcedList.push(() => { if (isHouse() && !S.over && S.pendingEnd === 'revoked') return { title: 'Указ Трона', bg: 'palace', crisis: true, lines: [['npc:emperor', 'Мы дали вам планету, чтобы получать с неё приправу. Приправы нет. Планета, следовательно, вам не нужна.'], ['foreign', 'Хм-м. Гонец ждёт подписи, {addr}. Имперский флот на орбите ждёт вместе с ним.']], choices: [{ text: 'Сдать печать наместника', fx: {}, res: 'Печать сдана. Гонец взвесил её на ладони: проверил, не подменили ли.' }], after: darkEnd };
+  if (!isHouse() || S.over || S.pendingEnd !== 'ousted') return null; return { title: 'Щиты погасли', bg: 'night', crisis: true, lines: [['defense', 'Они в цитадели, {addr}. Гвардия держит последнюю лестницу. Гильдейский грузовик на орбите берёт пассажиров; третьим классом.'], ['narrator', 'По закону о войне домов проигравший покидает планету с личными вещами. Личных вещей у вас оказалось немного.']], choices: [{ text: 'Сдать планету', fx: {}, res: 'Вы подписали уступку лена. Победитель был учтив и даже предложил воды на дорогу. Вода была платной.' }], after: darkEnd }; });
 const _blocH = Game.bloc;
 Game.bloc = function () { if (!isHouse()) return _blocH.call(Game); const H = Game.hs(); return H.war ? `Война домов: ${HOUSES[H.war.foe].short}` : H.susp >= 70 ? 'Под подозрением Трона' : 'Верный вассал Трона (пока)'; };
 
@@ -425,7 +431,7 @@ decH('social', { id: 'hs_terror', name: 'Показательная казнь �
 decH('social', { id: 'hs_feast', name: 'Пир для младших домов', desc: 'Сорок глав домов за одним столом. Каждое блюдо пробуют трижды.', cost: '−9 сол.', ok: S => S.treasury >= 9, repeat: true, run: (S, m) => ({ fx: { treasury: -9, fac: { oligarchs: { a: Math.round(9 * m) } }, hsVal: { schem: 2 } }, text: 'Пир прошёл без отравлений. По меркам Империи это безусловный светский успех.' }) });
 decH('economy', { id: 'hs_shield', name: 'Щитовая стена вокруг Каррака', desc: 'Защита от бурь и от гостей. Строить долго, гудит громко.', cost: '−16 сол.', ok: S => S.treasury >= 16, once: true, run: () => ({ fx: { treasury: -16, economy: 5, army: 4 }, text: 'Стена поднята. Буря прошла мимо. Червь, приползший на гул, постоял у стены и ушёл; его запомнили в лицо.' }) });
 decH('economy', { id: 'hs_levy', name: 'Набор в гвардию из водоносов', desc: 'Кто носил воду, понесёт клинок. Жалованье то же: вода.', cost: '−8 сол.', ok: S => S.treasury >= 8, repeat: true, run: (S, m) => ({ fx: { treasury: -8, army: Math.round(8 * m), support: -3, fac: { left: { a: -5 }, hawks: { a: 3 } }, hsSusp: 2 }, text: 'Набор проведён. Новобранцы держат клинок как коромысло. Мастер меча обещает исправить за месяц.' }) });
-decH('economy', { id: 'hs_squeeze', name: 'Выжать пески', desc: 'Сборщики работают без остановки, люди тоже. Приправы больше, всего остального меньше.', cost: '', repeat: true, run: (S, m) => ({ fx: { hsSpice: Math.round(8 * m), economy: -2, support: -2, hsTrust: -5, hsVal: { ruth: 3 } }, text: 'Добыча выросла. Один сборщик ушёл в песок вместе с экипажем: червь. В ведомости записано «естественная убыль».' }) });
+decH('economy', { id: 'hs_squeeze', name: 'Выжать пески', desc: 'Сборщики работают без остановки, люди тоже. Приправы больше, всего остального меньше.', cost: '', repeat: true, run: (S, m) => ({ fx: { hsSpice: Math.round(8 * m), economy: -1, support: -2, hsTrust: -5, hsVal: { ruth: 3 } }, text: 'Добыча выросла. Один сборщик ушёл в песок вместе с экипажем: червь. В ведомости записано «естественная убыль».' }) });
 DEMANDS.push(
   { id: 'hs_d_t', countries: ['throne'], eras: [HOUSE], text: () => 'Прислать ко двору заложника из вашего рода', fx: () => ({ rel: { throne: 14 }, hsSusp: -6, fac: { hawks: { a: -4 } } }) },
   { id: 'hs_d_g', countries: ['guild'], eras: [HOUSE], text: () => 'Отгрузить Гильдии приправу мимо квоты', fx: () => ({ hsSpice: -6, rel: { guild: 14 }, hsSusp: 3 }) },
@@ -536,9 +542,10 @@ Game.endingHooks.push((type, E, verdicts) => {
   const T = {
     crowned: ['Падишах-автократор', { noble: `Вы на Золотом Троне. Собрание домов кричало ваше имя; Гильдия везла гостей на коронацию даром. Первым указом вы снизили квоту приправы. Вторым — вернули. Двор надо на что-то содержать, а двор, как выяснилось, теперь ваш.`, ruth: `Вы на Золотом Троне. В тронном зале пахнет дымом. Собрание домов присягнуло стоя, быстро и не поднимая глаз. Вам подали корону прежнего императора. Она оказалась вам велика; велели подогнать.`, schem: `Вы на Золотом Троне. Никто не может объяснить, как это вышло: всё случилось по закону, по завещанию и само собой. Вам кланяются те, кто вам должен. Должны вам, как выяснилось, все.` }[top] + ` ${name} правит Империей. Летописцы уже пишут, что так было предначертано.`],
     fallen: ['Вычеркнут из Книги домов', `Заговор раскрыт. ${name} вычеркнут из Книги домов вместе со страницей. Вас не казнили: император милостив. Вас поселили при дворе, шутом. У вас колпак с бубенцами и лучшее место в тронном зале. Каждый день вы видите трон. Вблизи.`],
+    revoked: ['Лен отозван', `Три года подряд Трон не получал своей приправы. Указ пришёл с имперским гонцом: лен планеты Сушь отозван «за нерадение». ${name} возвращается на родовой мир: тесный, сырой и без приправы. Говорят, там даже идёт дождь. Вы теперь знаете, что это не утешение.`],
     ousted: ['Третьим классом', `Сушь перешла к победителю. По закону о войне домов вы покинули планету с личными вещами. Грузовик Гильдии идёт до ближайшего мира четыре месяца. В третьем классе нет иллюминаторов, зато есть время подумать, где именно всё пошло не так.`],
-    exile: ['Третьим классом', 'Гильдия возит всех, кто платит. Вы заплатили. На новом мире вас никто не знает. Счёт в Гильдии цел; это единственное, что от дома осталось.'],
-    helicopter: ['Третьим классом', 'Грузовик Гильдии, койка, чемодан. Счёт в Гильдии цел.'],
+    exile: ['Третьим классом', 'Гильдия возит всех, кто платит. Вы заплатили родовым перстнем: больше было нечем. На новом мире вас никто не знает. От дома остались имя и привычка проверять еду.'],
+    helicopter: ['Третьим классом', 'Грузовик Гильдии, койка, чемодан. В чемодане мундир с гербом дома. Носить его негде, выбросить не поднимается рука.'],
     coup: ['Дом сменил хозяина', 'Вам оставили жизнь и одну цистерну. Вы живёте в дальнем крыле собственной цитадели. Новый владыка иногда зовёт вас к столу: показывает гостям. Вы едите молча и запоминаете лица.'],
     revolution: ['Вода взяла своё', 'Толпа вошла в цитадель и первым делом открыла ваш сад. Пальмы выпили за час. Вас не тронули: вам дали бурдюк и место в очереди к цистерне. Очередь длинная. Вы стоите в ней каждый день.'],
     retired: ['Уступил лен', 'Вы передали планету наследнику и удалились в дальнее поместье. Говорят, там даже идёт дождь. Вы каждый раз выходите посмотреть.'],
@@ -609,7 +616,7 @@ Object.assign(UI, {
         <section class="card" style="flex:1.3"><div class="eyebrow">Приправа</div><h2 class="rm-rank">${Math.round(H.spice)} мер в хранилищах</h2>
           <p><b>Квота Трона: ${Q.need} мер</b> через ${left <= 1 ? 'квартал' : left + ' кв.'} · добыча ${String(out).replace('.', ',')} мер за квартал · сборщиков: ${H.harv} из 4</p>
           ${UI.meter('К квоте', clamp(H.spice / Q.need * 100), H.spice + out * Math.max(0, left) >= Q.need ? 'good' : 'bad')}
-          <p class="muted small">Квота растёт каждый год. Сдали — милость Трона растёт. Сорвали — падает, а после двух срывов подряд Трон дозволит соседям войну против вас. Излишки можно продать Гильдии, поднести Трону или копить: большой запас (от 80 мер) — рычаг против самого императора, и он это знает.</p>
+          <p class="muted small">Квота растёт каждый год. Сдали — милость Трона растёт. Сорвали — падает, после двух срывов подряд Трон дозволит соседям войну против вас, а после трёх отзовёт лен. Излишки можно продать Гильдии, поднести Трону или копить: большой запас (от 80 мер) — рычаг против самого императора, но выше восьмидесяти он «усыхает», а при сильных подозрениях за ним приедут приёмщики, и он это знает.</p>
           <div class="acts">${hsBtn('hs:harv', 'Купить сборщик', H.harv >= 4 ? 'больше пески не выдержат' : `−${10 + H.harv * 6} сол. · добыча +3`, H.harv < 4 && S.treasury >= 10 + H.harv * 6)}${hsBtn('hs:sell', 'Продать 6 мер Гильдии', H.sellAt === S.turn ? 'в этом квартале уже продавали' : '+8 сол. · без приказа', H.spice >= 6 && H.sellAt !== S.turn, true)}${hsBtn('hs:deliver', 'Поднести 5 мер Трону', H.giftAt === S.turn ? 'в этом квартале уже подносили' : 'милость +, подозрения − · без приказа', H.spice >= 5 && H.giftAt !== S.turn, true)}</div></section>
       </div>
       ${W ? `<section class="card mt hs-war"><div class="eyebrow">Война домов · ${esc(HOUSES[W.foe].name)} · идёт ${S.turn - W.since} кв. · ${W.by === 'you' ? 'по вашему прошению' : 'по дозволению Трона против вас'}</div>
@@ -634,8 +641,8 @@ Object.assign(UI, {
           <div class="acts">${hsBtn('hs:court', 'Раболепствовать при дворе', '−8 сол. · подозрения −', S.treasury >= 8)}</div></section>
         <section class="card" style="flex:1.3"><div class="eyebrow">Заговор · опор ${n} из 5</div>
           <ul class="hs-pillars">${P.map(p => `<li class="${p[1] ? 'ok' : ''}"><b>${p[1] ? '◆' : '◇'} ${p[0]}</b> <span class="muted small">${p[2]}</span></li>`).join('')}</ul>
-          <p class="muted small">Ударить можно с шестого года и при трёх опорах. Шанс сейчас: <b>${Math.round(Game.hsStrikeChance() * 100)}%</b>. Способ определит главная ценность дома (${VAL[Game.hsTop()][0].toLowerCase()}). Промах — конец дома.</p>
-          <div class="acts">${hsBtn('hs:strike', 'Удар по Трону', S.turn < 20 ? 'рано: двор ещё присматривается' : n < 3 ? 'мало опор' : 'приказ · пути назад не будет', S.turn >= 20 && n >= 3)}</div></section>
+          <p class="muted small">Ударить можно с седьмого года и при трёх опорах. Шанс сейчас: <b>${Math.round(Game.hsStrikeChance() * 100)}%</b>. Способ определит главная ценность дома (${VAL[Game.hsTop()][0].toLowerCase()}). Промах — конец дома.</p>
+          <div class="acts">${hsBtn('hs:strike', 'Удар по Трону', S.turn < 24 ? 'рано: двор ещё присматривается' : n < 3 ? 'мало опор' : 'приказ · пути назад не будет', S.turn >= 24 && n >= 3)}</div></section>
       </div>`;
   },
 });

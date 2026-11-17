@@ -402,7 +402,7 @@ Object.assign(Game, {
   // Вотум недоверия
   rmVoteScene() {
     const R = Game.rm(), v = Game.rmVotes();
-    if (v >= 3 || S.turn < 6 || S.turn - R.voteAt < 6) return null;
+    if (v >= 3 || S.turn < 8 || S.turn - R.voteAt < 6) return null;
     R.voteAt = S.turn;
     const foe = Object.keys(R.council).filter(k => !R.council[k].toad).sort((a, b) => R.council[a].l - R.council[b].l)[0], F = MAGI[foe];
     return {
