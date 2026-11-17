@@ -1187,7 +1187,8 @@ body[data-era^="dark70"] .eyebrow { color: #a04a40; }
 .suc-rows { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
 .suc-row { display: grid; grid-template-columns: 46px minmax(0, 1.5fr) minmax(0, 1fr) 34px; gap: 12px; align-items: center; }
 .suc-face { width: 46px; height: 55px; overflow: hidden; border-radius: 3px; background: #2a2d2f; border: 1px solid #3a3d3f; }
-.suc-face svg { width: 100%; height: 100%; display: block; }
+.suc-face { width: 56px; height: 62px; }
+.suc-face svg { width: 100%; height: 100%; display: block; transform: scale(1.38); transform-origin: 50% 24%; }
 .suc-row.me .suc-face { border-color: #9a2a22; }
 .agit-forces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 22px; margin: 10px 0; }
 .agit-force { min-width: 0; display: flex; flex-direction: column; gap: 3px; }

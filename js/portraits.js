@@ -263,12 +263,19 @@ const Portrait = (() => {
         s += `<path d="M64 200 Q60 218 70 236" fill="none" stroke="#e2b33c" stroke-width="2.5"/>`; // аксельбант
     }
     if (p.sash) s += `<path d="M48 198 L64 192 L150 240 L120 240 Z" fill="${p.sash}" opacity="0.92"/><path d="M56 195 L60 193 L136 240 L130 240 Z" fill="#f0c419" opacity="0.7"/>`;
-    const n = Math.min(p.medals || 0, 16);
-    for (let i = 0; i < n; i++) {
-      const col = i % 4, row = Math.floor(i / 4);
-      const x = 118 + col * 11, y = 204 + row * 12;
-      const mc = MEDAL_COLORS[(i * 7 + row) % MEDAL_COLORS.length];
-      s += `<rect x="${x - 4}" y="${y - 3}" width="8" height="4" fill="${mc}"/><circle cx="${x}" cy="${y + 5}" r="3.6" fill="#e2b33c" stroke="#9a7417" stroke-width="0.8"/>`;
+    // Награды — орденская колодка на левой стороне груди: ровные ряды планок, без висящих кружков.
+    // Не рисуется на одежде, где ей не место; на штатском — один ряд.
+    const noMedals = ['montsuki', 'guayabera', 'poncho', 'robe', 'mantle', 'tracksuit', 'polo', 'hoodie', 'ermine', 'plate', 'starsuit', 'powerarmor'].includes(p.outfit);
+    const civil = ['suit', 'suit2000', 'frock'].includes(p.outfit);
+    const n = noMedals ? 0 : Math.min(p.medals || 0, civil ? 4 : 12);
+    if (n) {
+      const rows = Math.ceil(n / 4), x0 = 119, y0 = civil ? 214 : 209;
+      for (let i = 0; i < n; i++) {
+        const row = Math.floor(i / 4), inRow = Math.min(4, n - row * 4), col = i % 4;
+        const x = x0 + (4 - inRow) * 4 + col * 8, y = y0 + row * 5;
+        s += `<rect x="${x}" y="${y}" width="7" height="4" fill="${MEDAL_COLORS[(i * 7 + row) % MEDAL_COLORS.length]}" stroke="#1a1a1a" stroke-opacity="0.45" stroke-width="0.5"/><rect x="${x + 3}" y="${y}" width="1.2" height="4" fill="#f4f1ea" opacity="0.55"/>`;
+      }
+      if (!civil && !p.sash && (p.medals || 0) >= 10) s += `<path d="M135 ${y0 + rows * 5 + 3} l1.8 4 l4.3 .4 l-3.3 2.9 l1 4.2 l-3.8 -2.3 l-3.8 2.3 l1 -4.2 l-3.3 -2.9 l4.3 -.4 Z" fill="#e2b33c" stroke="#9a7417" stroke-width="0.7"/>`;
     }
     return s;
   }
