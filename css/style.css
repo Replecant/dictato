@@ -1522,3 +1522,22 @@ body[data-era="crown"] { --bg: #170f12; --wood: #1f1418; --panel: #281a1f; --pan
 .bg-quest.busy { border-top: 2px solid var(--amber); } .bg-quest:not(.busy) { border-top: 2px solid var(--red); }
 .bg-tariff { display: flex; gap: 4px; margin: 8px 0; }
 @media (max-width: 900px) { .bg-pile, .bg-quests, .bg-parties, .bg-routes { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- газеты отдельных миров: полноценный номер ---------- */
+.ax-np .ax-cols { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 0 26px; margin-top: 10px; padding-top: 4px; border-top: 3px double currentColor; }
+.ax-np .ax-col + .ax-col { border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent); padding-left: 26px; }
+.ax-np .ax-sec { padding: 10px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent); }
+.ax-np .ax-sec:last-child { border-bottom: 0; }
+.ax-np .ax-sec h4 { margin: 0 0 6px; font: 700 11px/1.2 "PT Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+.ax-np .ax-sec p { margin: 0 0 7px; font: 14.5px/1.45 "PT Serif", Georgia, serif; color: inherit; }
+.ax-np .ax-sec p:last-child { margin-bottom: 0; }
+.ax-np .ax-letter { font-style: italic; }
+.ax-np .ax-letter span { display: block; margin-top: 2px; font: 11px/1.3 "PT Mono", monospace; font-style: normal; opacity: 0.7; text-align: right; }
+.ax-np .ax-ad { padding: 6px 9px; border: 1px dashed color-mix(in srgb, currentColor 45%, transparent); font-size: 13.5px !important; }
+.ax-np .ax-photo { float: right; width: 38%; margin: 2px 0 8px 18px; }
+.ax-np .ax-photo > div { aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid color-mix(in srgb, currentColor 50%, transparent); filter: grayscale(0.85) contrast(1.05); }
+.ax-np .ax-photo svg { display: block; width: 100%; height: 100%; }
+.ax-np .ax-photo figcaption { margin-top: 3px; font: 10.5px/1.3 "PT Mono", monospace; opacity: 0.7; }
+.ax-np article.lead::after { content: ""; display: block; clear: both; }
+.ax-np [class$="-np-off"] { margin-top: 0; border-top: 3px double currentColor; }
+@media (max-width: 900px) { .ax-np .ax-cols { grid-template-columns: minmax(0, 1fr); } .ax-np .ax-col + .ax-col { border-left: 0; padding-left: 0; } .ax-np .ax-photo { float: none; width: 100%; margin: 0 0 8px; } }
