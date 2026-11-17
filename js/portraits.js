@@ -159,7 +159,7 @@ const Portrait = (() => {
       case 'starsuit': { // форма Флота: тёмный комбинезон, цветная кокетка по отделу, значок
         const dep = p.trim || '#c9a85a';
         s += `<path d="M22 240 Q28 200 78 176 L100 198 L122 176 Q172 200 178 240 L158 240 Q150 214 124 206 L100 216 L76 206 Q50 214 42 240 Z" fill="${dep}"/>`;
-        s += `<path d="M78 176 L100 198 L122 176" fill="none" stroke="${shade(dep, -45)}" stroke-width="2"/><path d="M84 180 Q100 192 116 180" fill="none" stroke="#12161a" stroke-width="4"/>`;
+        s += `<path d="M80 178 L100 197 L120 178 Q100 189 80 178 Z" fill="#12161a"/><path d="M78 176 L100 198 L122 176" fill="none" stroke="${shade(dep, -45)}" stroke-width="2"/>`;
         s += `<circle cx="132" cy="226" r="5" fill="#d8dccf" stroke="#12161a" stroke-width="1"/><ellipse cx="132" cy="226" rx="9" ry="2.6" fill="none" stroke="#d8dccf" stroke-width="1.4" transform="rotate(-20 132 226)"/>`;
         for (let i = 0; i < (p.pips || 0); i++) s += `<circle cx="${70 + i * 7}" cy="226" r="2.2" fill="#d8dccf"/>`;
         break;

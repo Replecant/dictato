@@ -145,7 +145,6 @@ const UI = {
       hat: [['Без убора', 'none'], ['Гарнитура связи', 'headset']],
       mustache: [['Нет', 'none'], ['Ниточка', 'pencil'], ['Пышные', 'thick'], ['Руль', 'handlebar']],
       beard: [['Нет', 'none'], ['Бородка', 'goatee'], ['Окладистая', 'full']],
-      glasses: [['Нет', 'none'], ['Круглые', 'round']],
       outfit: [['Форма Флота', 'starsuit']],
       hair: [['Короткие', 'short'], ['Площадка', 'flattop'], ['Выбритые виски', 'undercut'], ['Зачёс', 'slick'], ['Кудри', 'curly'], ['Ирокез', 'mohawk'], ['Длинные', 'long'], ['Лысина', 'bald']],
     } : st.era === 'crown' ? {

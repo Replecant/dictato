@@ -49,7 +49,7 @@ REGION_TITLES[STAR] = ['Капитан', 'Командор', 'Капитан-к�
 Object.assign(TITLE_FORMS, { 'Капитан': ['Капитана', 'Капитаном'], 'Командор': ['Командора', 'Командором'], 'Капитан-командор': ['Капитана-командора', 'Капитаном-командором'], 'Первый после устава': ['Первого после устава', 'Первым после устава'] });
 REGIME_SETUP_LOOK[STAR] = {
   acecap: LS('cmd', { face: 'square', hair: 'slick', hairColor: '#8a5a2a', mouth: 'smirk', pips: 4, eyeGlow: '' }),
-  appointee: LS('cmd', { face: 'long', hair: 'short', hairColor: '#2a2a2a', brows: 'worried', glasses: 'round', pips: 4, eyeGlow: '' }),
+  appointee: LS('cmd', { face: 'long', hair: 'short', hairColor: '#2a2a2a', brows: 'worried', pips: 4, eyeGlow: '' }),
   actingcap: LS('cmd', { skin: SKIN.tan, face: 'round', hair: 'bald', hairColor: '#555', mustache: 'thick', brows: 'bushy', pips: 2, eyeGlow: '' }),
 };
 for (const k of ['acecap', 'appointee', 'actingcap']) REGIME_LOOKS[k] = { ...REGIME_SETUP_LOOK[STAR][k], bluetooth: false };
