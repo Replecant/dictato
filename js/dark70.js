@@ -1118,9 +1118,9 @@ Object.assign(Game, {
     const C = Game.cw70();
     C.ju = clamp(C.ju + rnd(-3, 3) + (50 - C.ju) * 0.04);
     const third = C.ju >= 65 ? -0.6 : C.ju <= 35 ? 0.7 : 0; // враждуют — ищут вашей дружбы; сговорились — давят вместе
-    for (const k of ['japan', 'usa']) C[k] = clamp(C[k] + 0.7 + rnd(-1, 1.4) + third + ((S.rel[k] || 40) < 30 ? 0.5 : (S.rel[k] || 40) > 60 ? -0.8 : 0) + (C.arms < 35 ? 0.6 : 0));
-    C.arms = clamp(C.arms - 0.8);
-    if (C.arms < 35) { S.fac.hawks.a = clamp(S.fac.hawks.a - 1); rep.warn.push('Паритет вооружений потерян: генералы требуют денег на ракеты.'); }
+    for (const k of ['japan', 'usa']) C[k] = clamp(C[k] + 0.5 + rnd(-1, 1.4) + third + ((S.rel[k] || 40) < 30 ? 0.5 : (S.rel[k] || 40) > 60 ? -0.8 : 0) + (C.arms < 35 ? 0.6 : 0));
+    C.arms = clamp(C.arms - 0.55);
+    if (C.arms < 35) { S.fac.hawks.a = clamp(S.fac.hawks.a - 0.6); rep.warn.push('Паритет вооружений потерян: генералы требуют денег на ракеты.'); }
     if (Math.max(C.japan, C.usa) >= 75) rep.warn.push(`Холодная война: соперничество с ${C.japan >= C.usa ? 'Токио' : 'Вашингтоном'} на пределе, жди кризиса в одной из дальних стран.`);
   },
   cw70Crisis() {

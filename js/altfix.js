@@ -91,3 +91,11 @@ UI.render = function () {
   for (const li of document.querySelectorAll('#screen-game li')) if (/уход[ия]т (на|в) ваш/.test(li.textContent)) li.remove();
   const rc = document.querySelector('#retire-confirm p'); if (rc) rc.textContent = rc.textContent.replace(/ с \d+ [^ ]+ на счёте/, '');
 };
+
+// ---------- Рейх после смены власти: хозяйство больное, но не мёртвое ----------
+// Без этого низкая поддержка каждый квартал тянула экономику к нулю, налоги обнулялись и казна уходила в сотни минуса.
+Game.quarterHooks.push(() => {
+  if (!S || S.era !== 'dark70' || typeof Game.suc !== 'function' || Game.suc().phase !== 'rule') return;
+  S.economy = clamp(S.economy + (S.economy < 30 ? 1.3 : S.economy < 45 ? 0.7 : 0.2) + (S.support < 25 && S.fear >= 60 ? 0.6 : 0));
+  if (S.support < 20) S.support = clamp(S.support + 0.6); // привычка и страх держат страну дольше, чем любовь
+});
