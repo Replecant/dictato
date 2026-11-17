@@ -144,7 +144,7 @@ const AX = {
   house: {
     cls: 'rm-np hs-np', mast: () => '<div class="rm-np-mast">Каррацкий глашатай</div>', date: () => `Каррак, планета Сушь · ${S.q}-я четверть ${S.year} года · читается вслух у цистерн`, btn: 'Что решит дом?', off: 'rm-np-off',
     sect: { dec: 'Воля дома', ed: 'Слово глашатая', let: 'Сказано у цистерн', ads: 'Объявляется', wx: 'Пустыня', chr: 'Каррак' }, cap: 'Каррак. Цитадель на закате.',
-    ed: [['Дом стоит, вода течёт', 'Сборщики вернулись, цистерны не пусты, квота Трона собрана. Глашатай не помнит такой четверти и на всякий случай стучит по дереву, которого на Суши нет.'], ['Песок терпит, и мы потерпим', 'Вода дорога, приправа трудна, Трон нетерпелив. Но Сушь видела сорок владык и всех пережила. Этот дом хотя бы спрашивает, как нас зовут.'], ['Жажда — плохой советчик', 'У цистерн говорят лишнее. Глашатай напоминает: слова тоже испаряются, но медленнее, чем кажется, и оседают не там, где хотелось бы.']],
+    ed: [['Дом стоит, вода течёт', 'Сборщики вернулись, цистерны не пусты, квота Трона собрана. Глашатай не помнит такой четверти и на всякий случай стучит по дереву, которого на Суши нет.'], ['Песок терпит, и мы потерпим', 'Вода дорога, приправа трудна, Трон нетерпелив. Но Сушь видела сорок владык и всех пережила. Переживёт и эту четверть.'], ['Жажда — плохой советчик', 'У цистерн говорят лишнее. Глашатай напоминает: слова тоже испаряются, но медленнее, чем кажется, и оседают не там, где хотелось бы.']],
     praise: ['Младшие дома склонили головы. Некоторые — чтобы скрыть лица.', 'Гвардия исполнила, не спрашивая. За это её и держат.', 'Счётчики сочли и нашли верным, с поправкой на песок.', 'У цистерн решение обсудили и сошлись на том, что бывало хуже.'],
     cab: '{old} больше не служит дому. Служит ли кому-то ещё, выясняется. Его место занял {now}.', dip: '{c}: послы обменялись дарами. Дары проверены пробовальщиком.',
     status: () => { const H = Game.hs(), Q = H.quota;
@@ -181,6 +181,15 @@ const AX = {
   },
 };
 
+// Дополнение наборов из файлов press_alt_*.js: списки дописываются, передовицы получают варианты,
+// starts — материалы под конкретный старт (своя колонка, свои заметки и письма).
+const axAdd = (era, add) => { const C = AX[era];
+  for (const [k, v] of Object.entries(add)) {
+    if (k === 'ed') C.ed = C.ed.map((x, i) => [...(Array.isArray(x[0]) ? x : [x]), ...(v[i] || [])]);
+    else if (k === 'starts') C.starts = v;
+    else C[k] = [...(C[k] || []), ...v];
+  } };
+
 const _pressPageAX = UI.pressPage;
 UI.pressPage = async function (news) {
   const C = AX[S.era];
@@ -200,9 +209,12 @@ UI.pressPage = async function (news) {
     else if (it.kind === 'cabinet') dec.push(['Перемена в ближнем кругу', C.cab.replace('{old}', it.old).replace('{now}', it.now)]);
     else if (it.kind === 'diplo' && COUNTRIES[it.c]) dec.push(['Внешние дела', C.dip.replace('{c}', COUNTRIES[it.c].name)]);
   }
-  const ed = C.ed[S.support >= 50 ? 0 : S.support >= 30 ? 1 : 2];
+  const ST = (C.starts || {})[S.regime] || {};
+  const edv = C.ed[S.support >= 50 ? 0 : S.support >= 30 ? 1 : 2], ed = Array.isArray(edv[0]) ? pk(edv, 6) : edv;
   const let1 = S.economy < 40 ? pk(C.lettersBad, 1) : pk(C.letters, 1);
-  const let2 = S.fear >= 60 ? pk(C.lettersFear, 2) : pk(C.letters, 4);
+  const let2 = S.fear >= 60 ? pk(C.lettersFear, 2) : ST.letters && S.turn % 4 === 3 ? pk(ST.letters, 1) : pk(C.letters, 4);
+  const chr2 = ST.chron && S.turn % 2 === 0 ? pk(ST.chron, 1) : pk(C.chron, 3);
+  const stat = C.status(); if (ST.col && S.turn % 2) stat.splice(1, 0, [ST.col[0], pk(ST.col[1], 0)]);
   const letters = [[let1, signer(1)], [let2, signer(2)]].filter((l, i, a) => i === 0 || l[0] !== a[0][0]);
   const photo = typeof Scenes !== 'undefined' ? `<figure class="ax-photo"><div>${Scenes.svg(news.length && /войн|бо[йи]|мятеж|осад|напал|штурм|пожар/i.test(news[0].head) ? 'night' : 'palace', S.region)}</div><figcaption>${esc(C.cap)}</figcaption></figure>` : '';
   const lead = news.length
@@ -217,7 +229,7 @@ UI.pressPage = async function (news) {
         <div class="ax-col">
           ${news.length ? sec(C.sect.ed, `<p><b>${esc(ed[0])}.</b> ${esc(ed[1])}</p>`) : ''}
           ${sec(C.sect.dec, dec.slice(0, 4).map(([h, t]) => `<p><b>${esc(h)}.</b> ${esc(t)}</p>`).join(''))}
-          ${sec(C.sect.chr, [pk(C.chron, 0), pk(C.chron, 3)].filter((x, i, a) => a.indexOf(x) === i).map(x => `<p>${esc(x)}</p>`).join(''))}
+          ${sec(C.sect.chr, [pk(C.chron, 0), chr2].filter((x, i, a) => a.indexOf(x) === i).map(x => `<p>${esc(x)}</p>`).join(''))}
         </div>
         <div class="ax-col">
           ${sec(C.sect.let, letters.map(([t, who]) => `<p class="ax-letter">«${esc(t)}»<span>— ${esc(who)}</span></p>`).join(''))}
@@ -225,7 +237,7 @@ UI.pressPage = async function (news) {
           ${sec(C.sect.wx, `<p>${esc(pk(C.weather, 0))}</p>`)}
         </div>
       </div>
-      <div class="${C.off}">${C.status().map(([t, x]) => `<div><b>${esc(t)}</b><p>${esc(x)}</p></div>`).join('')}</div>
+      <div class="${C.off}">${stat.map(([t, x]) => `<div><b>${esc(t)}</b><p>${esc(x)}</p></div>`).join('')}</div>
       ${ch.length ? `<div class="fx-list">${UI.changes(ch)}</div>` : ''}
     </div>`, news.some(h => Game.histChoice(h)) ? C.btn : 'Дальше', 'wide');
 };
