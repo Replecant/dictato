@@ -1,6 +1,8 @@
 // Генератор карикатурных SVG-портретов.
 // Портрет собирается из деталей: лицо, причёска, головной убор, усы, очки, мундир, медали.
 const Portrait = (() => {
+  // ровный цвет выбритых висков: волосы, смешанные с кожей (вместо полупрозрачной накладки, которая давала «сетку»)
+  function mixHex(a, b, t) { const h = x => { x = x.replace('#', ''); if (x.length === 3) x = x.split('').map(c => c + c).join(''); return [0, 2, 4].map(i => parseInt(x.slice(i, i + 2), 16)); }; const A = h(a), B = h(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
   function shade(hex, amt) {
     const n = parseInt(hex.slice(1), 16);
     let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
@@ -324,7 +326,7 @@ const Portrait = (() => {
       case 'frown': s += `<path d="M86 149 Q100 139 114 149" fill="none" stroke="#5a2a1a" stroke-width="3" stroke-linecap="round"/>`; break;
       default: s += `<path d="M86 141 Q100 153 114 141" fill="none" stroke="#5a2a1a" stroke-width="3" stroke-linecap="round"/>`;
     }
-    const hc = p.hairColor;
+    const hc = p.hairColor, isHex = x => /^#[0-9a-f]{3,6}$/i.test(x || ''), stub = isHex(hc) && isHex(p.skin) ? mixHex(hc, p.skin, 0.5) : hc;
     switch (p.mustache) {
       case 'thick': s += `<path d="M76 137 Q89 125 100 132 Q111 125 124 137 Q112 142 100 137 Q88 142 76 137 Z" fill="${hc}"/>`; break;
       case 'walrus': s += `<path d="M72 150 Q78 124 100 129 Q122 124 128 150 Q115 139 100 141 Q85 139 72 150 Z" fill="${hc}"/>`; break;
@@ -380,15 +382,15 @@ const Portrait = (() => {
       case 'bald': s += `<path d="M52 108 Q48 88 60 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M148 108 Q152 88 140 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><ellipse cx="88" cy="68" rx="14" ry="6" fill="#fff" opacity="0.25"/>`; break;
       case 'combover': s += `<path d="M52 104 Q50 86 60 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M148 104 Q150 86 140 80" stroke="${hc}" stroke-width="9" fill="none" stroke-linecap="round"/>` + [62, 68, 74].map(y => `<path d="M60 ${y + 14} Q100 ${y - 10} 142 ${y + 10}" stroke="${hc}" stroke-width="3" fill="none"/>`).join(''); break;
       case 'afro': if (p.hat && p.hat !== 'none') s += `<path d="M50 104 Q44 70 70 58 L130 58 Q156 70 150 104 Q146 80 100 74 Q54 80 50 104 Z" fill="${hc}"/>`; break;
-      case 'buzz': s += `<path d="M55 96 Q53 58 100 56 Q147 58 145 96 Q140 76 100 74 Q60 76 55 96 Z" fill="${hc}" opacity="0.75"/>`; break;
+      case 'buzz': s += `<path d="M55 96 Q53 58 100 56 Q147 58 145 96 Q140 76 100 74 Q60 76 55 96 Z" fill="${stub}"/>`; break;
       case 'gelled': s += `<path d="M53 98 Q50 60 70 56 L76 42 L84 56 L92 38 L100 54 L110 38 L116 55 L126 42 L130 58 Q150 62 147 98 Q140 74 100 72 Q60 74 53 98 Z" fill="${hc}"/>`; break;
       case 'bun': s += `<path d="M53 100 Q50 56 100 52 Q150 56 147 100 Q141 72 100 70 Q59 72 53 100 Z" fill="${hc}"/><circle cx="100" cy="44" r="16" fill="${hc}"/>`; break;
       case 'long': s += `<path d="M50 160 Q40 60 100 50 Q160 60 150 160 Q146 100 138 84 Q100 70 62 84 Q54 100 50 160 Z" fill="${hc}"/>`; break;
-      case 'mohawk': s += `<path d="M55 96 Q53 60 100 58 Q147 60 145 96 Q140 78 100 76 Q60 78 55 96 Z" fill="${hc}" opacity="0.35"/><path d="M88 78 Q84 34 92 22 L96 34 L100 16 L104 34 L108 22 Q116 34 112 78 Q100 70 88 78 Z" fill="${hc}"/>`; break;
+      case 'mohawk': s += `<path d="M55 96 Q53 60 100 58 Q147 60 145 96 Q140 78 100 76 Q60 78 55 96 Z" fill="${stub}"/><path d="M88 78 Q84 34 92 22 L96 34 L100 16 L104 34 L108 22 Q116 34 112 78 Q100 70 88 78 Z" fill="${hc}"/>`; break;
       case 'flattop': s += `<path d="M53 98 L57 54 Q100 44 143 54 L147 98 Q141 76 100 74 Q59 76 53 98 Z" fill="${hc}"/><path d="M57 54 Q100 44 143 54" fill="none" stroke="${shade(hc, 35)}" stroke-width="2"/>`; break;
-      case 'topknot': s += `<path d="M55 96 Q53 60 100 58 Q147 60 145 96 Q140 78 100 76 Q60 78 55 96 Z" fill="${hc}" opacity="0.4"/><path d="M84 74 Q86 56 100 54 Q114 56 116 74 Q100 68 84 74 Z" fill="${hc}"/><circle cx="100" cy="44" r="11" fill="${hc}"/><rect x="92" y="52" width="16" height="4" rx="2" fill="${shade(hc, 45)}"/>`; break;
+      case 'topknot': s += `<path d="M55 96 Q53 60 100 58 Q147 60 145 96 Q140 78 100 76 Q60 78 55 96 Z" fill="${stub}"/><path d="M84 74 Q86 56 100 54 Q114 56 116 74 Q100 68 84 74 Z" fill="${hc}"/><circle cx="100" cy="44" r="11" fill="${hc}"/><rect x="92" y="52" width="16" height="4" rx="2" fill="${shade(hc, 45)}"/>`; break;
       case 'tonsure': s += `<path d="M52 104 Q46 66 72 58 Q84 70 100 72 Q116 70 128 58 Q154 66 148 104 Q144 84 130 76 Q100 88 70 76 Q56 84 52 104 Z" fill="${hc}"/>`; break;
-      case 'undercut': s += `<path d="M55 98 Q54 70 62 62 L138 62 Q146 70 145 98 Q140 80 100 78 Q60 80 55 98 Z" fill="${hc}" opacity="0.4"/><path d="M60 70 Q58 44 104 42 Q146 44 142 66 Q120 58 96 64 Q76 68 60 70 Z" fill="${hc}"/>`; break;
+      case 'undercut': s += `<path d="M55 98 Q54 70 62 62 L138 62 Q146 70 145 98 Q140 80 100 78 Q60 80 55 98 Z" fill="${stub}"/><path d="M60 70 Q58 44 104 42 Q146 44 142 66 Q120 58 96 64 Q76 68 60 70 Z" fill="${hc}"/>`; break;
       case 'braids': s += `<path d="M50 120 Q40 60 100 50 Q160 60 150 120 Q146 96 138 84 Q100 70 62 84 Q54 96 50 120 Z" fill="${hc}"/>` + [0, 1, 2, 3, 4].map(i => `<ellipse cx="${52 - (i % 2) * 3}" cy="${124 + i * 13}" rx="7" ry="8" fill="${hc}" stroke="${shade(hc, -30)}" stroke-width="0.8"/><ellipse cx="${148 + (i % 2) * 3}" cy="${124 + i * 13}" rx="7" ry="8" fill="${hc}" stroke="${shade(hc, -30)}" stroke-width="0.8"/>`).join(''); break;
       case 'curlyside': s += `<path d="M53 98 Q50 56 100 52 Q150 56 147 98 Q141 72 100 70 Q59 72 53 98 Z" fill="${hc}"/>` + [[56, 96], [58, 84], [144, 96], [142, 84]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${hc}"/>`).join(''); break;
       case 'romantic': s += `<path d="M52 102 Q46 60 78 50 Q96 40 120 46 Q152 54 149 100 Q146 80 134 72 Q138 86 127 92 Q126 75 108 70 Q112 82 100 87 Q95 72 82 72 Q64 78 60 96 Q56 98 52 102 Z" fill="${hc}"/>` + [[53, 100], [147, 100]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${hc}"/>`).join(''); break;
